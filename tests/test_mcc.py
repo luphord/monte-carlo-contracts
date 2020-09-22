@@ -1,9 +1,9 @@
 import unittest
 
-from monte-carlo-contracts import parser
+from mcc import parser
 
 
-class Testmonte-carlo-contracts(unittest.TestCase):
+class TestMonteCarloContracts(unittest.TestCase):
 
     def test_argument_parsing(self):
         args = parser.parse_args([])
