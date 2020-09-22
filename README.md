@@ -3,7 +3,10 @@
 [![PyPI package](https://img.shields.io/pypi/v/monte-carlo-contracts)](https://pypi.python.org/pypi/monte-carlo-contracts)
 [![Build status](https://img.shields.io/travis/luphord/monte-carlo-contracts)](https://travis-ci.org/luphord/monte-carlo-contracts)
 
-Composable financial contracts with Monte Carlo valuation 
+Composable financial contracts with Monte Carlo valuation.
+This module employs ideas from [How to Write a Financial Contract](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885) by S. L. Peyton Jones and J-M. Eber.
+However, the implementation is not based on functional programming but rather using an object oriented approach.
+Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
 ## Features
 * `monte-carlo-contracts` is a single file Python project
@@ -16,10 +19,10 @@ You can install `monte-carlo-contracts` using `pip` with
 pip3 install monte-carlo-contracts
 ```
 
-or you can simply download `monte-carlo-contracts.py` and then run it using `python3` with
+or you can simply download `mcc.py` and then run it using `python3` with
 
 ```bash
-python3 monte-carlo-contracts.py
+python3 mcc.py
 ```
 
 ## History
