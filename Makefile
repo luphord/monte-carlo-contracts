@@ -39,7 +39,11 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '__pycache__' -exec rm -fr {} +
 
 lint: ## check style with flake8
+	black --check .
 	flake8 mcc.py tests
+
+format:
+	black .
 
 test: ## run tests quickly with the default Python
 	python3 -m unittest discover tests -v
