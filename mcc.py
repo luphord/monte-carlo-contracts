@@ -10,13 +10,17 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser, Namespace
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import TypeVar
 
 T = TypeVar("T")
 
 
 class SimulatedCashflows:
+    pass
+
+
+class DateIndex:
     pass
 
 
@@ -33,7 +37,11 @@ class ObservableBool(ABC):
 
 
 class Contract(ABC):
-    pass
+    @abstractmethod
+    def generate_cashflows(
+        self: "Contract", acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        pass
 
 
 parser = ArgumentParser(description=__doc__)
