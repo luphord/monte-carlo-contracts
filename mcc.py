@@ -10,6 +10,31 @@ __version__ = """0.1.0"""
 
 
 from argparse import ArgumentParser, Namespace
+from abc import ABC
+from typing import TypeVar
+
+T = TypeVar("T")
+
+
+class SimulatedCashflows:
+    pass
+
+
+class Model:
+    pass
+
+
+class ObservableFloat(ABC):
+    pass
+
+
+class ObservableBool(ABC):
+    pass
+
+
+class Contract(ABC):
+    pass
+
 
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
