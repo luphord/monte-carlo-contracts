@@ -4,3 +4,4 @@ wheel==0.32.1
 flake8==3.7.9
 twine==3.1.1
 black>=20.8b0
+mypy==0.782
