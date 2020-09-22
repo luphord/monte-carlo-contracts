@@ -51,7 +51,7 @@ class ObservableBool(ABC):
 class Contract(ABC):
     @abstractmethod
     def generate_cashflows(
-        self: "Contract", acquisition_idx: DateIndex, model: Model
+        self, acquisition_idx: DateIndex, model: Model
     ) -> SimulatedCashflows:
         pass
 
