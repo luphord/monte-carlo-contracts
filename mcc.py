@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-'''Composable financial contracts with Monte Carlo valuation 
+'''Composable financial contracts with Monte Carlo valuation
 '''
 
 __author__ = '''luphord'''
