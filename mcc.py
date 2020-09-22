@@ -23,6 +23,11 @@ class SimulatedCashflows:
     )
     cashflows: np.array
 
+    def __init__(self, cashflows: np.array):
+        assert cashflows.dtype == self.dtype
+        assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
+        self.cashflows = cashflows
+
     @property
     def nsim(self) -> int:
         return self.cashflows.shape[0]
