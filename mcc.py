@@ -12,12 +12,24 @@ __version__ = """0.1.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from typing import TypeVar
+import numpy as np
 
 T = TypeVar("T")
 
 
 class SimulatedCashflows:
-    pass
+    dtype = np.dtype(
+        [("date", "datetime64[D]"), ("currency", np.string_, 3), ("value", np.float64)]
+    )
+    cashflows: np.array
+
+    @property
+    def nsim(self) -> int:
+        return self.cashflows.shape[0]
+
+    @property
+    def ncashflows(self) -> int:
+        return self.cashflows.shape[1]
 
 
 class DateIndex:
