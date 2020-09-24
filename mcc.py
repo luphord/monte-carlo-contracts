@@ -19,15 +19,16 @@ T = TypeVar("T")
 
 
 class SimulatedCashflows:
-    dtype = np.dtype(
-        [("date", "datetime64[D]"), ("currency", np.string_, 3), ("value", np.float64)]
-    )
+    dtype = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
     cashflows: np.array
 
-    def __init__(self, cashflows: np.array):
+    def __init__(self, cashflows: np.array, currencies: np.array):
         assert cashflows.dtype == self.dtype
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
+        assert currencies.dtype == (np.string_, 3)
+        assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
+        self.currencies = currencies
 
     @property
     def nsim(self) -> int:
