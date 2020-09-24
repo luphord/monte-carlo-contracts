@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from mcc import parser, SimulatedCashflows, Zero, One, Give, And, Or
+from mcc import parser, SimulatedCashflows, Model, Zero, One, Give, And, Or
 
 
 class TestMonteCarloContracts(unittest.TestCase):
@@ -31,3 +31,14 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_contract_creation(self):
         And(Or(Zero(), One("EUR")), Give(One("USD")))
+
+    def test_model_creation(self):
+        nsim = 100
+        dategrid = np.arange(
+            np.datetime64("2020-01-01"),
+            np.datetime64("2020-01-10"),
+            dtype="datetime64[D]",
+        )
+        numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
+        model = Model(dategrid, {}, numeraire, "EUR")
+        self.assertEqual(model.shape, (nsim, dategrid.size))

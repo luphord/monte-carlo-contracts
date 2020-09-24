@@ -11,7 +11,7 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from typing import TypeVar, Mapping
 import numpy as np
 from dataclasses import dataclass
 
@@ -43,7 +43,30 @@ class DateIndex:
 
 
 class Model:
-    pass
+    def __init__(
+        self,
+        dategrid: np.array,
+        simulated_stocks: Mapping[str, np.array],
+        numeraire: np.array,
+        numeraire_currency: str,
+    ):
+        assert dategrid.dtype == "datetime64[D]"
+        self.ndates = dategrid.size
+        self.dategrid = np.reshape(dategrid, (1, self.ndates))
+        assert numeraire.dtype == np.float
+        assert numeraire.ndim == 2
+        self.nsim = numeraire.shape[0]
+        self.shape = (self.nsim, self.ndates)
+        assert numeraire.shape == self.shape
+        self.numeraire_currency = numeraire_currency
+        for key, val in simulated_stocks.items():
+            assert (
+                val.dtype == np.float
+            ), f"Stock '{key}' is of dtype {val.dtype}, expecting float"
+            assert (
+                val.shape == self.shape
+            ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
+        self.simulated_stocks = simulated_stocks
 
 
 class ObservableFloat(ABC):
