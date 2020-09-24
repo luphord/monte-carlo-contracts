@@ -38,6 +38,15 @@ class SimulatedCashflows:
     def ncashflows(self) -> int:
         return self.cashflows.shape[1]
 
+    def __add__(self, other: "SimulatedCashflows") -> "SimulatedCashflows":
+        assert (
+            self.nsim == other.nsim
+        ), f"Cannot add cashflows with {self.nsim} and {other.nsim} simulations"
+        return SimulatedCashflows(
+            np.concatenate((self.cashflows, other.cashflows), axis=1),
+            np.concatenate((self.currencies, other.currencies)),
+        )
+
 
 class DateIndex:
     pass

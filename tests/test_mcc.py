@@ -34,6 +34,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf2.nsim, 2)
         self.assertEqual(cf2.ncashflows, 1)
         self.assertEqual(cf2.currencies.size, 1)
+        cf3 = cf1 + cf1
+        self.assertTrue((cf3.cashflows[:, :k] == cf1.cashflows).all())
+        self.assertTrue((cf3.cashflows[:, k:] == cf1.cashflows).all())
 
     def test_contract_creation(self):
         And(Or(Zero(), One("EUR")), Give(One("USD")))
