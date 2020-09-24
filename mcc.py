@@ -13,6 +13,7 @@ from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from typing import TypeVar
 import numpy as np
+from dataclasses import dataclass
 
 T = TypeVar("T")
 
@@ -59,6 +60,112 @@ class Contract(ABC):
         self, acquisition_idx: DateIndex, model: Model
     ) -> SimulatedCashflows:
         pass
+
+
+@dataclass
+class Zero(Contract):
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class One(Contract):
+    currency: str
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Give(Contract):
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class And(Contract):
+    contract1: Contract
+    contract2: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Or(Contract):
+    contract1: Contract
+    contract2: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Cond(Contract):
+    observable: ObservableBool
+    contract1: Contract
+    contract2: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Scale(Contract):
+    observable: ObservableFloat
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class When(Contract):
+    observable: ObservableBool
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Anytime(Contract):
+    observable: ObservableBool
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
+
+
+@dataclass
+class Until(Contract):
+    observable: ObservableBool
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> SimulatedCashflows:
+        raise NotImplementedError()
 
 
 parser = ArgumentParser(description=__doc__)

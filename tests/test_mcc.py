@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from mcc import parser, SimulatedCashflows
+from mcc import parser, SimulatedCashflows, Zero, One, Give, And, Or
 
 
 class TestMonteCarloContracts(unittest.TestCase):
@@ -28,3 +28,6 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertEqual(cf2.nsim, 2)
         self.assertEqual(cf2.ncashflows, 1)
+
+    def test_contract_creation(self):
+        And(Or(Zero(), One("EUR")), Give(One("USD")))
