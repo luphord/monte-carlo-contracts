@@ -11,11 +11,9 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import TypeVar, Mapping
+from typing import Mapping
 import numpy as np
 from dataclasses import dataclass
-
-T = TypeVar("T")
 
 
 class SimulatedCashflows:
