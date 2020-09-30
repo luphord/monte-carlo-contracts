@@ -135,6 +135,9 @@ class Model:
         assert date_index.index.size == self.nsim
         assert (date_index.index < self.ndates).all()
 
+    def generate_cashflows(self, contract: "Contract") -> SimulatedCashflows:
+        return contract.generate_cashflows(self.eval_date_index, self).apply_index()
+
 
 class ObservableFloat(ABC):
     pass

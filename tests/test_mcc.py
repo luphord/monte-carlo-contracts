@@ -83,3 +83,5 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf2.cashflows.shape, (model.nsim, 2))
         self.assertTrue((cf2.cashflows["value"] == 1).all())
         self.assertTrue((cf2.cashflows["index"] == 0).all())
+        cf3 = model.generate_cashflows(c2)
+        self.assertTrue(cf3, cf2.apply_index())
