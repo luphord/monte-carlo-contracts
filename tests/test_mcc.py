@@ -60,7 +60,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
 
-    def test_simple_cashflow_generation(self):
+    def test_one_cashflow_generation(self):
         ccy = "EUR"
         c = One(ccy)
         model = _make_model()
@@ -75,13 +75,15 @@ class TestMonteCarloContracts(unittest.TestCase):
             AssertionError, lambda: c.generate_cashflows(bad_eval_idx, model)
         )
 
-        c2 = And(c, One("USD"))
-        cf2 = c2.generate_cashflows(model.eval_date_index, model)
-        self.assertEqual(cf2.currencies.shape, (2,))
-        self.assertTrue(cf2.currencies[0], ccy)
-        self.assertTrue(cf2.currencies[1], "USD")
-        self.assertEqual(cf2.cashflows.shape, (model.nsim, 2))
-        self.assertTrue((cf2.cashflows["value"] == 1).all())
-        self.assertTrue((cf2.cashflows["index"] == 0).all())
-        cf3 = model.generate_cashflows(c2)
-        self.assertTrue(cf3, cf2.apply_index())
+    def test_and_cashflow_generation(self):
+        c = And(One("EUR"), One("USD"))
+        model = _make_model()
+        cf = c.generate_cashflows(model.eval_date_index, model)
+        self.assertEqual(cf.currencies.shape, (2,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertTrue(cf.currencies[1], "USD")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 2))
+        self.assertTrue((cf.cashflows["value"] == 1).all())
+        self.assertTrue((cf.cashflows["index"] == 0).all())
+        cf_alt = model.generate_cashflows(c)
+        self.assertTrue(cf_alt, cf.apply_index())
