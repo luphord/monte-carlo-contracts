@@ -88,6 +88,7 @@ class DateIndex:
 
     def __init__(self, index: np.array):
         assert index.dtype == np.int
+        assert index.ndim == 1
         self.index = index
 
 
@@ -126,6 +127,10 @@ class Model:
             ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
         self.simulated_stocks = simulated_stocks
 
+    def validate_date_index(self, date_index: DateIndex) -> None:
+        assert date_index.index.size == self.nsim
+        assert (date_index.index < self.ndates).all()
+
 
 class ObservableFloat(ABC):
     pass
@@ -158,6 +163,7 @@ class One(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
+        model.validate_date_index(acquisition_idx)
         cf = np.ones((model.nsim, 1), dtype=IndexedCashflows.dtype)
         cf["index"][:, 0] = acquisition_idx.index
         ccys = np.array([self.currency], dtype=(np.string_, _ccy_letters))
