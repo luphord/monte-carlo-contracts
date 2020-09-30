@@ -40,10 +40,11 @@ class IndexedCashflows:
     dtype: Final = np.dtype([("index", np.int), ("value", np.float64)])
     cashflows: Final[np.array]
     currencies: Final[np.array]
+    dategrid: Final[np.array]
     nsim: Final[int]
     ncashflows: Final[int]
 
-    def __init__(self, cashflows: np.array, currencies: np.array):
+    def __init__(self, cashflows: np.array, currencies: np.array, dategrid: np.array):
         assert (
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
@@ -52,6 +53,8 @@ class IndexedCashflows:
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
+        assert dategrid.dtype == "datetime64[D]"
+        self.dategrid = dategrid
         self.nsim = cashflows.shape[0]
         self.ncashflows = cashflows.shape[1]
 
@@ -59,14 +62,15 @@ class IndexedCashflows:
         assert (
             self.nsim == other.nsim
         ), f"Cannot add cashflows with {self.nsim} and {other.nsim} simulations"
+        assert (self.dategrid == other.dategrid).all()
         return IndexedCashflows(
             np.concatenate((self.cashflows, other.cashflows), axis=1),
             np.concatenate((self.currencies, other.currencies)),
+            self.dategrid,
         )
 
-    def apply_index(self, dategrid: np.array) -> SimulatedCashflows:
-        assert dategrid.dtype == "datetime64[D]"
-        dategrid = np.reshape(dategrid, (1, dategrid.size))
+    def apply_index(self) -> SimulatedCashflows:
+        dategrid = np.reshape(self.dategrid, (1, self.dategrid.size))
         dategrid = np.repeat(dategrid, self.nsim, axis=0)
         assert dategrid.shape[0] == self.nsim
         datecfs = np.zeros(self.cashflows.shape, dtype=SimulatedCashflows.dtype)
