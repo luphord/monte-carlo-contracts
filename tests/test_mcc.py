@@ -75,3 +75,12 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertRaises(
             AssertionError, lambda: c.generate_cashflows(eval_idx2, model)
         )
+
+        c2 = And(c, One("USD"))
+        cf2 = c2.generate_cashflows(eval_idx, model)
+        self.assertEqual(cf2.currencies.shape, (2,))
+        self.assertTrue(cf2.currencies[0], ccy)
+        self.assertTrue(cf2.currencies[1], "USD")
+        self.assertEqual(cf2.cashflows.shape, (model.nsim, 2))
+        self.assertTrue((cf2.cashflows["value"] == 1).all())
+        self.assertTrue((cf2.cashflows["index"] == 0).all())

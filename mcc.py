@@ -188,7 +188,9 @@ class And(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
+        cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
+        return cf1 + cf2
 
 
 @dataclass
