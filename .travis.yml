@@ -4,8 +4,6 @@ language: python
 dist: xenial
 python:
   - 3.8
-  - 3.7
-  - 3.6
 
 # Command to install project dependencies
 install:
