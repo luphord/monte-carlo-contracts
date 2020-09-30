@@ -73,12 +73,12 @@ class IndexedCashflows:
         )
 
     def apply_index(self) -> SimulatedCashflows:
-        dategrid = np.reshape(self.dategrid, (1, self.dategrid.size))
-        dategrid = np.repeat(dategrid, self.nsim, axis=0)
-        assert dategrid.shape[0] == self.nsim
+        dategrid_rep = np.reshape(self.dategrid, (1, self.dategrid.size))
+        dategrid_rep = np.repeat(dategrid_rep, self.nsim, axis=0)
+        assert dategrid_rep.shape[0] == self.nsim
         datecfs = np.zeros(self.cashflows.shape, dtype=SimulatedCashflows.dtype)
         for i, cf in enumerate(self.cashflows.T):
-            datecfs["date"][:, i] = dategrid[np.arange(self.nsim), cf["index"]]
+            datecfs["date"][:, i] = dategrid_rep[np.arange(self.nsim), cf["index"]]
             datecfs["value"][:, i] = cf["value"]
         return SimulatedCashflows(np.array(datecfs), self.currencies)
 
