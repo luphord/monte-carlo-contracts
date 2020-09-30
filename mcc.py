@@ -11,14 +11,15 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import Mapping
+from typing import Final, Mapping, Tuple
 import numpy as np
 from dataclasses import dataclass
 
 
 class SimulatedCashflows:
-    dtype = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
-    cashflows: np.array
+    dtype: Final = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
+    cashflows: Final[np.array]
+    currencies: Final[np.array]
 
     def __init__(self, cashflows: np.array, currencies: np.array):
         assert cashflows.dtype == self.dtype
@@ -51,6 +52,14 @@ class DateIndex:
 
 
 class Model:
+    dategrid: Final[np.array]
+    simulated_stocks: Final[Mapping[str, np.array]]
+    numeraire: Final[np.array]
+    numeraire_currency: Final[str]
+    ndates: Final[int]
+    nsim: Final[int]
+    shape: Final[Tuple[int, int]]
+
     def __init__(
         self,
         dategrid: np.array,
@@ -63,6 +72,7 @@ class Model:
         self.dategrid = np.reshape(dategrid, (1, self.ndates))
         assert numeraire.dtype == np.float
         assert numeraire.ndim == 2
+        self.numeraire = numeraire
         self.nsim = numeraire.shape[0]
         self.shape = (self.nsim, self.ndates)
         assert numeraire.shape == self.shape
