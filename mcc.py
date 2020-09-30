@@ -33,11 +33,29 @@ class SimulatedCashflows:
         self.nsim = cashflows.shape[0]
         self.ncashflows = cashflows.shape[1]
 
-    def __add__(self, other: "SimulatedCashflows") -> "SimulatedCashflows":
+
+class IndexedCashflows:
+    dtype: Final = np.dtype([("index", np.int), ("value", np.float64)])
+    cashflows: Final[np.array]
+    currencies: Final[np.array]
+    nsim: Final[int]
+    ncashflows: Final[int]
+
+    def __init__(self, cashflows: np.array, currencies: np.array):
+        assert cashflows.dtype == self.dtype
+        assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
+        assert currencies.dtype == (np.string_, 3)
+        assert currencies.shape == (cashflows.shape[1],)
+        self.cashflows = cashflows
+        self.currencies = currencies
+        self.nsim = cashflows.shape[0]
+        self.ncashflows = cashflows.shape[1]
+
+    def __add__(self, other: "IndexedCashflows") -> "IndexedCashflows":
         assert (
             self.nsim == other.nsim
         ), f"Cannot add cashflows with {self.nsim} and {other.nsim} simulations"
-        return SimulatedCashflows(
+        return IndexedCashflows(
             np.concatenate((self.cashflows, other.cashflows), axis=1),
             np.concatenate((self.currencies, other.currencies)),
         )
