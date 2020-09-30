@@ -16,6 +16,9 @@ import numpy as np
 from dataclasses import dataclass
 
 
+_ccy_letters = 3
+
+
 class SimulatedCashflows:
     dtype: Final = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
     cashflows: Final[np.array]
@@ -28,7 +31,7 @@ class SimulatedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.string_, 3)
+        assert currencies.dtype == (np.string_, _ccy_letters)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
@@ -49,7 +52,7 @@ class IndexedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.string_, 3)
+        assert currencies.dtype == (np.string_, _ccy_letters)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
@@ -81,7 +84,11 @@ class IndexedCashflows:
 
 
 class DateIndex:
-    pass
+    index: Final[np.array]
+
+    def __init__(self, index: np.array):
+        assert index.dtype == np.int
+        self.index = index
 
 
 class Model:
@@ -151,7 +158,10 @@ class One(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf = np.ones((model.nsim, 1), dtype=IndexedCashflows.dtype)
+        cf["index"][:, 0] = acquisition_idx.index
+        ccys = np.array([self.currency], dtype=(np.string_, _ccy_letters))
+        return IndexedCashflows(cf, ccys, model.dategrid)
 
 
 @dataclass

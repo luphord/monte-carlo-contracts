@@ -1,10 +1,10 @@
 import unittest
 
 import numpy as np
-from mcc import parser, IndexedCashflows, Model, Zero, One, Give, And, Or
+from mcc import parser, IndexedCashflows, DateIndex, Model, Zero, One, Give, And, Or
 
 
-def _make_model(nsim=100):
+def _make_model(nsim=100) -> Model:
     dategrid = np.arange(
         np.datetime64("2020-01-01"),
         np.datetime64("2020-01-10"),
@@ -59,3 +59,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         nsim = 100
         model = _make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
+
+    def test_simple_cashflow_generation(self):
+        ccy = "EUR"
+        c = One(ccy)
+        model = _make_model()
+        eval_idx = DateIndex(np.zeros((model.nsim,), dtype=np.int))
+        cf = c.generate_cashflows(eval_idx, model)
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == 1).all())
+        self.assertTrue((cf.cashflows["index"] == 0).all())
+        self.assertTrue(cf.currencies[0], ccy)
