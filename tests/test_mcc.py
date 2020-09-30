@@ -38,6 +38,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf3.cashflows[:, :k] == cf1.cashflows).all())
         self.assertTrue((cf3.cashflows[:, k:] == cf1.cashflows).all())
 
+        dategrid = np.array([np.datetime64("2030-07-14"), np.datetime64("2031-07-14")])
+        cf3.apply_index(dategrid)
+
     def test_contract_creation(self):
         And(Or(Zero(), One("EUR")), Give(One("USD")))
 

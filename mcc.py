@@ -24,7 +24,9 @@ class SimulatedCashflows:
     ncashflows: Final[int]
 
     def __init__(self, cashflows: np.array, currencies: np.array):
-        assert cashflows.dtype == self.dtype
+        assert (
+            cashflows.dtype == self.dtype
+        ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
         assert currencies.dtype == (np.string_, 3)
         assert currencies.shape == (cashflows.shape[1],)
@@ -42,7 +44,9 @@ class IndexedCashflows:
     ncashflows: Final[int]
 
     def __init__(self, cashflows: np.array, currencies: np.array):
-        assert cashflows.dtype == self.dtype
+        assert (
+            cashflows.dtype == self.dtype
+        ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
         assert currencies.dtype == (np.string_, 3)
         assert currencies.shape == (cashflows.shape[1],)
@@ -59,6 +63,17 @@ class IndexedCashflows:
             np.concatenate((self.cashflows, other.cashflows), axis=1),
             np.concatenate((self.currencies, other.currencies)),
         )
+
+    def apply_index(self, dategrid: np.array) -> SimulatedCashflows:
+        assert dategrid.dtype == "datetime64[D]"
+        dategrid = np.reshape(dategrid, (1, dategrid.size))
+        dategrid = np.repeat(dategrid, self.nsim, axis=0)
+        assert dategrid.shape[0] == self.nsim
+        datecfs = np.zeros(self.cashflows.shape, dtype=SimulatedCashflows.dtype)
+        for i, cf in enumerate(self.cashflows.T):
+            datecfs["date"][:, i] = dategrid[np.arange(self.nsim), cf["index"]]
+            datecfs["value"][:, i] = cf["value"]
+        return SimulatedCashflows(np.array(datecfs), self.currencies)
 
 
 class DateIndex:
