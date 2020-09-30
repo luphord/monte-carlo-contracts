@@ -17,6 +17,7 @@ from dataclasses import dataclass
 
 
 _ccy_letters = 3
+_null_ccy = "NNN"
 
 
 class SimulatedCashflows:
@@ -110,7 +111,8 @@ class Model:
     ):
         assert dategrid.dtype == "datetime64[D]"
         self.ndates = dategrid.size
-        self.dategrid = np.reshape(dategrid, (1, self.ndates))
+        assert self.ndates > 0
+        self.dategrid = np.reshape(dategrid, (self.ndates, 1))
         assert numeraire.dtype == np.float
         assert numeraire.ndim == 2
         self.numeraire = numeraire
@@ -126,6 +128,10 @@ class Model:
                 val.shape == self.shape
             ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
         self.simulated_stocks = simulated_stocks
+
+    @property
+    def eval_date(self) -> np.datetime64:
+        return self.dategrid[0]
 
     @property
     def eval_date_index(self) -> DateIndex:
@@ -160,7 +166,11 @@ class Zero(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        model.validate_date_index(acquisition_idx)
+        cf = np.zeros((model.nsim, 1), dtype=IndexedCashflows.dtype)
+        cf["index"][:, 0] = acquisition_idx.index
+        ccys = np.array([_null_ccy], dtype=(np.string_, _ccy_letters))
+        return IndexedCashflows(cf, ccys, model.dategrid)
 
 
 @dataclass

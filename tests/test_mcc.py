@@ -60,6 +60,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
 
+    def test_zero_cashflow_generation(self):
+        model = _make_model()
+        cf = model.generate_cashflows(Zero())
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertTrue(cf.currencies[0], "NNN")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == 0).all())
+        self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
+
     def test_one_cashflow_generation(self):
         ccy = "EUR"
         c = One(ccy)
