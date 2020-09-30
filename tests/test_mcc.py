@@ -4,6 +4,16 @@ import numpy as np
 from mcc import parser, IndexedCashflows, Model, Zero, One, Give, And, Or
 
 
+def _make_model(nsim=100):
+    dategrid = np.arange(
+        np.datetime64("2020-01-01"),
+        np.datetime64("2020-01-10"),
+        dtype="datetime64[D]",
+    )
+    numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
+    return Model(dategrid, {}, numeraire, "EUR")
+
+
 class TestMonteCarloContracts(unittest.TestCase):
     def test_argument_parsing(self):
         args = parser.parse_args([])
@@ -47,11 +57,5 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_model_creation(self):
         nsim = 100
-        dategrid = np.arange(
-            np.datetime64("2020-01-01"),
-            np.datetime64("2020-01-10"),
-            dtype="datetime64[D]",
-        )
-        numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
-        model = Model(dategrid, {}, numeraire, "EUR")
-        self.assertEqual(model.shape, (nsim, dategrid.size))
+        model = _make_model(nsim=nsim)
+        self.assertEqual(model.shape, (nsim, model.dategrid.size))
