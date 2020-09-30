@@ -127,6 +127,10 @@ class Model:
             ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
         self.simulated_stocks = simulated_stocks
 
+    @property
+    def eval_date_index(self) -> DateIndex:
+        return DateIndex(np.zeros((self.nsim,), dtype=np.int))
+
     def validate_date_index(self, date_index: DateIndex) -> None:
         assert date_index.index.size == self.nsim
         assert (date_index.index < self.ndates).all()
