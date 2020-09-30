@@ -132,7 +132,7 @@ class Contract(ABC):
     @abstractmethod
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         pass
 
 
@@ -140,7 +140,7 @@ class Contract(ABC):
 class Zero(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -150,7 +150,7 @@ class One(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -160,7 +160,7 @@ class Give(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -171,7 +171,7 @@ class And(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -182,7 +182,7 @@ class Or(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -194,7 +194,7 @@ class Cond(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -205,7 +205,7 @@ class Scale(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -216,7 +216,7 @@ class When(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -227,7 +227,7 @@ class Anytime(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
@@ -238,7 +238,7 @@ class Until(Contract):
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
-    ) -> SimulatedCashflows:
+    ) -> IndexedCashflows:
         raise NotImplementedError()
 
 
