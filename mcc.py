@@ -20,6 +20,8 @@ class SimulatedCashflows:
     dtype: Final = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
     cashflows: Final[np.array]
     currencies: Final[np.array]
+    nsim: Final[int]
+    ncashflows: Final[int]
 
     def __init__(self, cashflows: np.array, currencies: np.array):
         assert cashflows.dtype == self.dtype
@@ -28,14 +30,8 @@ class SimulatedCashflows:
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
-
-    @property
-    def nsim(self) -> int:
-        return self.cashflows.shape[0]
-
-    @property
-    def ncashflows(self) -> int:
-        return self.cashflows.shape[1]
+        self.nsim = cashflows.shape[0]
+        self.ncashflows = cashflows.shape[1]
 
     def __add__(self, other: "SimulatedCashflows") -> "SimulatedCashflows":
         assert (
