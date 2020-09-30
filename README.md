@@ -1,7 +1,7 @@
 # Monte Carlo Contracts
 
 [![PyPI package](https://img.shields.io/pypi/v/monte-carlo-contracts)](https://pypi.python.org/pypi/monte-carlo-contracts)
-[![Build status](https://img.shields.io/travis/luphord/monte-carlo-contracts)](https://travis-ci.org/luphord/monte-carlo-contracts)
+[![Build status](https://travis-ci.com/luphord/monte-carlo-contracts.svg?branch=master)](https://travis-ci.com/github/luphord/monte-carlo-contracts)
 
 Composable financial contracts with Monte Carlo valuation.
 This module employs ideas from [How to Write a Financial Contract](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885) by S. L. Peyton Jones and J-M. Eber.
