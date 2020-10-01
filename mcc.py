@@ -156,11 +156,15 @@ class Model:
 
 
 class ObservableFloat(ABC):
-    pass
+    @abstractmethod
+    def simulate(self, model: Model) -> np.array:
+        pass
 
 
 class ObservableBool(ABC):
-    pass
+    @abstractmethod
+    def simulate(self, model: Model) -> np.array:
+        pass
 
 
 class Contract(ABC):
