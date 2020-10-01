@@ -129,7 +129,7 @@ class DateIndex:
         idx[np.logical_or(idx == ndates, self.index == -1)] = -1
         assert idx.shape == (self.nsim,)
         assert (idx < ndates).all()
-        return idx
+        return DateIndex(idx)
 
 
 class Model:
@@ -320,7 +320,7 @@ class When(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         idx = acquisition_idx.next_after(self.observable.simulate(model))
-        return self.contract.generate_cashflows(DateIndex(idx), model)
+        return self.contract.generate_cashflows(idx, model)
 
 
 @dataclass
