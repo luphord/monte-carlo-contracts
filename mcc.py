@@ -80,6 +80,9 @@ class IndexedCashflows:
         cf["value"] *= factor
         return IndexedCashflows(cf, self.currencies, self.dategrid)
 
+    def __neg__(self) -> "IndexedCashflows":
+        return self * -1
+
     def apply_index(self) -> SimulatedCashflows:
         dategrid_rep = np.reshape(self.dategrid, (1, self.dategrid.size))
         dategrid_rep = np.repeat(dategrid_rep, self.nsim, axis=0)
@@ -201,8 +204,7 @@ class Give(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        cf = self.contract.generate_cashflows(acquisition_idx, model)
-        return cf * -1
+        return -self.contract.generate_cashflows(acquisition_idx, model)
 
 
 @dataclass
