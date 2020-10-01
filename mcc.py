@@ -77,6 +77,8 @@ class IndexedCashflows:
 
     def __mul__(self, factor: ArrayLike) -> "IndexedCashflows":
         cf = self.cashflows.copy()
+        if isinstance(factor, np.ndarray) and factor.ndim == 1:
+            factor = factor.reshape((self.nsim, 1))
         cf["value"] *= factor
         return IndexedCashflows(cf, self.currencies, self.dategrid)
 
@@ -96,11 +98,22 @@ class IndexedCashflows:
 
 class DateIndex:
     index: Final[np.array]
+    nsim: Final[int]
 
     def __init__(self, index: np.array):
         assert index.dtype == np.int
         assert index.ndim == 1
         self.index = index
+        self.nsim = index.size
+
+    def index_column(self, observable: np.array) -> np.array:
+        assert observable.ndim == 2
+        assert observable.shape[0] == self.nsim
+        assert (self.index < observable.shape[1]).all()
+        obs = observable[np.arange(self.nsim), self.index.clip(0)]
+        obs[self.index < 0] = 0
+        assert obs.shape == (self.nsim,)
+        return obs
 
 
 class Model:
@@ -159,6 +172,14 @@ class ObservableFloat(ABC):
     @abstractmethod
     def simulate(self, model: Model) -> np.array:
         pass
+
+
+@dataclass
+class KonstFloat(ObservableFloat):
+    constant: Number
+
+    def simulate(self, model: Model) -> np.array:
+        return self.constant * np.ones(model.shape, dtype=np.float)
 
 
 class ObservableBool(ABC):
@@ -255,7 +276,13 @@ class Scale(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf = self.contract.generate_cashflows(acquisition_idx, model)
+        obs = acquisition_idx.index_column(self.observable.simulate(model))
+        assert cf.cashflows.ndim == 2
+        assert cf.cashflows.shape[0] == model.nsim
+        assert obs.ndim == 1
+        assert obs.shape[0] == model.nsim
+        return cf * obs
 
 
 @dataclass

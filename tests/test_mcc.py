@@ -1,7 +1,19 @@
 import unittest
 
 import numpy as np
-from mcc import parser, IndexedCashflows, DateIndex, Model, Zero, One, Give, And, Or
+from mcc import (
+    parser,
+    IndexedCashflows,
+    DateIndex,
+    Model,
+    KonstFloat,
+    Zero,
+    One,
+    Give,
+    Scale,
+    And,
+    Or,
+)
 
 
 def _make_model(nsim=100) -> Model:
@@ -91,6 +103,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf.cashflows["value"] == -1).all())
+        self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
+
+    def test_scale_cashflow_generation(self):
+        model = _make_model()
+        cf = model.generate_cashflows(Scale(KonstFloat(1.23), One("EUR")))
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == 1.23).all())
         self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
 
     def test_and_cashflow_generation(self):
