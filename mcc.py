@@ -293,7 +293,17 @@ class Cond(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        obs = acquisition_idx.index_column(self.observable.simulate(model))
+        never = acquisition_idx.index < 0
+        cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
+        cf1.cashflows["value"][~obs, :] = 0
+        cf1.cashflows["index"][never, :] = 0
+        cf1.cashflows["value"][never, :] = 0
+        cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
+        cf2.cashflows["value"][obs, :] = 0
+        cf2.cashflows["index"][never, :] = 0
+        cf2.cashflows["value"][never, :] = 0
+        return cf1 + cf2
 
 
 @dataclass

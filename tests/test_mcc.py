@@ -16,6 +16,7 @@ from mcc import (
     And,
     Or,
     When,
+    Cond,
 )
 
 
@@ -189,4 +190,24 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertTrue(
             (cf2.cashflows["value"][np.arange(1, model.nsim, 2), :] == 1).all()
+        )
+
+    def test_cond_cashflow_generation(self):
+        model = _make_model()
+        cf = model.generate_cashflows(Cond(AlternatingBool(), One("EUR"), One("USD")))
+        self.assertEqual(cf.currencies.shape, (2,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertTrue(cf.currencies[1], "USD")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 2))
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(0, model.nsim, 2), 0] == 0).all()
+        )
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(0, model.nsim, 2), 1] == 1).all()
+        )
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(1, model.nsim, 2), 0] == 1).all()
+        )
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(1, model.nsim, 2), 1] == 0).all()
         )
