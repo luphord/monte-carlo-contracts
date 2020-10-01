@@ -182,8 +182,8 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())
         cf2 = model.generate_cashflows(When(AlternatingBool(), One("EUR")))
         self.assertEqual(cf2.currencies.shape, (1,))
-        self.assertTrue(cf1.currencies[0], "EUR")
-        self.assertEqual(cf1.cashflows.shape, (model.nsim, 1))
+        self.assertTrue(cf2.currencies[0], "EUR")
+        self.assertEqual(cf2.cashflows.shape, (model.nsim, 1))
         self.assertTrue(
             (cf2.cashflows["value"][np.arange(0, model.nsim, 2), :] == 0).all()
         )
