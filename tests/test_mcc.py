@@ -84,6 +84,15 @@ class TestMonteCarloContracts(unittest.TestCase):
             AssertionError, lambda: c.generate_cashflows(bad_eval_idx, model)
         )
 
+    def test_give_cashflow_generation(self):
+        model = _make_model()
+        cf = model.generate_cashflows(Give(One("EUR")))
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == -1).all())
+        self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
+
     def test_and_cashflow_generation(self):
         c = And(One("EUR"), One("USD"))
         model = _make_model()

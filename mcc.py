@@ -11,13 +11,15 @@ __version__ = """0.1.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import Final, Mapping, Tuple
+from typing import Final, Union, Mapping, Tuple
+from numbers import Number
 import numpy as np
 from dataclasses import dataclass
 
 
 _ccy_letters = 3
 _null_ccy = "NNN"
+ArrayLike = Union[np.array, Number]
 
 
 class SimulatedCashflows:
@@ -72,6 +74,11 @@ class IndexedCashflows:
             np.concatenate((self.currencies, other.currencies)),
             self.dategrid,
         )
+
+    def __mul__(self, factor: ArrayLike) -> "IndexedCashflows":
+        cf = self.cashflows.copy()
+        cf["value"] *= factor
+        return IndexedCashflows(cf, self.currencies, self.dategrid)
 
     def apply_index(self) -> SimulatedCashflows:
         dategrid_rep = np.reshape(self.dategrid, (1, self.dategrid.size))
@@ -194,7 +201,8 @@ class Give(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf = self.contract.generate_cashflows(acquisition_idx, model)
+        return cf * -1
 
 
 @dataclass
