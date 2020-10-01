@@ -73,6 +73,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
 
+    def test_date_index(self):
+        model = _make_model()
+        at0 = At(model.dategrid[0])
+        idx0 = model.eval_date_index.next_after(at0.simulate(model))
+        self.assertTrue((idx0 == 0).all())
+        at1 = At(model.dategrid[1])
+        idx1 = model.eval_date_index.next_after(at1.simulate(model))
+        self.assertTrue((idx1 == 1).all())
+
     def test_boolean_obs_at(self):
         model = _make_model()
         at0 = At(model.dategrid[0])

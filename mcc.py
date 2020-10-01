@@ -117,6 +117,20 @@ class DateIndex:
         assert obs.shape == (self.nsim,)
         return obs
 
+    def next_after(self, obs: np.ndarray) -> "DateIndex":
+        assert obs.dtype == np.bool_
+        assert obs.ndim == 2
+        assert obs.shape[0] == self.nsim
+        ndates = obs.shape[1]
+        assert (self.index < ndates).all()
+        idx = np.repeat(np.arange(ndates).reshape((1, ndates)), self.nsim, axis=0)
+        idx[~obs] = ndates  # larger than any index
+        idx = np.maximum(idx.min(axis=1), self.index)
+        idx[np.logical_or(idx == ndates, self.index == -1)] = -1
+        assert idx.shape == (self.nsim,)
+        assert (idx < ndates).all()
+        return idx
+
 
 class Model:
     dategrid: Final[np.ndarray]
