@@ -6,6 +6,7 @@ from mcc import (
     IndexedCashflows,
     DateIndex,
     Model,
+    ObservableBool,
     KonstFloat,
     At,
     Zero,
@@ -26,6 +27,14 @@ def _make_model(nsim=100) -> Model:
     )
     numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
     return Model(dategrid, {}, numeraire, "EUR")
+
+
+class AlternatingBool(ObservableBool):
+    def simulate(self, model: Model) -> np.ndarray:
+        mask = np.array(np.arange(model.nsim) % 2, dtype=np.bool_).reshape(
+            (model.nsim, 1)
+        )
+        return np.repeat(mask, model.ndates, axis=1)
 
 
 class TestMonteCarloContracts(unittest.TestCase):
@@ -97,6 +106,10 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(at1sim.shape, model.shape)
         self.assertFalse(at1sim[:, 0].any())
         self.assertTrue(at1sim[:, 1].all())
+        alt = AlternatingBool()
+        altsim = alt.simulate(model)
+        self.assertFalse(altsim[np.arange(0, model.nsim, 2), :].any())
+        self.assertTrue(altsim[np.arange(1, model.nsim, 2), :].all())
 
     def test_zero_cashflow_generation(self):
         model = _make_model()
