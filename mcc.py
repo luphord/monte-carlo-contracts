@@ -190,6 +190,16 @@ class ObservableBool(ABC):
         pass
 
 
+@dataclass
+class At(ObservableBool):
+    date: np.datetime64
+
+    def simulate(self, model: Model) -> np.ndarray:
+        mask = (model.dategrid == self.date).reshape((1, model.ndates))
+        assert mask.any(), f"{self.date} not contained in dategrid"
+        return np.repeat(mask, model.nsim, axis=0)
+
+
 class Contract(ABC):
     @abstractmethod
     def generate_cashflows(

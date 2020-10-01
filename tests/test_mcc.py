@@ -7,6 +7,7 @@ from mcc import (
     DateIndex,
     Model,
     KonstFloat,
+    At,
     Zero,
     One,
     Give,
@@ -71,6 +72,21 @@ class TestMonteCarloContracts(unittest.TestCase):
         nsim = 100
         model = _make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
+
+    def test_boolean_obs_at(self):
+        model = _make_model()
+        at0 = At(model.dategrid[0])
+        at0sim = at0.simulate(model)
+        self.assertEqual(at0sim.dtype, np.bool_)
+        self.assertEqual(at0sim.shape, model.shape)
+        self.assertTrue(at0sim[:, 0].all())
+        self.assertFalse(at0sim[:, 1].any())
+        at1 = At(model.dategrid[1])
+        at1sim = at1.simulate(model)
+        self.assertEqual(at1sim.dtype, np.bool_)
+        self.assertEqual(at1sim.shape, model.shape)
+        self.assertFalse(at1sim[:, 0].any())
+        self.assertTrue(at1sim[:, 1].all())
 
     def test_zero_cashflow_generation(self):
         model = _make_model()
