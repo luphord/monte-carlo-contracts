@@ -77,7 +77,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         cf3.apply_index()
 
     def test_contract_creation(self):
-        And(Or(Zero(), One("EUR")), Give(One("USD")))
+        And(
+            Or(
+                Cond(AlternatingBool(), Zero(), One("USD")),
+                When(At(np.datetime64("2030-07-14")), One("EUR")),
+            ),
+            Give(Scale(KonstFloat(1.23), One("USD"))),
+        )
 
     def test_model_creation(self):
         nsim = 100
