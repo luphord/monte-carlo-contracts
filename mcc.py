@@ -19,17 +19,17 @@ from dataclasses import dataclass
 
 _ccy_letters = 3
 _null_ccy = "NNN"
-ArrayLike = Union[np.array, Number]
+ArrayLike = Union[np.ndarray, Number]
 
 
 class SimulatedCashflows:
     dtype: Final = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
-    cashflows: Final[np.array]
-    currencies: Final[np.array]
+    cashflows: Final[np.ndarray]
+    currencies: Final[np.ndarray]
     nsim: Final[int]
     ncashflows: Final[int]
 
-    def __init__(self, cashflows: np.array, currencies: np.array):
+    def __init__(self, cashflows: np.ndarray, currencies: np.ndarray):
         assert (
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
@@ -44,13 +44,15 @@ class SimulatedCashflows:
 
 class IndexedCashflows:
     dtype: Final = np.dtype([("index", np.int), ("value", np.float64)])
-    cashflows: Final[np.array]
-    currencies: Final[np.array]
-    dategrid: Final[np.array]
+    cashflows: Final[np.ndarray]
+    currencies: Final[np.ndarray]
+    dategrid: Final[np.ndarray]
     nsim: Final[int]
     ncashflows: Final[int]
 
-    def __init__(self, cashflows: np.array, currencies: np.array, dategrid: np.array):
+    def __init__(
+        self, cashflows: np.ndarray, currencies: np.ndarray, dategrid: np.ndarray
+    ):
         assert (
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
@@ -97,16 +99,16 @@ class IndexedCashflows:
 
 
 class DateIndex:
-    index: Final[np.array]
+    index: Final[np.ndarray]
     nsim: Final[int]
 
-    def __init__(self, index: np.array):
+    def __init__(self, index: np.ndarray):
         assert index.dtype == np.int
         assert index.ndim == 1
         self.index = index
         self.nsim = index.size
 
-    def index_column(self, observable: np.array) -> np.array:
+    def index_column(self, observable: np.ndarray) -> np.ndarray:
         assert observable.ndim == 2
         assert observable.shape[0] == self.nsim
         assert (self.index < observable.shape[1]).all()
@@ -117,9 +119,9 @@ class DateIndex:
 
 
 class Model:
-    dategrid: Final[np.array]
-    simulated_stocks: Final[Mapping[str, np.array]]
-    numeraire: Final[np.array]
+    dategrid: Final[np.ndarray]
+    simulated_stocks: Final[Mapping[str, np.ndarray]]
+    numeraire: Final[np.ndarray]
     numeraire_currency: Final[str]
     ndates: Final[int]
     nsim: Final[int]
@@ -127,9 +129,9 @@ class Model:
 
     def __init__(
         self,
-        dategrid: np.array,
-        simulated_stocks: Mapping[str, np.array],
-        numeraire: np.array,
+        dategrid: np.ndarray,
+        simulated_stocks: Mapping[str, np.ndarray],
+        numeraire: np.ndarray,
         numeraire_currency: str,
     ):
         assert dategrid.dtype == "datetime64[D]"
@@ -170,7 +172,7 @@ class Model:
 
 class ObservableFloat(ABC):
     @abstractmethod
-    def simulate(self, model: Model) -> np.array:
+    def simulate(self, model: Model) -> np.ndarray:
         pass
 
 
@@ -178,13 +180,13 @@ class ObservableFloat(ABC):
 class KonstFloat(ObservableFloat):
     constant: Number
 
-    def simulate(self, model: Model) -> np.array:
+    def simulate(self, model: Model) -> np.ndarray:
         return self.constant * np.ones(model.shape, dtype=np.float)
 
 
 class ObservableBool(ABC):
     @abstractmethod
-    def simulate(self, model: Model) -> np.array:
+    def simulate(self, model: Model) -> np.ndarray:
         pass
 
 
