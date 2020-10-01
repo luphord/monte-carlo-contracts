@@ -14,6 +14,7 @@ from mcc import (
     Scale,
     And,
     Or,
+    When,
 )
 
 
@@ -151,3 +152,18 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["index"] == 0).all())
         cf_alt = model.generate_cashflows(c)
         self.assertTrue(cf_alt, cf.apply_index())
+
+    def test_when_cashflow_generation(self):
+        model = _make_model()
+        cf = model.generate_cashflows(When(At(model.dategrid[0]), One("EUR")))
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == 1).all())
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
+        cf1 = model.generate_cashflows(When(At(model.dategrid[1]), One("EUR")))
+        self.assertEqual(cf1.currencies.shape, (1,))
+        self.assertTrue(cf1.currencies[0], "EUR")
+        self.assertEqual(cf1.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf1.cashflows["value"] == 1).all())
+        self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())

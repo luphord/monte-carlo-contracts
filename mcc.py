@@ -319,7 +319,8 @@ class When(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        idx = acquisition_idx.next_after(self.observable.simulate(model))
+        return self.contract.generate_cashflows(DateIndex(idx), model)
 
 
 @dataclass
