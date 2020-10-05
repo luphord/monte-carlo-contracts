@@ -357,6 +357,17 @@ class Until(Contract):
         raise NotImplementedError()
 
 
+class ResolvableContract(Contract):
+    @abstractmethod
+    def resolve(self) -> Contract:
+        pass
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> IndexedCashflows:
+        return self.resolve().generate_cashflows(acquisition_idx, model)
+
+
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"

@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from dataclasses import dataclass
 from mcc import (
     parser,
     IndexedCashflows,
@@ -17,6 +18,8 @@ from mcc import (
     Or,
     When,
     Cond,
+    Contract,
+    ResolvableContract,
 )
 
 
@@ -28,6 +31,15 @@ def _make_model(nsim=100) -> Model:
     )
     numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
     return Model(dategrid, {}, numeraire, "EUR")
+
+
+@dataclass
+class MyContract(ResolvableContract):
+    maturity: np.datetime64
+    notional: float
+
+    def resolve(self) -> Contract:
+        return When(At(self.maturity), Scale(KonstFloat(self.notional), One("EUR")))
 
 
 class AlternatingBool(ObservableBool):
@@ -84,6 +96,12 @@ class TestMonteCarloContracts(unittest.TestCase):
             ),
             Give(Scale(KonstFloat(1.23), One("USD"))),
         )
+
+    def test_resolvable_contract_creation(self):
+        model = _make_model()
+        c = MyContract(model.dategrid[-1], 1234)
+        model.generate_cashflows(c)
+        self.assertRaises(TypeError, lambda: ResolvableContract())
 
     def test_model_creation(self):
         nsim = 100
