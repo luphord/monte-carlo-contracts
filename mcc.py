@@ -93,6 +93,9 @@ class IndexedCashflows:
         datecfs = np.zeros(self.cashflows.shape, dtype=SimulatedCashflows.dtype)
         for i, cf in enumerate(self.cashflows.T):
             datecfs["date"][:, i] = dategrid_rep[np.arange(self.nsim), cf["index"]]
+            datecfs["date"][
+                cf["index"] < 0, i
+            ] = np.datetime64()  # index < 0 means never
             datecfs["value"][:, i] = cf["value"]
         return SimulatedCashflows(np.array(datecfs), self.currencies)
 
@@ -243,7 +246,7 @@ class One(Contract):
         model.validate_date_index(acquisition_idx)
         cf = np.ones((model.nsim, 1), dtype=IndexedCashflows.dtype)
         cf["index"][:, 0] = acquisition_idx.index
-        cf["index"][acquisition_idx.index < 0, 0] = 0  # index < 0 means never
+        cf["index"][acquisition_idx.index < 0, 0] = -1  # index < 0 means never
         cf["value"][acquisition_idx.index < 0, 0] = 0  # index < 0 means never
         ccys = np.array([self.currency], dtype=(np.string_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)

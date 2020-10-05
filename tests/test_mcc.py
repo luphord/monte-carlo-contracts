@@ -90,6 +90,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf3.cashflows[:, k:] == cf1.cashflows).all())
         cf3.apply_index()
 
+    def test_negative_date_index(self) -> None:
+        dategrid = np.array([np.datetime64("2030-07-14"), np.datetime64("2031-07-14")])
+        cf = IndexedCashflows(
+            np.array(
+                [
+                    [(0, 123.45)],
+                    [(-1, 123.45)],
+                ],
+                IndexedCashflows.dtype,
+            ),
+            np.array(["USD"], dtype=(np.string_, 3)),
+            dategrid,
+        ).apply_index()
+        self.assertEqual(cf.cashflows["date"][0], dategrid[0])
+        self.assertTrue(np.isnat(cf.cashflows["date"][1]))
+
     def test_contract_creation(self) -> None:
         And(
             Or(
