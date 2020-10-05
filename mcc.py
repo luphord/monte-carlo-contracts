@@ -289,14 +289,13 @@ class Or(Contract):
             np.concatenate((cf1.currencies.flatten(), cf2.currencies.flatten()))
         )
         ccys = ccys[ccys != b"NNN"].flatten()
-        if (acquisition_idx.index != cf1.cashflows["index"]).any() or (
-            acquisition_idx.index != cf2.cashflows["index"]
-        ).any():
-            raise NotImplementedError(
-                "Cashflow generation for OR contract at any moment"
-                " other than cashflow date is not implemented"
-            )
-        elif ccys.size > 1:
+        for cf in (cf1 + cf2).cashflows.T:
+            if (acquisition_idx.index != cf["index"]).any():
+                raise NotImplementedError(
+                    "Cashflow generation for OR contract at any moment"
+                    " other than cashflow date is not implemented"
+                )
+        if ccys.size > 1:
             raise NotImplementedError(
                 "Cashflow generation for OR contract for different currencies"
                 f" is not implemented, got {ccys}"
