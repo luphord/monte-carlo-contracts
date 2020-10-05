@@ -379,6 +379,15 @@ class ZeroCouponBond(ResolvableContract):
         )
 
 
+@dataclass
+class EuropeanOption(ResolvableContract):
+    maturity: np.datetime64
+    contract: Contract
+
+    def resolve(self) -> Contract:
+        return When(At(self.maturity), Or(self.contract, Zero()))
+
+
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"

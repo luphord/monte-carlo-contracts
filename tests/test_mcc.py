@@ -21,6 +21,7 @@ from mcc import (
     Contract,
     ResolvableContract,
     ZeroCouponBond,
+    EuropeanOption,
 )
 
 
@@ -258,3 +259,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf.cashflows["value"] == notional).all())
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-2]).all())
+
+    def test_european_option_on_zcb(self) -> None:
+        model = _make_model()
+        notional = 1234
+        currency = "GBP"
+        strike = 1000
+        zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
+        EuropeanOption(
+            model.dategrid[-3], And(zcb, Give(Scale(KonstFloat(strike), One(currency))))
+        )
