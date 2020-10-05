@@ -219,6 +219,23 @@ class TestMonteCarloContracts(unittest.TestCase):
         cf_alt = model.generate_cashflows(c)
         self.assertTrue(cf_alt, cf.apply_index())
 
+    def test_or_cashflow_generation(self) -> None:
+        model = _make_model()
+        c1 = Or(One("EUR"), One("USD"))
+        self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c1))
+        c2 = Or(One("EUR"), When(At(model.dategrid[-1]), One("EUR")))
+        self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
+        c3 = Or(One("EUR"), Scale(KonstFloat(2), One("EUR")))
+        cf = model.generate_cashflows(c3)
+        self.assertEqual(cf.currencies.shape, (2,))
+        self.assertTrue(cf.currencies[0], "EUR")
+        self.assertTrue(cf.currencies[1], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 2))
+        self.assertTrue((cf.cashflows["value"][:, 0] == 0).all())
+        self.assertTrue((np.isnat(cf.cashflows["date"][:, 0])).all())
+        self.assertTrue((cf.cashflows["value"][:, 1] == 2).all())
+        self.assertTrue((cf.cashflows["date"][:, 1] == model.eval_date).all())
+
     def test_when_cashflow_generation(self) -> None:
         model = _make_model()
         cf = model.generate_cashflows(When(At(model.dategrid[0]), One("EUR")))

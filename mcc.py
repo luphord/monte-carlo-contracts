@@ -283,7 +283,33 @@ class Or(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
+        cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
+        ccys = np.unique(
+            np.concatenate((cf1.currencies.flatten(), cf2.currencies.flatten()))
+        )
+        ccys = ccys[ccys != b"NNN"].flatten()
+        if (acquisition_idx.index != cf1.cashflows["index"]).any() or (
+            acquisition_idx.index != cf2.cashflows["index"]
+        ).any():
+            raise NotImplementedError(
+                "Cashflow generation for OR contract at any moment"
+                " other than cashflow date is not implemented"
+            )
+        elif ccys.size > 1:
+            raise NotImplementedError(
+                "Cashflow generation for OR contract for different currencies"
+                f" is not implemented, got {ccys}"
+            )
+        else:
+            cf1sum = cf1.cashflows["value"].sum(axis=1)
+            cf2sum = cf2.cashflows["value"].sum(axis=1)
+            choose1 = cf1sum > cf2sum
+            cf1.cashflows["index"][~choose1] = -1
+            cf1.cashflows["value"][~choose1] = 0
+            cf2.cashflows["index"][choose1] = -1
+            cf2.cashflows["value"][choose1] = 0
+            return cf1 + cf2
 
 
 @dataclass
