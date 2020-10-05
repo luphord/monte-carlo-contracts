@@ -299,6 +299,18 @@ class TestMonteCarloContracts(unittest.TestCase):
         currency = "GBP"
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        EuropeanOption(
-            model.dategrid[-3], And(zcb, Give(Scale(KonstFloat(strike), One(currency))))
+        opt = EuropeanOption(
+            model.dategrid[-2], And(zcb, Give(Scale(KonstFloat(strike), One(currency))))
         )
+        cf = model.generate_cashflows(opt)
+        self.assertEqual(cf.currencies.shape, (3,))
+        self.assertTrue(cf.currencies[0], currency)
+        self.assertTrue(cf.currencies[1], currency)
+        self.assertTrue(cf.currencies[2], "NNN")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 3))
+        self.assertTrue((cf.cashflows["date"][:, 0] == model.dategrid[-2]).all())
+        self.assertTrue((cf.cashflows["value"][:, 0] == notional).all())
+        self.assertTrue((cf.cashflows["date"][:, 1] == model.dategrid[-2]).all())
+        self.assertTrue((cf.cashflows["value"][:, 1] == -strike).all())
+        self.assertTrue((np.isnat(cf.cashflows["date"][:, 2])).all())
+        self.assertTrue((cf.cashflows["value"][:, 2] == 0).all())
