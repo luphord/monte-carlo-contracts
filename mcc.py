@@ -12,14 +12,13 @@ __version__ = """0.1.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from typing import Final, Union, Mapping, Tuple
-from numbers import Number
 import numpy as np
 from dataclasses import dataclass
 
 
 _ccy_letters = 3
 _null_ccy = "NNN"
-ArrayLike = Union[np.ndarray, Number]
+ArrayLike = Union[np.ndarray, float]
 
 
 class SimulatedCashflows:
@@ -192,7 +191,7 @@ class ObservableFloat(ABC):
 
 @dataclass
 class KonstFloat(ObservableFloat):
-    constant: Number
+    constant: float
 
     def simulate(self, model: Model) -> np.ndarray:
         return self.constant * np.ones(model.shape, dtype=np.float)
