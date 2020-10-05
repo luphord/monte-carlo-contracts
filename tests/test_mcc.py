@@ -20,6 +20,7 @@ from mcc import (
     Cond,
     Contract,
     ResolvableContract,
+    ZeroCouponBond,
 )
 
 
@@ -235,3 +236,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(
             (cf.cashflows["value"][np.arange(1, model.nsim, 2), 1] == 0).all()
         )
+
+    def test_zero_coupon_bond(self) -> None:
+        model = _make_model()
+        notional = 1234
+        currency = "GBP"
+        zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
+        cf = model.generate_cashflows(zcb)
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertTrue(cf.currencies[0], currency)
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == notional).all())
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[-2]).all())

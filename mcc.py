@@ -367,6 +367,18 @@ class ResolvableContract(Contract):
         return self.resolve().generate_cashflows(acquisition_idx, model)
 
 
+@dataclass
+class ZeroCouponBond(ResolvableContract):
+    maturity: np.datetime64
+    notional: float
+    currency: str
+
+    def resolve(self) -> Contract:
+        return When(
+            At(self.maturity), Scale(KonstFloat(self.notional), One(self.currency))
+        )
+
+
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
     "--version", help="Print version number", default=False, action="store_true"
