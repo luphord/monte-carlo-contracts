@@ -9,6 +9,7 @@ from mcc import (
     Model,
     ObservableBool,
     KonstFloat,
+    Stock,
     At,
     Zero,
     One,
@@ -32,7 +33,9 @@ def _make_model(nsim: int = 100) -> Model:
         dtype="datetime64[D]",
     )
     numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
-    return Model(dategrid, {}, numeraire, "EUR")
+    rnd = np.random.RandomState(123)
+    abc = rnd.lognormal(size=(nsim, dategrid.size))
+    return Model(dategrid, {"ABC": abc}, numeraire, "EUR")
 
 
 @dataclass
@@ -144,6 +147,18 @@ class TestMonteCarloContracts(unittest.TestCase):
         at1 = At(model.dategrid[1])
         idx1 = model.eval_date_index.next_after(at1.simulate(model))
         self.assertTrue((idx1.index == 1).all())
+
+    def test_stock(self) -> None:
+        model = _make_model()
+        c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
+        cf = model.generate_cashflows(c)
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue(
+            (cf.cashflows["value"][:, 0] == model.simulated_stocks["ABC"][:, -1]).all()
+        )
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
+        self.assertTrue(cf.currencies[0], "EUR")
 
     def test_boolean_obs_at(self) -> None:
         model = _make_model()

@@ -193,6 +193,14 @@ class ObservableFloat(ABC):
 
 
 @dataclass
+class Stock(ObservableFloat):
+    identifier: str
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return model.simulated_stocks[self.identifier]
+
+
+@dataclass
 class KonstFloat(ObservableFloat):
     constant: float
 
