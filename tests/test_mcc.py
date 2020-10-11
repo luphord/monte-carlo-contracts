@@ -175,6 +175,14 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
         self.assertTrue(cf.currencies[0], "EUR")
+        c = When(At(model.dategrid[-1]), Scale(FX("USD", "EUR"), One("EUR")))
+        cf = model.generate_cashflows(c)
+        self.assertTrue(
+            (
+                cf.cashflows["value"][:, 0]
+                == 1 / model.simulated_fx[("EUR", "USD")][:, -1]
+            ).all()
+        )
 
     def test_boolean_obs_at(self) -> None:
         model = _make_model()

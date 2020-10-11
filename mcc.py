@@ -184,6 +184,8 @@ class Model:
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
         if (base_currency, counter_currency) in self.simulated_fx:
             return self.simulated_fx[(base_currency, counter_currency)]
+        elif (counter_currency, base_currency) in self.simulated_fx:
+            return 1 / self.simulated_fx[(counter_currency, base_currency)]
         else:
             raise NotImplementedError("Cross calculation of FX spots not implemented")
 
