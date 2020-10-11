@@ -70,7 +70,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         dategrid = np.array([np.datetime64("2030-07-14"), np.datetime64("2031-07-14")])
         cf1 = IndexedCashflows(
             np.zeros((n, k), dtype=IndexedCashflows.dtype),
-            np.array(["USD"] * k, dtype=(np.string_, 3)),
+            np.array(["USD"] * k, dtype=(np.unicode_, 3)),
             dategrid,
         )
         self.assertEqual(cf1.nsim, n)
@@ -84,7 +84,7 @@ class TestMonteCarloContracts(unittest.TestCase):
                 ],
                 IndexedCashflows.dtype,
             ),
-            np.array(["USD"], dtype=(np.string_, 3)),
+            np.array(["USD"], dtype=(np.unicode_, 3)),
             dategrid,
         )
         self.assertEqual(cf2.nsim, 2)
@@ -105,7 +105,7 @@ class TestMonteCarloContracts(unittest.TestCase):
                 ],
                 IndexedCashflows.dtype,
             ),
-            np.array(["USD"], dtype=(np.string_, 3)),
+            np.array(["USD"], dtype=(np.unicode_, 3)),
             dategrid,
         ).apply_index()
         self.assertEqual(cf.cashflows["date"][0], dategrid[0])

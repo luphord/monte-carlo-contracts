@@ -33,7 +33,7 @@ class SimulatedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.string_, _ccy_letters)
+        assert currencies.dtype == (np.unicode_, _ccy_letters)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
@@ -56,7 +56,7 @@ class IndexedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.string_, _ccy_letters)
+        assert currencies.dtype == (np.unicode_, _ccy_letters)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
@@ -260,7 +260,7 @@ class Zero(Contract):
         model.validate_date_index(acquisition_idx)
         cf = np.zeros((model.nsim, 1), dtype=IndexedCashflows.dtype)
         cf["index"][:, 0] = acquisition_idx.index
-        ccys = np.array([_null_ccy], dtype=(np.string_, _ccy_letters))
+        ccys = np.array([_null_ccy], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
 
@@ -276,7 +276,7 @@ class One(Contract):
         cf["index"][:, 0] = acquisition_idx.index
         cf["index"][acquisition_idx.index < 0, 0] = -1  # index < 0 means never
         cf["value"][acquisition_idx.index < 0, 0] = 0  # index < 0 means never
-        ccys = np.array([self.currency], dtype=(np.string_, _ccy_letters))
+        ccys = np.array([self.currency], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
 
@@ -316,7 +316,7 @@ class Or(Contract):
         ccys = np.unique(
             np.concatenate((cf1.currencies.flatten(), cf2.currencies.flatten()))
         )
-        ccys = ccys[ccys != b"NNN"].flatten()
+        ccys = ccys[ccys != "NNN"].flatten()
         for cf in (cf1 + cf2).cashflows.T:
             if (acquisition_idx.index != cf["index"]).any():
                 raise NotImplementedError(
