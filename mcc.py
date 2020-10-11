@@ -136,6 +136,7 @@ class DateIndex:
 
 class Model:
     dategrid: Final[np.ndarray]
+    simulated_fx: Final[Mapping[Tuple[str, str], np.ndarray]]
     simulated_stocks: Final[Mapping[str, np.ndarray]]
     numeraire: Final[np.ndarray]
     numeraire_currency: Final[str]
@@ -146,6 +147,7 @@ class Model:
     def __init__(
         self,
         dategrid: np.ndarray,
+        simulated_fx: Mapping[Tuple[str, str], np.ndarray],
         simulated_stocks: Mapping[str, np.ndarray],
         numeraire: np.ndarray,
         numeraire_currency: str,
@@ -168,6 +170,7 @@ class Model:
             assert (
                 val.shape == self.shape
             ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
+        self.simulated_fx = simulated_fx
         self.simulated_stocks = simulated_stocks
 
     @property
@@ -177,6 +180,12 @@ class Model:
     @property
     def eval_date_index(self) -> DateIndex:
         return DateIndex(np.zeros((self.nsim,), dtype=np.int))
+
+    def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
+        if (base_currency, counter_currency) in self.simulated_fx:
+            return self.simulated_fx[(base_currency, counter_currency)]
+        else:
+            raise NotImplementedError("Cross calculation of FX spots not implemented")
 
     def validate_date_index(self, date_index: DateIndex) -> None:
         assert date_index.index.size == self.nsim
@@ -198,6 +207,15 @@ class Stock(ObservableFloat):
 
     def simulate(self, model: Model) -> np.ndarray:
         return model.simulated_stocks[self.identifier]
+
+
+@dataclass
+class FX(ObservableFloat):
+    base_currency: str
+    counter_currency: str
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return model.get_simulated_fx(self.base_currency, self.counter_currency)
 
 
 @dataclass

@@ -10,6 +10,7 @@ from mcc import (
     ObservableBool,
     KonstFloat,
     Stock,
+    FX,
     At,
     Zero,
     One,
@@ -34,8 +35,9 @@ def _make_model(nsim: int = 100) -> Model:
     )
     numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
     rnd = np.random.RandomState(123)
+    eurusd = rnd.lognormal(size=(nsim, dategrid.size))
     abc = rnd.lognormal(size=(nsim, dategrid.size))
-    return Model(dategrid, {"ABC": abc}, numeraire, "EUR")
+    return Model(dategrid, {("EUR", "USD"): eurusd}, {"ABC": abc}, numeraire, "EUR")
 
 
 @dataclass
@@ -156,6 +158,20 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue(
             (cf.cashflows["value"][:, 0] == model.simulated_stocks["ABC"][:, -1]).all()
+        )
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
+        self.assertTrue(cf.currencies[0], "EUR")
+
+    def test_fx(self) -> None:
+        model = _make_model()
+        c = When(At(model.dategrid[-1]), Scale(FX("EUR", "USD"), One("EUR")))
+        cf = model.generate_cashflows(c)
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue(
+            (
+                cf.cashflows["value"][:, 0] == model.simulated_fx[("EUR", "USD")][:, -1]
+            ).all()
         )
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
         self.assertTrue(cf.currencies[0], "EUR")
