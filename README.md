@@ -27,6 +27,14 @@ python3 mcc.py
 
 ## History
 
+### 0.2.0 (2020-10-11)
+* Simulation of basic contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When` and `Cond`
+* Partial simulation of `Or` contract
+* Float observables `Stock` and `FX`
+* Boolean observables `At`
+* `SimulatedCashflows` and model-bound `IndexedCashflows` to represent cashflows
+* Basic `Model` allowing the generation of cashflows for the contracts above
+
 ### 0.1.0 (2020-09-22)
 * Created using [cookiecutter-pyscript](https://github.com/luphord/cookiecutter-pyscript)
 
