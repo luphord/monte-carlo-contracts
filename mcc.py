@@ -196,6 +196,26 @@ class Model:
     def generate_cashflows(self, contract: "Contract") -> SimulatedCashflows:
         return contract.generate_cashflows(self.eval_date_index, self).apply_index()
 
+    def in_currency(
+        self, cashflows: IndexedCashflows, currency: str
+    ) -> IndexedCashflows:
+        currencies = np.zeros(
+            cashflows.currencies.shape, dtype=(np.unicode_, _ccy_letters)
+        )
+        currencies[:] = currency
+        converted = np.zeros(cashflows.cashflows.shape, dtype=IndexedCashflows.dtype)
+        for i, cf in enumerate(cashflows.cashflows.T):
+            converted["index"][:, i] = cf["index"]
+            if cashflows.currencies[i] == currencies[i]:
+                converted["value"][:, i] = cf["value"]
+            else:
+                base_ccy = str(cashflows.currencies[i])
+                counter_ccy = str(currencies[i])
+                fx = self.get_simulated_fx(base_ccy, counter_ccy)
+                fx_indexed = DateIndex(cf["index"]).index_column(fx)
+                converted["value"][:, i] = cf["value"] * fx_indexed
+        return IndexedCashflows(converted, currencies, cashflows.dategrid)
+
 
 class ObservableFloat(ABC):
     @abstractmethod

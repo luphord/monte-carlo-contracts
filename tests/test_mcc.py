@@ -184,6 +184,14 @@ class TestMonteCarloContracts(unittest.TestCase):
             ).all()
         )
 
+    def test_cashflow_currency_conversion(self) -> None:
+        model = _make_model()
+        c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
+        cf_eur = c.generate_cashflows(model.eval_date_index, model)
+        cf_usd = model.in_currency(cf_eur, "USD")
+        self.assertEqual(cf_eur.cashflows.shape, cf_usd.cashflows.shape)
+        self.assertEqual(cf_usd.currencies[0], "USD")
+
     def test_boolean_obs_at(self) -> None:
         model = _make_model()
         at0 = At(model.dategrid[0])
