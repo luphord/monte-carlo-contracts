@@ -11,7 +11,7 @@ __version__ = """0.2.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import Final, Union, Mapping, Tuple
+from typing import Final, Union, Mapping, Tuple, Set
 import numpy as np
 from dataclasses import dataclass
 
@@ -187,6 +187,10 @@ class Model:
     @property
     def eval_date_index(self) -> DateIndex:
         return DateIndex(np.zeros((self.nsim,), dtype=np.int))
+
+    @property
+    def currencies(self) -> Set[str]:
+        return set([ccy for fxspot in self.simulated_fx for ccy in fxspot])
 
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
         if (base_currency, counter_currency) in self.simulated_fx:
