@@ -193,6 +193,12 @@ class Model:
         return set([ccy for fxspot in self.simulated_fx for ccy in fxspot])
 
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
+        assert (
+            base_currency in self.currencies
+        ), f"{base_currency} not contained in model currencies {self.currencies}"
+        assert (
+            counter_currency in self.currencies
+        ), f"{counter_currency} not contained in model currencies {self.currencies}"
         if (base_currency, counter_currency) in self.simulated_fx:
             return self.simulated_fx[(base_currency, counter_currency)]
         elif (counter_currency, base_currency) in self.simulated_fx:

@@ -189,6 +189,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(model.currencies, {"EUR", "USD"})
         c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
         cf_eur = c.generate_cashflows(model.eval_date_index, model)
+        self.assertRaises(AssertionError, lambda: model.in_currency(cf_eur, "GBP"))
         cf_usd = model.in_currency(cf_eur, "USD")
         self.assertEqual(cf_eur.cashflows.shape, cf_usd.cashflows.shape)
         self.assertEqual(cf_usd.currencies[0], "USD")
