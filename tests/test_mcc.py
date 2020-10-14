@@ -191,6 +191,11 @@ class TestMonteCarloContracts(unittest.TestCase):
         cf_usd = model.in_currency(cf_eur, "USD")
         self.assertEqual(cf_eur.cashflows.shape, cf_usd.cashflows.shape)
         self.assertEqual(cf_usd.currencies[0], "USD")
+        cf_eur_conv = model.in_numeraire_currency(cf_usd)
+        self.assertEqual(cf_eur_conv.currencies[0], "EUR")
+        self.assertTrue(
+            np.allclose(cf_eur.cashflows["value"], cf_eur_conv.cashflows["value"])
+        )
 
     def test_boolean_obs_at(self) -> None:
         model = _make_model()

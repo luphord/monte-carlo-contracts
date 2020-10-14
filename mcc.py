@@ -216,6 +216,9 @@ class Model:
                 converted["value"][:, i] = cf["value"] * fx_indexed
         return IndexedCashflows(converted, currencies, cashflows.dategrid)
 
+    def in_numeraire_currency(self, cashflows: IndexedCashflows) -> IndexedCashflows:
+        return self.in_currency(cashflows, self.numeraire_currency)
+
 
 class ObservableFloat(ABC):
     @abstractmethod
