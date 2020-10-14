@@ -196,6 +196,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(
             np.allclose(cf_eur.cashflows["value"], cf_eur_conv.cashflows["value"])
         )
+        # test with deterministic spots
+        numeraire = np.ones((1, model.dategrid.size), dtype=np.float_)
+        ccyspot = np.arange(1, model.dategrid.size + 1, dtype=np.float_).reshape(
+            numeraire.shape
+        )
+        model2 = Model(model.dategrid, {("UND", "ACC"): ccyspot}, {}, numeraire, "UND")
+        for i, dt in enumerate(model2.dategrid):
+            c = When(At(dt), One("UND"))
+            cf_und = c.generate_cashflows(model2.eval_date_index, model2)
+            cf_acc = model2.in_currency(cf_und, "ACC")
+            self.assertEqual(cf_acc.cashflows["value"][0, 0], i + 1)
+        for i, dt in enumerate(model2.dategrid):
+            c = When(At(dt), One("ACC"))
+            cf_acc = c.generate_cashflows(model2.eval_date_index, model2)
+            cf_und = model2.in_numeraire_currency(cf_acc)
+            self.assertEqual(cf_und.cashflows["value"][0, 0], 1 / (i + 1))
 
     def test_boolean_obs_at(self) -> None:
         model = _make_model()
