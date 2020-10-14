@@ -163,6 +163,14 @@ class Model:
         self.shape = (self.nsim, self.ndates)
         assert numeraire.shape == self.shape
         self.numeraire_currency = numeraire_currency
+        for fxkey, val in simulated_fx.items():
+            assert (
+                val.dtype == np.float
+            ), f"FX spot '{fxkey}' is of dtype {val.dtype}, expecting float"
+            assert (
+                val.shape == self.shape
+            ), f"FX Spot '{fxkey}' has shape {val.shape}, expecting {self.shape}"
+        self.simulated_fx = simulated_fx
         for key, val in simulated_stocks.items():
             assert (
                 val.dtype == np.float
@@ -170,7 +178,6 @@ class Model:
             assert (
                 val.shape == self.shape
             ), f"Stock '{key}' has shape {val.shape}, expecting {self.shape}"
-        self.simulated_fx = simulated_fx
         self.simulated_stocks = simulated_stocks
 
     @property
