@@ -305,8 +305,6 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_or_cashflow_generation(self) -> None:
         model = _make_model()
-        c1 = Or(One("EUR"), One("USD"))
-        self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c1))
         c2 = Or(One("EUR"), When(At(model.dategrid[-1]), One("EUR")))
         self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
         c3 = Or(One("EUR"), Scale(KonstFloat(2), One("EUR")))
@@ -319,6 +317,11 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((np.isnat(cf.cashflows["date"][:, 0])).all())
         self.assertTrue((cf.cashflows["value"][:, 1] == 2).all())
         self.assertTrue((cf.cashflows["date"][:, 1] == model.eval_date).all())
+        c4 = Or(One("EUR"), One("USD"))
+        cf4 = model.generate_cashflows(c4)
+        self.assertEqual(cf4.currencies.shape, (2,))
+        self.assertEqual(cf4.currencies[0], "EUR")
+        self.assertEqual(cf4.currencies[1], "USD")
 
     def test_when_cashflow_generation(self) -> None:
         model = _make_model()
@@ -368,7 +371,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_zero_coupon_bond(self) -> None:
         model = _make_model()
         notional = 1234
-        currency = "GBP"
+        currency = "USD"
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         cf = model.generate_cashflows(zcb)
         self.assertEqual(cf.currencies.shape, (1,))
@@ -380,7 +383,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_european_option_on_zcb(self) -> None:
         model = _make_model()
         notional = 1234
-        currency = "GBP"
+        currency = "USD"
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         opt = EuropeanOption(

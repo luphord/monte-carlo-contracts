@@ -29,6 +29,7 @@ python3 mcc.py
 
 ### 0.3.0 (not yet)
 * Currency conversion of `IndexedCashflows`
+* Support multiple currencies in `Or` contract
 
 ### 0.2.0 (2020-10-11)
 * Simulation of basic contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When` and `Cond`

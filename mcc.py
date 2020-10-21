@@ -369,20 +369,14 @@ class Or(Contract):
                     "Cashflow generation for OR contract at any moment"
                     " other than cashflow date is not implemented"
                 )
-        if ccys.size > 1:
-            raise NotImplementedError(
-                "Cashflow generation for OR contract for different currencies"
-                f" is not implemented, got {ccys}"
-            )
-        else:
-            cf1sum = cf1.cashflows["value"].sum(axis=1)
-            cf2sum = cf2.cashflows["value"].sum(axis=1)
-            choose1 = cf1sum > cf2sum
-            cf1.cashflows["index"][~choose1] = -1
-            cf1.cashflows["value"][~choose1] = 0
-            cf2.cashflows["index"][choose1] = -1
-            cf2.cashflows["value"][choose1] = 0
-            return cf1 + cf2
+        cf1sum = model.in_numeraire_currency(cf1).cashflows["value"].sum(axis=1)
+        cf2sum = model.in_numeraire_currency(cf2).cashflows["value"].sum(axis=1)
+        choose1 = cf1sum > cf2sum
+        cf1.cashflows["index"][~choose1] = -1
+        cf1.cashflows["value"][~choose1] = 0
+        cf2.cashflows["index"][choose1] = -1
+        cf2.cashflows["value"][choose1] = 0
+        return cf1 + cf2
 
 
 @dataclass
