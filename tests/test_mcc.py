@@ -226,6 +226,8 @@ class TestMonteCarloContracts(unittest.TestCase):
         c2 = One("EUR")
         cf2 = c2.generate_cashflows(model.eval_date_index, model)
         self.assertRaises(AssertionError, lambda: model.in_currency(cf2, "NNN"))
+        self.assertRaises(AssertionError, lambda: model.get_simulated_fx("NNN", "EUR"))
+        self.assertRaises(AssertionError, lambda: model.get_simulated_fx("EUR", "NNN"))
 
     def test_boolean_obs_at(self) -> None:
         model = _make_model()

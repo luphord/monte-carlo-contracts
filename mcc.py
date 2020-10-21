@@ -194,6 +194,9 @@ class Model:
 
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
         assert (
+            base_currency != _null_ccy and counter_currency != _null_ccy
+        ), "Cannot retrieve spot containing null currency NNN"
+        assert (
             base_currency in self.currencies
         ), f"{base_currency} not contained in model currencies {self.currencies}"
         assert (
