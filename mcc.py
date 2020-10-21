@@ -216,6 +216,7 @@ class Model:
     def in_currency(
         self, cashflows: IndexedCashflows, currency: str
     ) -> IndexedCashflows:
+        assert currency != _null_ccy, "Cannot convert to null currency NNN"
         currencies = np.zeros(
             cashflows.currencies.shape, dtype=(np.unicode_, _ccy_letters)
         )
