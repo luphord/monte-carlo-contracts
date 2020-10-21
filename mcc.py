@@ -223,6 +223,8 @@ class Model:
         converted = np.zeros(cashflows.cashflows.shape, dtype=IndexedCashflows.dtype)
         for i, cf in enumerate(cashflows.cashflows.T):
             converted["index"][:, i] = cf["index"]
+            if cashflows.currencies[i] == _null_ccy:
+                currencies[i] = _null_ccy
             if cashflows.currencies[i] == currencies[i]:
                 converted["value"][:, i] = cf["value"]
             else:

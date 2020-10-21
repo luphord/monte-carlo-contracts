@@ -216,6 +216,14 @@ class TestMonteCarloContracts(unittest.TestCase):
             cf_und = model2.in_numeraire_currency(cf_acc)
             self.assertEqual(cf_und.cashflows["value"][0, 0], 1 / (i + 1))
 
+    def test_cashflow_currency_conversion_nnn(self) -> None:
+        model = _make_model()
+        self.assertEqual(model.currencies, {"EUR", "USD"})
+        c = Zero()
+        cf = c.generate_cashflows(model.eval_date_index, model)
+        converted = model.in_currency(cf, "EUR")
+        self.assertEqual(converted.currencies[0], "NNN")
+
     def test_boolean_obs_at(self) -> None:
         model = _make_model()
         at0 = At(model.dategrid[0])
