@@ -251,6 +251,8 @@ class Model:
 
 
 class ObservableFloat(ABC):
+    """Abstract base class for all observables of underlying type float"""
+
     @abstractmethod
     def simulate(self, model: Model) -> np.ndarray:
         pass
@@ -258,6 +260,8 @@ class ObservableFloat(ABC):
 
 @dataclass
 class Stock(ObservableFloat):
+    """Value of the stock identified by identifier"""
+
     identifier: str
 
     def simulate(self, model: Model) -> np.ndarray:
@@ -266,6 +270,9 @@ class Stock(ObservableFloat):
 
 @dataclass
 class FX(ObservableFloat):
+    """Value of the currency spot between base_currency and counter_currency,
+    i.e. 'one unit counter_currency' / 'one unit of base_currency'"""
+
     base_currency: str
     counter_currency: str
 
@@ -275,6 +282,8 @@ class FX(ObservableFloat):
 
 @dataclass
 class KonstFloat(ObservableFloat):
+    """Always equal to constant"""
+
     constant: float
 
     def simulate(self, model: Model) -> np.ndarray:
@@ -282,6 +291,8 @@ class KonstFloat(ObservableFloat):
 
 
 class ObservableBool(ABC):
+    """Abstract base class for all observables of underlying type bool"""
+
     @abstractmethod
     def simulate(self, model: Model) -> np.ndarray:
         pass
@@ -289,6 +300,8 @@ class ObservableBool(ABC):
 
 @dataclass
 class At(ObservableBool):
+    """True only at date"""
+
     date: np.datetime64
 
     def simulate(self, model: Model) -> np.ndarray:
