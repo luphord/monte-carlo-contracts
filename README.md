@@ -9,7 +9,11 @@ However, the implementation is not based on functional programming but rather us
 Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
 ## Features
-* `monte-carlo-contracts` is a single file Python project
+* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime` and until
+* Cashflow generation for composed contracts given simulation models on fixed dategrids
+
+## Examples
+* [FX Options](examples/FX Options.ipynb)
 
 ## Install
 
