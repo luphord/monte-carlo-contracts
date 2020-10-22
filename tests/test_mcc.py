@@ -25,6 +25,8 @@ from mcc import (
     ResolvableContract,
     ZeroCouponBond,
     EuropeanOption,
+    BrownianMotion,
+    GeometricBrownianMotion,
 )
 
 
@@ -415,3 +417,18 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["value"][:, 1] == -strike).all())
         self.assertTrue((np.isnat(cf.cashflows["date"][:, 2])).all())
         self.assertTrue((cf.cashflows["value"][:, 2] == 0).all())
+
+    def test_brownian_motions(self) -> None:
+        mu = 0.123
+        sigma = 0.456
+        bm = BrownianMotion(mu=mu, sigma=sigma)
+        gbm = GeometricBrownianMotion(mu=mu, sigma=sigma)
+        rnd = np.random.RandomState(1234)
+        t = np.linspace(0, 20, 20)
+        n = 200
+        x = bm.simulate(t, n, rnd)
+        self.assertEqual((n, t.size), x.shape)
+        self.assertEqual(n, x[:, -1].size)
+        x = gbm.simulate(t, n, rnd)
+        self.assertEqual((n, t.size), x.shape)
+        self.assertEqual(n, x[:, -1].size)
