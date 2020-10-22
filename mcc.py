@@ -298,6 +298,8 @@ class At(ObservableBool):
 
 
 class Contract(ABC):
+    """Abstract base class for all contracts"""
+
     @abstractmethod
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
@@ -307,6 +309,8 @@ class Contract(ABC):
 
 @dataclass
 class Zero(Contract):
+    """Neither receive nor pay anything"""
+
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
@@ -319,6 +323,8 @@ class Zero(Contract):
 
 @dataclass
 class One(Contract):
+    """Receive one unit of currency at acquisition"""
+
     currency: str
 
     def generate_cashflows(
@@ -335,6 +341,9 @@ class One(Contract):
 
 @dataclass
 class Give(Contract):
+    """Receive all obligations of the underlying contract and pay all rights,
+    i.e. invert the underlying contract"""
+
     contract: Contract
 
     def generate_cashflows(
@@ -345,6 +354,8 @@ class Give(Contract):
 
 @dataclass
 class And(Contract):
+    """Obtain rights and obligations of both underlying contracts"""
+
     contract1: Contract
     contract2: Contract
 
@@ -358,6 +369,8 @@ class And(Contract):
 
 @dataclass
 class Or(Contract):
+    """Choose at acquisition between the underlying contracts"""
+
     contract1: Contract
     contract2: Contract
 
@@ -388,6 +401,8 @@ class Or(Contract):
 
 @dataclass
 class Cond(Contract):
+    """If observable is True at acquisition, obtain contract1, otherwise contract2"""
+
     observable: ObservableBool
     contract1: Contract
     contract2: Contract
@@ -410,6 +425,9 @@ class Cond(Contract):
 
 @dataclass
 class Scale(Contract):
+    """Same as the underling contract, but all payments scaled by the value of
+    observable at acquisition"""
+
     observable: ObservableFloat
     contract: Contract
 
@@ -427,6 +445,9 @@ class Scale(Contract):
 
 @dataclass
 class When(Contract):
+    """Obtain the underlying contract as soon as observable
+    becomes True after acquisition"""
+
     observable: ObservableBool
     contract: Contract
 
@@ -439,6 +460,9 @@ class When(Contract):
 
 @dataclass
 class Anytime(Contract):
+    """At any point in time after acquisition when observable is True, choose whether
+    to obtain the underlying contract or not; can be exercised only once"""
+
     observable: ObservableBool
     contract: Contract
 
@@ -450,6 +474,9 @@ class Anytime(Contract):
 
 @dataclass
 class Until(Contract):
+    """Obtain the underlying contract, but as soon as observable
+    becomes True after acquisition all following payments are nullified"""
+
     observable: ObservableBool
     contract: Contract
 
