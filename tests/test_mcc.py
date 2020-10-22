@@ -20,6 +20,7 @@ from mcc import (
     Or,
     When,
     Cond,
+    Until,
     Contract,
     ResolvableContract,
     ZeroCouponBond,
@@ -366,6 +367,19 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertTrue(
             (cf.cashflows["value"][np.arange(1, model.nsim, 2), 1] == 0).all()
+        )
+
+    def test_until_cashflow_generation(self) -> None:
+        model = _make_model()
+        cf = model.generate_cashflows(Until(AlternatingBool(), One("EUR")))
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.currencies[0], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(0, model.nsim, 2), 0] == 0).all()
+        )
+        self.assertTrue(
+            (cf.cashflows["value"][np.arange(1, model.nsim, 2), 0] == 1).all()
         )
 
     def test_zero_coupon_bond(self) -> None:

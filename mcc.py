@@ -86,6 +86,13 @@ class IndexedCashflows:
     def __neg__(self) -> "IndexedCashflows":
         return self * -1
 
+    def zero_after(self, date_idx: "DateIndex") -> "IndexedCashflows":
+        assert self.nsim == date_idx.nsim
+        zeroedcf = self.cashflows.copy()
+        for i, cf in enumerate(self.cashflows.T):
+            zeroedcf["value"][cf["index"] > date_idx.index, i] = 0
+        return IndexedCashflows(zeroedcf, self.currencies, self.dategrid)
+
     def apply_index(self) -> SimulatedCashflows:
         dategrid_rep = np.reshape(self.dategrid, (1, self.dategrid.size))
         dategrid_rep = np.repeat(dategrid_rep, self.nsim, axis=0)
@@ -449,7 +456,9 @@ class Until(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        raise NotImplementedError()
+        cf = self.contract.generate_cashflows(acquisition_idx, model)
+        ko_idx = acquisition_idx.next_after(self.observable.simulate(model))
+        return cf.zero_after(ko_idx)
 
 
 class ResolvableContract(Contract):
