@@ -13,7 +13,7 @@ Also, this implementation is tailored towards Monte Carlo based cashflow generat
 * Cashflow generation for composed contracts given simulation models on fixed dategrids
 
 ## Examples
-* [FX Options](examples/FX Options.ipynb)
+* [FX Options](examples/FX%20Options.ipynb)
 
 ## Install
 
