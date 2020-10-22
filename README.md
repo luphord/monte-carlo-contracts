@@ -28,6 +28,7 @@ python3 mcc.py
 ## History
 
 ### 0.3.0 (not yet)
+* Simulation of basic contract `Until`
 * Currency conversion of `IndexedCashflows`
 * Support multiple currencies in `Or` contract
 
