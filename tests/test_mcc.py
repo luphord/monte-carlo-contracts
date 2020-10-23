@@ -153,7 +153,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         idx1 = model.eval_date_index.next_after(at1.simulate(model))
         self.assertTrue((idx1.index == 1).all())
 
-    def test_greater_equal(self) -> None:
+    def test_observable_float_comparisons(self) -> None:
         model = _make_model()
         # greater or equal
         barrier_breach = Stock("ABC") >= 1
@@ -179,6 +179,11 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] < 1)).all())
         shouldbenone = Stock("ABC") < Stock("ABC")
         self.assertFalse(shouldbenone.simulate(model).any())
+        # test right comparison operator application
+        self.assertIsInstance(1 <= Stock("ABC"), ObservableBool)
+        self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
+        self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
+        self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
 
     def test_invert(self) -> None:
         model = _make_model()
