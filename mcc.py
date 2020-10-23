@@ -315,6 +315,19 @@ class ObservableBool(ABC):
     def simulate(self, model: Model) -> np.ndarray:
         pass
 
+    def __invert__(self) -> "ObservableBool":
+        return Not(self)
+
+
+@dataclass
+class Not(ObservableBool):
+    """True if observable is False and vice versa"""
+
+    observable: ObservableBool
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return ~self.observable.simulate(model)
+
 
 @dataclass
 class GreaterOrEqualThan(ObservableBool):

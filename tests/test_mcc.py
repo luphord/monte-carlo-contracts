@@ -168,6 +168,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         shouldbenone = Stock("ABC") > Stock("ABC")
         self.assertFalse(shouldbenone.simulate(model).any())
 
+    def test_invert(self) -> None:
+        model = _make_model()
+        alt = AlternatingBool()
+        altsim = alt.simulate(model)
+        altinvertsim = (~alt).simulate(model)
+        self.assertTrue((altsim == ~altinvertsim).all())
+
     def test_stock(self) -> None:
         model = _make_model()
         c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
