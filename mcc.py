@@ -91,7 +91,8 @@ class IndexedCashflows:
         assert self.nsim == date_idx.nsim
         zeroedcf = self.cashflows.copy()
         for i, cf in enumerate(self.cashflows.T):
-            zeroedcf["value"][cf["index"] > date_idx.index, i] = 0
+            ko_mask = (cf["index"] >= date_idx.index) & (date_idx.index >= 0)
+            zeroedcf["value"][ko_mask, i] = 0
         return IndexedCashflows(zeroedcf, self.currencies, self.dategrid)
 
     def apply_index(self) -> SimulatedCashflows:

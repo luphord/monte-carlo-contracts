@@ -439,10 +439,10 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue(
-            (cf.cashflows["value"][np.arange(0, model.nsim, 2), 0] == 0).all()
+            (cf.cashflows["value"][np.arange(0, model.nsim, 2), 0] == 1).all()
         )
         self.assertTrue(
-            (cf.cashflows["value"][np.arange(1, model.nsim, 2), 0] == 1).all()
+            (cf.cashflows["value"][np.arange(1, model.nsim, 2), 0] == 0).all()
         )
 
     def test_zero_coupon_bond(self) -> None:
