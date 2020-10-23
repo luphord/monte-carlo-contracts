@@ -196,6 +196,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((altsim == ~altinvertsim).all())
         alt2 = AlternatingBool(False)
         self.assertFalse((alt & alt2).simulate(model).any())
+        self.assertTrue((alt | alt2).simulate(model).all())
 
     def test_stock(self) -> None:
         model = _make_model()
