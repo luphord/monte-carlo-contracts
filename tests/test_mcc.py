@@ -155,11 +155,18 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_greater_equal(self) -> None:
         model = _make_model()
+        # greate or equal
         barrier_breach = Stock("ABC") >= 1
         bbsim = barrier_breach.simulate(model)
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] >= 1)).all())
         shouldbeall = Stock("ABC") >= Stock("ABC")
         self.assertTrue(shouldbeall.simulate(model).all())
+        # strictly greater
+        barrier_breach = Stock("ABC") > 1
+        bbsim = barrier_breach.simulate(model)
+        self.assertTrue((bbsim == (model.simulated_stocks["ABC"] > 1)).all())
+        shouldbenone = Stock("ABC") > Stock("ABC")
+        self.assertFalse(shouldbenone.simulate(model).any())
 
     def test_stock(self) -> None:
         model = _make_model()

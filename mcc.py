@@ -267,6 +267,14 @@ class ObservableFloat(ABC):
         else:
             raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
 
+    def __gt__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
+        if isinstance(other, ObservableFloat):
+            return GreaterThan(self, other)
+        elif isinstance(other, Real):
+            return GreaterThan(self, KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
 
 @dataclass
 class Stock(ObservableFloat):
@@ -317,6 +325,17 @@ class GreaterOrEqualThan(ObservableBool):
 
     def simulate(self, model: Model) -> np.ndarray:
         return self.observable1.simulate(model) >= self.observable2.simulate(model)
+
+
+@dataclass
+class GreaterThan(ObservableBool):
+    """True if and only if observable1 is strictly greater than observable2"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) > self.observable2.simulate(model)
 
 
 @dataclass
