@@ -275,6 +275,12 @@ class ObservableFloat(ABC):
         else:
             raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
 
+    def __le__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
+        return ~(self > other)
+
+    def __lt__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
+        return ~(self >= other)
+
 
 @dataclass
 class Stock(ObservableFloat):
