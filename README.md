@@ -9,7 +9,8 @@ However, the implementation is not based on functional programming but rather us
 Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
 ## Features
-* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime` and until
+* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime` and `Until`
+* Boolean and real valued observables (stochastic processes) to be referenced by contracts
 * Cashflow generation for composed contracts given simulation models on fixed dategrids
 
 ## Examples
@@ -32,10 +33,13 @@ python3 mcc.py
 
 ## History
 
-### 0.3.0 (not yet)
+### 0.3.0 (2020-10-23)
 * Simulation of basic contract `Until`
 * Currency conversion of `IndexedCashflows`
-* Support multiple currencies in `Or` contract
+* `Or` contract supports multiple currencies
+* `ObservableFloat` supports `<`, `<=`, `>` and `>=` operators with `float` or other `ObservableFloat` instances
+* `ObservableBool` supports `~`, `&` and `|` operators for combined conditions
+* [Equity Options](examples/Equity%20Options.ipynb) and [FX Options](examples/FX%20Options.ipynb) examples
 
 ### 0.2.0 (2020-10-11)
 * Simulation of basic contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When` and `Cond`
