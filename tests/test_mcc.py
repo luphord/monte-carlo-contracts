@@ -53,10 +53,13 @@ class MyContract(ResolvableContract):
 
 
 class AlternatingBool(ObservableBool):
+    def __init__(self, start_with_false: bool = True):
+        self.offset = 0 if start_with_false else 1
+
     def simulate(self, model: Model) -> np.ndarray:
-        mask = np.array(np.arange(model.nsim) % 2, dtype=np.bool_).reshape(
-            (model.nsim, 1)
-        )
+        mask = np.array(
+            (np.arange(model.nsim) + self.offset) % 2, dtype=np.bool_
+        ).reshape((model.nsim, 1))
         return np.repeat(mask, model.ndates, axis=1)
 
 
@@ -185,12 +188,14 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
 
-    def test_invert(self) -> None:
+    def test_boolean_operators(self) -> None:
         model = _make_model()
         alt = AlternatingBool()
         altsim = alt.simulate(model)
         altinvertsim = (~alt).simulate(model)
         self.assertTrue((altsim == ~altinvertsim).all())
+        alt2 = AlternatingBool(False)
+        self.assertFalse((alt & alt2).simulate(model).any())
 
     def test_stock(self) -> None:
         model = _make_model()

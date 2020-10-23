@@ -324,6 +324,9 @@ class ObservableBool(ABC):
     def __invert__(self) -> "ObservableBool":
         return Not(self)
 
+    def __and__(self, other: "ObservableBool") -> "ObservableBool":
+        return AndObservable(self, other)
+
 
 @dataclass
 class Not(ObservableBool):
@@ -333,6 +336,17 @@ class Not(ObservableBool):
 
     def simulate(self, model: Model) -> np.ndarray:
         return ~self.observable.simulate(model)
+
+
+@dataclass
+class AndObservable(ObservableBool):
+    """True if and only if both observables are True"""
+
+    observable1: ObservableBool
+    observable2: ObservableBool
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) & self.observable2.simulate(model)
 
 
 @dataclass
