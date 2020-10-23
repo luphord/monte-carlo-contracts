@@ -251,7 +251,8 @@ class Model:
 
 
 class ObservableFloat(ABC):
-    """Abstract base class for all observables of underlying type float"""
+    """Abstract base class for all observables of underlying type float,
+    essentially a real-valued stochastic process"""
 
     @abstractmethod
     def simulate(self, model: Model) -> np.ndarray:
