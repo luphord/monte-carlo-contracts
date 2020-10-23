@@ -117,6 +117,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.cashflows["date"][0], dategrid[0])
         self.assertTrue(np.isnat(cf.cashflows["date"][1]))
 
+    def test_model_without_fx(self) -> None:
+        model = _make_model()
+        model2 = Model(
+            model.dategrid,
+            {},
+            model.simulated_stocks,
+            model.numeraire,
+            model.numeraire_currency,
+        )
+        indexedcf = One(model2.numeraire_currency).generate_cashflows(
+            model2.eval_date_index, model
+        )
+        cf = model2.in_numeraire_currency(indexedcf)
+        self.assertTrue((cf.cashflows["value"][:, 0] == 1).all())
+        self.assertEqual(model2.currencies, {model2.numeraire_currency})
+
     def test_contract_creation(self) -> None:
         And(
             Or(

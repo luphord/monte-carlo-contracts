@@ -198,7 +198,9 @@ class Model:
 
     @property
     def currencies(self) -> Set[str]:
-        return set([ccy for fxspot in self.simulated_fx for ccy in fxspot])
+        return set([ccy for fxspot in self.simulated_fx for ccy in fxspot]) or {
+            self.numeraire_currency
+        }
 
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
         assert (
