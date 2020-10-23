@@ -153,6 +153,14 @@ class TestMonteCarloContracts(unittest.TestCase):
         idx1 = model.eval_date_index.next_after(at1.simulate(model))
         self.assertTrue((idx1.index == 1).all())
 
+    def test_greater_equal(self) -> None:
+        model = _make_model()
+        barrier_breach = Stock("ABC") >= 1
+        bbsim = barrier_breach.simulate(model)
+        self.assertTrue((bbsim == (model.simulated_stocks["ABC"] >= 1)).all())
+        shouldbeall = Stock("ABC") >= Stock("ABC")
+        self.assertTrue(shouldbeall.simulate(model).all())
+
     def test_stock(self) -> None:
         model = _make_model()
         c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))

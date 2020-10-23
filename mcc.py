@@ -12,6 +12,7 @@ __version__ = """0.2.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from typing import Final, Union, Mapping, Tuple, Set
+from numbers import Real
 import numpy as np
 from dataclasses import dataclass
 
@@ -258,6 +259,14 @@ class ObservableFloat(ABC):
     def simulate(self, model: Model) -> np.ndarray:
         pass
 
+    def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
+        if isinstance(other, ObservableFloat):
+            return GreaterOrEqualThan(self, other)
+        elif isinstance(other, Real):
+            return GreaterOrEqualThan(self, KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
 
 @dataclass
 class Stock(ObservableFloat):
@@ -297,6 +306,17 @@ class ObservableBool(ABC):
     @abstractmethod
     def simulate(self, model: Model) -> np.ndarray:
         pass
+
+
+@dataclass
+class GreaterOrEqualThan(ObservableBool):
+    """True if and only if observable1 is greater or equal than observable2"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) >= self.observable2.simulate(model)
 
 
 @dataclass
