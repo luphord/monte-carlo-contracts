@@ -66,10 +66,12 @@ class SimulatedCashflows:
 
     def _split_by_date(self) -> Iterable[Tuple[np.ndarray, str, np.datetime64]]:
         for i, cf in enumerate(self.cashflows.T):
-            for dt in np.unique(cf["date"]):
-                cf_dt = cf.copy()
-                cf_dt[cf_dt["date"] != dt] = 0
-                yield cf_dt, self.currencies[i], dt
+            if self.currencies[i] != _null_ccy:
+                for dt in np.unique(cf["date"]):
+                    if not np.isnat(dt):
+                        cf_dt = cf.copy()
+                        cf_dt[cf_dt["date"] != dt] = 0
+                        yield cf_dt, self.currencies[i], dt
 
     def _group_cashflows(self) -> Iterable[Tuple[np.ndarray, str, np.datetime64]]:
         def grpkey(
