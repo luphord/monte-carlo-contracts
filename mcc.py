@@ -11,7 +11,8 @@ __version__ = """0.3.0"""
 
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
-from typing import Final, Union, Mapping, Tuple, Set
+from itertools import groupby
+from typing import Final, Union, Mapping, Tuple, Set, Iterable
 from numbers import Real
 import numpy as np
 from dataclasses import dataclass
@@ -20,6 +21,28 @@ from dataclasses import dataclass
 _ccy_letters = 3
 _null_ccy = "NNN"
 ArrayLike = Union[np.ndarray, float]
+
+
+@dataclass
+class SimpleCashflows:
+    cashflows: np.ndarray
+    currencies: np.ndarray
+    dates: np.ndarray
+    nsim: int
+
+    def __init__(
+        self, cashflows: np.ndarray, currencies: np.ndarray, dates: np.ndarray
+    ):
+        assert cashflows.dtype == np.float64
+        assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
+        assert currencies.dtype == (np.unicode_, _ccy_letters)
+        assert currencies.shape == (cashflows.shape[1],)
+        assert dates.dtype == "datetime64[D]"
+        assert dates.shape == (cashflows.shape[1],)
+        self.cashflows = cashflows
+        self.currencies = currencies
+        self.dates = dates
+        self.nsim = cashflows.shape[0]
 
 
 class SimulatedCashflows:
@@ -40,6 +63,37 @@ class SimulatedCashflows:
         self.currencies = currencies
         self.nsim = cashflows.shape[0]
         self.ncashflows = cashflows.shape[1]
+
+    def _split_by_date(self) -> Iterable[Tuple[np.ndarray, str, np.datetime64]]:
+        for i, cf in enumerate(self.cashflows.T):
+            for dt in np.unique(cf["date"]):
+                cf_dt = cf.copy()
+                cf_dt[cf_dt["date"] != dt] = 0
+                yield cf_dt, self.currencies[i], dt
+
+    def _group_cashflows(self) -> Iterable[Tuple[np.ndarray, str, np.datetime64]]:
+        def grpkey(
+            entry: Tuple[np.ndarray, str, np.datetime64]
+        ) -> Tuple[np.datetime64, str]:
+            cf, ccy, dt = entry
+            return (dt, ccy)
+
+        for key, entries in groupby(sorted(self._split_by_date(), key=grpkey), grpkey):
+            dt, ccy = key
+            yield sum(cf["value"] for cf, _, _ in entries), ccy, dt
+
+    def to_simple_cashflows(self) -> SimpleCashflows:
+        grouped_cf = list(self._group_cashflows())
+        assert grouped_cf, "Got no cashflows to convert"
+        numcf = len(grouped_cf)
+        cashflows = np.ndarray((self.nsim, numcf), dtype=np.float64)
+        currencies = np.ndarray((numcf,), dtype=(np.unicode_, _ccy_letters))
+        dates = np.ndarray((numcf,), dtype="datetime64[D]")
+        for i, (cf, ccy, dt) in enumerate(grouped_cf):
+            cashflows[:, i] = cf
+            currencies[i] = ccy
+            dates[i] = dt
+        return SimpleCashflows(cashflows, currencies, dates)
 
 
 class IndexedCashflows:

@@ -70,6 +70,14 @@ class TestMonteCarloContracts(unittest.TestCase):
         args = parser.parse_args(["--version"])
         self.assertEqual(args.version, True)
 
+    def test_simple_cashflows(self) -> None:
+        model = _make_model()
+        cf = model.generate_cashflows(Cond(AlternatingBool(), One("EUR"), One("USD")))
+        simplecf = cf.to_simple_cashflows()
+        self.assertEqual(simplecf.nsim, model.nsim)
+        self.assertEqual(simplecf.currencies.shape, (2,))
+        self.assertEqual(simplecf.dates.shape, (2,))
+
     def test_cashflows(self) -> None:
         n = 10
         k = 2
