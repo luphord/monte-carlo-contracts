@@ -86,6 +86,11 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(simplecf2.currencies.shape, (1,))
         self.assertEqual(simplecf2.currencies[0], "USD")
         self.assertEqual(simplecf2.dates.shape, (1,))
+        simplecf3 = model.generate_simple_cashflows_in_numeraire_currency(c)
+        self.assertEqual(simplecf3.nsim, model.nsim)
+        self.assertEqual(simplecf3.currencies.shape, (1,))
+        self.assertEqual(simplecf3.currencies[0], model.numeraire_currency)
+        self.assertEqual(simplecf3.dates.shape, (1,))
 
     def test_cashflows(self) -> None:
         n = 10

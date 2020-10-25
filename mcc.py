@@ -295,6 +295,13 @@ class Model:
             .to_simple_cashflows()
         )
 
+    def generate_simple_cashflows_in_numeraire_currency(
+        self, contract: "Contract"
+    ) -> SimpleCashflows:
+        return self.generate_simple_cashflows_in_currency(
+            contract, self.numeraire_currency
+        )
+
     def in_currency(
         self, cashflows: IndexedCashflows, currency: str
     ) -> IndexedCashflows:
