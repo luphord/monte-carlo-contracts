@@ -281,6 +281,20 @@ class Model:
     def generate_cashflows(self, contract: "Contract") -> SimulatedCashflows:
         return contract.generate_cashflows(self.eval_date_index, self).apply_index()
 
+    def generate_simple_cashflows(self, contract: "Contract") -> SimpleCashflows:
+        return self.generate_cashflows(contract).to_simple_cashflows()
+
+    def generate_simple_cashflows_in_currency(
+        self, contract: "Contract", currency: str
+    ) -> SimpleCashflows:
+        return (
+            self.in_currency(
+                contract.generate_cashflows(self.eval_date_index, self), currency
+            )
+            .apply_index()
+            .to_simple_cashflows()
+        )
+
     def in_currency(
         self, cashflows: IndexedCashflows, currency: str
     ) -> IndexedCashflows:

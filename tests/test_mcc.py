@@ -72,11 +72,20 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_simple_cashflows(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Cond(AlternatingBool(), One("EUR"), One("USD")))
+        c = Cond(AlternatingBool(), One("EUR"), One("USD"))
+        cf = model.generate_cashflows(c)
         simplecf = cf.to_simple_cashflows()
         self.assertEqual(simplecf.nsim, model.nsim)
         self.assertEqual(simplecf.currencies.shape, (2,))
         self.assertEqual(simplecf.dates.shape, (2,))
+        self.assertTrue(
+            (simplecf.cashflows == model.generate_simple_cashflows(c).cashflows).all()
+        )
+        simplecf2 = model.generate_simple_cashflows_in_currency(c, "USD")
+        self.assertEqual(simplecf2.nsim, model.nsim)
+        self.assertEqual(simplecf2.currencies.shape, (1,))
+        self.assertEqual(simplecf2.currencies[0], "USD")
+        self.assertEqual(simplecf2.dates.shape, (1,))
 
     def test_cashflows(self) -> None:
         n = 10
