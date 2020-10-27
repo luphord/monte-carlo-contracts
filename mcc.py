@@ -330,6 +330,15 @@ class Model:
     def in_numeraire_currency(self, cashflows: IndexedCashflows) -> IndexedCashflows:
         return self.in_currency(cashflows, self.numeraire_currency)
 
+    def discount(self, cashflows: IndexedCashflows) -> np.ndarray:
+        cfnum = self.in_numeraire_currency(cashflows)
+        discounted = np.zeros(cfnum.cashflows.shape, dtype=np.float64)
+        num_0 = self.numeraire[:, 0]
+        for i, cf in enumerate(cfnum.cashflows.T):
+            num_t = DateIndex(cf["index"]).index_column(self.numeraire)
+            discounted[:, i] = cf["value"] * num_t / num_0
+        return discounted
+
 
 class ObservableFloat(ABC):
     """Abstract base class for all observables of underlying type float,
