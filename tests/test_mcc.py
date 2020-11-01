@@ -27,6 +27,7 @@ from mcc import (
     EuropeanOption,
     BrownianMotion,
     GeometricBrownianMotion,
+    simulate_equity_black_scholes_model,
 )
 
 
@@ -527,3 +528,19 @@ class TestMonteCarloContracts(unittest.TestCase):
         x = gbm.simulate(t, n, rnd)
         self.assertEqual((n, t.size), x.shape)
         self.assertEqual(n, x[:, -1].size)
+
+    def test_equity_black_scholes(self) -> None:
+        dategrid = np.arange(
+            np.datetime64("2020-01-01"),
+            np.datetime64("2020-01-10"),
+            dtype="datetime64[D]",
+        )
+        rnd = np.random.RandomState(seed=123)
+        ndates = dategrid.size
+        n = 100
+        m = simulate_equity_black_scholes_model(
+            "ABC", "EUR", 123, dategrid, 0.2, 0.02, n, rnd
+        )
+        self.assertIn("ABC", m.simulated_stocks)
+        self.assertEqual(m.simulated_stocks["ABC"].shape, (n, ndates))
+        self.assertEqual(m.numeraire.shape, (n, ndates))
