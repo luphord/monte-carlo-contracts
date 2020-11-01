@@ -33,6 +33,11 @@ python3 mcc.py
 
 ## History
 
+### 0.4.0 (not yet)
+
+* Discounting (`Model.discount`)
+* Evaluation (`Model.evaluate`)
+
 ### 0.3.0 (2020-10-23)
 * Simulation of basic contract `Until`
 * Currency conversion of `IndexedCashflows`
