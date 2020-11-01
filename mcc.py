@@ -760,6 +760,11 @@ class GeometricBrownianMotion:
         return np.exp(self.sigma * W.T + (self.mu - self.sigma ** 2 / 2) * t)
 
 
+def _get_year_fractions(dategrid: np.ndarray) -> np.ndarray:
+    assert dategrid.dtype == "datetime64[D]"
+    return (dategrid - dategrid[0]).astype(np.float64) / 365
+
+
 def simulate_equity_black_scholes_model(
     stock: str,
     currency: str,
@@ -772,7 +777,7 @@ def simulate_equity_black_scholes_model(
 ) -> Model:
     assert dategrid.dtype == "datetime64[D]"
     ndates = dategrid.size
-    yearfractions = (dategrid - dategrid[0]).astype(np.float64) / 365
+    yearfractions = _get_year_fractions(dategrid)
     s = S0 * GeometricBrownianMotion(r, sigma).simulate(yearfractions, n, rnd)
     numeraire = np.repeat(np.exp(r * yearfractions).reshape((1, ndates)), n, axis=0)
     return Model(dategrid, {}, {stock: s}, numeraire, currency)
