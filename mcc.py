@@ -724,7 +724,23 @@ class EuropeanOption(ResolvableContract):
         return When(At(self.maturity), Or(self.contract, Zero()))
 
 
-class BrownianMotion:
+class StochasticProcess(ABC):
+    """Base class for stochastic processes."""
+
+    @abstractmethod
+    def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
+        pass
+
+    @abstractmethod
+    def expected(self, t: np.ndarray) -> np.ndarray:
+        pass
+
+    @abstractmethod
+    def stddev(self, t: np.ndarray) -> np.ndarray:
+        pass
+
+
+class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
 
     def __init__(self, mu: float = 0.0, sigma: float = 1.0):
@@ -748,7 +764,7 @@ class BrownianMotion:
         return np.sqrt(self.sigma ** 2 * t)
 
 
-class GeometricBrownianMotion:
+class GeometricBrownianMotion(StochasticProcess):
     """Geometric Brownian Motion.(with optional drift)."""
 
     def __init__(self, mu: float = 0.0, sigma: float = 1.0):
