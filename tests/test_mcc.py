@@ -523,11 +523,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         t = np.linspace(0, 20, 20)
         n = 200
         x = bm.simulate(t, n, rnd)
+        bm.expected(t), bm.stddev(t)
         self.assertEqual((n, t.size), x.shape)
         self.assertEqual(n, x[:, -1].size)
         x = gbm.simulate(t, n, rnd)
         self.assertEqual((n, t.size), x.shape)
         self.assertEqual(n, x[:, -1].size)
+        gbm.expected(t), gbm.stddev(t)
 
     def test_equity_black_scholes(self) -> None:
         dategrid = np.arange(

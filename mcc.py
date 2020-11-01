@@ -741,6 +741,12 @@ class BrownianMotion:
         W_drift = W * np.sqrt(dt) * self.sigma + self.mu * dt
         return np.cumsum(W_drift, axis=1)
 
+    def expected(self, t: np.ndarray) -> np.ndarray:
+        return self.mu * t
+
+    def stddev(self, t: np.ndarray) -> np.ndarray:
+        return np.sqrt(self.sigma ** 2 * t)
+
 
 class GeometricBrownianMotion:
     """Geometric Brownian Motion.(with optional drift)."""
@@ -758,6 +764,12 @@ class GeometricBrownianMotion:
         dW = (rnd.normal(size=(t.size, n)).T * np.sqrt(dt)).T
         W = np.cumsum(dW, axis=0)
         return np.exp(self.sigma * W.T + (self.mu - self.sigma ** 2 / 2) * t)
+
+    def expected(self, t: np.ndarray) -> np.ndarray:
+        return np.exp(self.mu * t)
+
+    def stddev(self, t: np.ndarray) -> np.ndarray:
+        return np.sqrt(np.exp(2 * self.mu * t) * (np.exp(self.sigma ** 2 * t) - 1))
 
 
 def _get_year_fractions(dategrid: np.ndarray) -> np.ndarray:
