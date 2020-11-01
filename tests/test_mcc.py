@@ -473,6 +473,12 @@ class TestMonteCarloContracts(unittest.TestCase):
         cf = c.generate_cashflows(model.eval_date_index, model)
         model.discount(cf)
 
+    def test_evaluation(self) -> None:
+        model = _make_model()
+        c = When(At(model.dategrid[-1]), One("EUR"))
+        npv = model.evaluate(c)
+        self.assertEqual(npv, 1)
+
     def test_zero_coupon_bond(self) -> None:
         model = _make_model()
         notional = 1234

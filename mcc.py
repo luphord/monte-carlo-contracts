@@ -339,6 +339,21 @@ class Model:
             discounted[:, i] = cf["value"] * num_t / num_0
         return discounted
 
+    def evaluate(
+        self, cashflows_or_contract: Union[IndexedCashflows, "Contract"]
+    ) -> float:
+        cf: IndexedCashflows
+        if isinstance(cashflows_or_contract, IndexedCashflows):
+            cf = cashflows_or_contract
+        elif isinstance(cashflows_or_contract, Contract):
+            cf = cashflows_or_contract.generate_cashflows(self.eval_date_index, self)
+        else:
+            raise TypeError(
+                "Expecting IndexedCashflows or Contract, "
+                f"got {type(cashflows_or_contract)}"
+            )
+        return self.discount(cf).sum(axis=1).mean(axis=0)
+
 
 class ObservableFloat(ABC):
     """Abstract base class for all observables of underlying type float,
