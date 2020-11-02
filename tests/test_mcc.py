@@ -533,6 +533,19 @@ class TestMonteCarloContracts(unittest.TestCase):
         gbm.expected(t), gbm.stddev(t)
         gbm.moment_match(t, x)
 
+    def test_moment_matched_brownian_motions(self) -> None:
+        bm = BrownianMotion(mu=1, sigma=1)
+        rnd = np.random.RandomState(1234)
+        t = np.linspace(0, 20, 20)
+        n = 200
+        x = bm.simulate_with_moment_matching(t, n, rnd)
+        self.assertTrue(np.allclose(x.mean(axis=0), t))
+        self.assertTrue(np.allclose(x.std(axis=0), np.sqrt(t)))
+        gbm = GeometricBrownianMotion(mu=0, sigma=1)
+        x = gbm.simulate_with_moment_matching(t, n, rnd)
+        self.assertTrue(np.allclose(x.mean(axis=0), np.ones(t.shape)))
+        self.assertTrue(np.allclose(x.var(axis=0), np.exp(t) - 1))
+
     def test_equity_black_scholes(self) -> None:
         dategrid = np.arange(
             np.datetime64("2020-01-01"),

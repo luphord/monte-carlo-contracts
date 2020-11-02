@@ -755,6 +755,11 @@ class StochasticProcess(ABC):
         actual_stddev[actual_stddev == 0] = 1  # prevent division by zero
         return (paths - actual_mean) / actual_stddev * target_stddev + target_mean
 
+    def simulate_with_moment_matching(
+        self, t: np.array, n: int, rnd: np.random.RandomState
+    ) -> np.array:
+        return self.moment_match(t, self.simulate(t, n, rnd))
+
 
 class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
