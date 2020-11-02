@@ -469,10 +469,26 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_discounting(self) -> None:
-        model = _make_model()
-        c = When(At(model.dategrid[-1]), One("USD"))
-        cf = c.generate_cashflows(model.eval_date_index, model)
-        model.discount(cf)
+        dategrid = np.arange(
+            np.datetime64("2020-01-01"),
+            np.datetime64("2020-06-01"),
+            30,
+            dtype="datetime64[D]",
+        )
+        rnd = np.random.RandomState(seed=123)
+        n = 100
+        rate = 0.03
+        model = simulate_equity_black_scholes_model(
+            "ABC", "USD", 123, dategrid, 0.2, rate, n, rnd, use_moment_matching=True
+        )
+        for t in dategrid:
+            c = When(At(t), One("USD"))
+            cf = c.generate_cashflows(model.eval_date_index, model)
+            npv = model.discount(cf)[:, 0].mean()
+            self.assertEqual(model.evaluate(c), npv)
+            self.assertEqual(model.evaluate(cf), npv)
+            dt = (t - dategrid[0]).astype(np.float64) / 365
+            self.assertTrue(np.isclose(npv, np.exp(-rate * dt)))
 
     def test_evaluation(self) -> None:
         model = _make_model()
