@@ -739,6 +739,22 @@ class StochasticProcess(ABC):
     def stddev(self, t: np.ndarray) -> np.ndarray:
         pass
 
+    def moment_match(self, t: np.ndarray, paths: np.ndarray) -> np.ndarray:
+        assert t.ndim == 1, "One dimensional time vector required"
+        ndates = t.size
+        assert ndates > 0, "At least one time point is required"
+        assert paths.ndim == 2
+        assert paths.shape[1] == ndates
+        target_mean = self.expected(t)
+        target_stddev = self.stddev(t)
+        actual_mean = paths.mean(axis=0)
+        actual_stddev = paths.std(axis=0)
+        assert (
+            target_stddev[actual_stddev == 0] == 0
+        ), "Cannot scale actual standard deviation of zero to any other value than zero"
+        actual_stddev[actual_stddev == 0] = 1  # prevent division by zero
+        return (paths - actual_mean) / actual_stddev * target_stddev + target_mean
+
 
 class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
