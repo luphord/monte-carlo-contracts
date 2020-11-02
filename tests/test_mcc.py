@@ -556,7 +556,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         ndates = dategrid.size
         n = 100
         m = simulate_equity_black_scholes_model(
-            "ABC", "EUR", 123, dategrid, 0.2, 0.02, n, rnd
+            "ABC", "EUR", 123, dategrid, 0.2, 0.02, n, rnd, use_moment_matching=True
         )
         self.assertIn("ABC", m.simulated_stocks)
         self.assertEqual(m.simulated_stocks["ABC"].shape, (n, ndates))

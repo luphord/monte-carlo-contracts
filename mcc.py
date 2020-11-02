@@ -823,11 +823,17 @@ def simulate_equity_black_scholes_model(
     r: float,
     n: int,
     rnd: np.random.RandomState,
+    use_moment_matching: bool = False,
 ) -> Model:
     assert dategrid.dtype == "datetime64[D]"
     ndates = dategrid.size
     yearfractions = _get_year_fractions(dategrid)
-    s = S0 * GeometricBrownianMotion(r, sigma).simulate(yearfractions, n, rnd)
+    gbm = GeometricBrownianMotion(r, sigma)
+    s = S0 * (
+        gbm.simulate_with_moment_matching(yearfractions, n, rnd)
+        if use_moment_matching
+        else gbm.simulate(yearfractions, n, rnd)
+    )
     numeraire = np.repeat(np.exp(r * yearfractions).reshape((1, ndates)), n, axis=0)
     return Model(dategrid, {}, {stock: s}, numeraire, currency)
 
