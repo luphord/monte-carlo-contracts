@@ -33,10 +33,11 @@ python3 mcc.py
 
 ## History
 
-### 0.4.0 (not yet)
+### 0.4.0 (2020-11-04)
 
 * Discounting (`Model.discount`)
 * Evaluation (`Model.evaluate`)
+* String representations for contracts and observables
 
 ### 0.3.0 (2020-10-23)
 * Simulation of basic contract `Until`
