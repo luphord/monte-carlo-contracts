@@ -396,6 +396,9 @@ class Stock(ObservableFloat):
     def simulate(self, model: Model) -> np.ndarray:
         return model.simulated_stocks[self.identifier]
 
+    def __str__(self) -> str:
+        return f"Stock({self.identifier})"
+
 
 @dataclass
 class FX(ObservableFloat):
@@ -408,6 +411,9 @@ class FX(ObservableFloat):
     def simulate(self, model: Model) -> np.ndarray:
         return model.get_simulated_fx(self.base_currency, self.counter_currency)
 
+    def __str__(self) -> str:
+        return f"FX({self.base_currency}/{self.counter_currency})"
+
 
 @dataclass
 class KonstFloat(ObservableFloat):
@@ -417,6 +423,9 @@ class KonstFloat(ObservableFloat):
 
     def simulate(self, model: Model) -> np.ndarray:
         return self.constant * np.ones(model.shape, dtype=np.float)
+
+    def __str__(self) -> str:
+        return str(self.constant)
 
 
 class ObservableBool(ABC):
@@ -445,6 +454,9 @@ class Not(ObservableBool):
     def simulate(self, model: Model) -> np.ndarray:
         return ~self.observable.simulate(model)
 
+    def __str__(self) -> str:
+        return f"~({self.observable})"
+
 
 @dataclass
 class AndObservable(ObservableBool):
@@ -455,6 +467,9 @@ class AndObservable(ObservableBool):
 
     def simulate(self, model: Model) -> np.ndarray:
         return self.observable1.simulate(model) & self.observable2.simulate(model)
+
+    def __str__(self) -> str:
+        return f"({self.observable1}) & ({self.observable2})"
 
 
 @dataclass
@@ -467,6 +482,9 @@ class OrObservable(ObservableBool):
     def simulate(self, model: Model) -> np.ndarray:
         return self.observable1.simulate(model) | self.observable2.simulate(model)
 
+    def __str__(self) -> str:
+        return f"({self.observable1}) | ({self.observable2})"
+
 
 @dataclass
 class GreaterOrEqualThan(ObservableBool):
@@ -477,6 +495,9 @@ class GreaterOrEqualThan(ObservableBool):
 
     def simulate(self, model: Model) -> np.ndarray:
         return self.observable1.simulate(model) >= self.observable2.simulate(model)
+
+    def __str__(self) -> str:
+        return f"{self.observable1} >= {self.observable2}"
 
 
 @dataclass
@@ -489,6 +510,9 @@ class GreaterThan(ObservableBool):
     def simulate(self, model: Model) -> np.ndarray:
         return self.observable1.simulate(model) > self.observable2.simulate(model)
 
+    def __str__(self) -> str:
+        return f"{self.observable1} > {self.observable2}"
+
 
 @dataclass
 class At(ObservableBool):
@@ -500,6 +524,9 @@ class At(ObservableBool):
         mask = (model.dategrid == self.date).reshape((1, model.ndates))
         assert mask.any(), f"{self.date} not contained in dategrid"
         return np.repeat(mask, model.nsim, axis=0)
+
+    def __str__(self) -> str:
+        return str(self.date)
 
 
 class Contract(ABC):
@@ -525,6 +552,9 @@ class Zero(Contract):
         ccys = np.array([_null_ccy], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
+    def __str__(self) -> str:
+        return "Zero"
+
 
 @dataclass
 class One(Contract):
@@ -543,6 +573,9 @@ class One(Contract):
         ccys = np.array([self.currency], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
+    def __str__(self) -> str:
+        return f"One({self.currency})"
+
 
 @dataclass
 class Give(Contract):
@@ -555,6 +588,9 @@ class Give(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         return -self.contract.generate_cashflows(acquisition_idx, model)
+
+    def __str__(self) -> str:
+        return f"Give({self.contract})"
 
 
 @dataclass
@@ -570,6 +606,9 @@ class And(Contract):
         cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
         cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
         return cf1 + cf2
+
+    def __str__(self) -> str:
+        return f"And({self.contract1}, {self.contract2})"
 
 
 @dataclass
@@ -603,6 +642,9 @@ class Or(Contract):
         cf2.cashflows["value"][choose1] = 0
         return cf1 + cf2
 
+    def __str__(self) -> str:
+        return f"Or({self.contract1}, {self.contract2})"
+
 
 @dataclass
 class Cond(Contract):
@@ -627,6 +669,9 @@ class Cond(Contract):
         cf2.cashflows["value"][never, :] = 0
         return cf1 + cf2
 
+    def __str__(self) -> str:
+        return f"Cond({self.observable}, {self.contract1}, {self.contract2})"
+
 
 @dataclass
 class Scale(Contract):
@@ -647,6 +692,9 @@ class Scale(Contract):
         assert obs.shape[0] == model.nsim
         return cf * obs
 
+    def __str__(self) -> str:
+        return f"Scale({self.observable}, {self.contract})"
+
 
 @dataclass
 class When(Contract):
@@ -662,6 +710,9 @@ class When(Contract):
         idx = acquisition_idx.next_after(self.observable.simulate(model))
         return self.contract.generate_cashflows(idx, model)
 
+    def __str__(self) -> str:
+        return f"When({self.observable}, {self.contract})"
+
 
 @dataclass
 class Anytime(Contract):
@@ -675,6 +726,9 @@ class Anytime(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         raise NotImplementedError()
+
+    def __str__(self) -> str:
+        return f"Anytime({self.observable}, {self.contract})"
 
 
 @dataclass
@@ -692,6 +746,9 @@ class Until(Contract):
         ko_idx = acquisition_idx.next_after(self.observable.simulate(model))
         return cf.zero_after(ko_idx)
 
+    def __str__(self) -> str:
+        return f"Until({self.observable}, {self.contract})"
+
 
 class ResolvableContract(Contract):
     @abstractmethod
@@ -702,6 +759,9 @@ class ResolvableContract(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         return self.resolve().generate_cashflows(acquisition_idx, model)
+
+    def __str__(self) -> str:
+        return str(self.resolve())
 
 
 @dataclass

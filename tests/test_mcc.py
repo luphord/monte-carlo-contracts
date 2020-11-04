@@ -21,6 +21,7 @@ from mcc import (
     When,
     Cond,
     Until,
+    Anytime,
     Contract,
     ResolvableContract,
     ZeroCouponBond,
@@ -180,6 +181,30 @@ class TestMonteCarloContracts(unittest.TestCase):
         c = MyContract(model.dategrid[-1], 1234)
         model.generate_cashflows(c)
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
+
+    def test_contract_str(self) -> None:
+        c = And(
+            Or(
+                Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
+                When(At(np.datetime64("2030-07-14")), One("EUR")),
+            ),
+            And(
+                Until(
+                    FX("EUR", "USD") < 1.0, Give(Scale(KonstFloat(1.23), One("USD")))
+                ),
+                Anytime(
+                    (Stock("DEF") >= 50) | (Stock("DEF") < 20),
+                    Scale(Stock("ABC"), One("EUR")),
+                ),
+            ),
+        )
+        expected = (
+            "And(Or(Cond((Stock(ABC) > 28) & (~(Stock(DEF) > 28)), Zero, One(USD)), "
+            "When(2030-07-14, One(EUR))), And(Until(~(FX(EUR/USD) >= 1.0), "
+            "Give(Scale(1.23, One(USD)))), Anytime((Stock(DEF) >= 50) "
+            "| (~(Stock(DEF) >= 20)), Scale(Stock(ABC), One(EUR)))))"
+        )
+        self.assertEqual(str(c), expected)
 
     def test_model_creation(self) -> None:
         nsim = 100
