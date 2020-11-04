@@ -336,6 +336,7 @@ class Model:
         num_0 = self.numeraire[:, 0]
         for i, cf in enumerate(cfnum.cashflows.T):
             num_t = DateIndex(cf["index"]).index_column(self.numeraire)
+            num_t[cf["index"] < 0] = 1  # cashflow happens never anyway
             discounted[:, i] = cf["value"] / num_t * num_0
         return discounted
 

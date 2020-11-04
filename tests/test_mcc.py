@@ -489,6 +489,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             self.assertEqual(model.evaluate(cf), npv)
             dt = (t - dategrid[0]).astype(np.float64) / 365
             self.assertTrue(np.isclose(npv, np.exp(-rate * dt)))
+        model.evaluate(When(Stock("ABC") > 130, One("USD")))
 
     def test_evaluation(self) -> None:
         model = _make_model()
