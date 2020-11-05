@@ -33,6 +33,11 @@ python3 mcc.py
 
 ## History
 
+### 0.5.0 (not yet)
+
+* Observables support arithmetic operations (binary `+`, `-`, `*`, `/`, `**` and unary `-`)
+  with other observables as well as constants (also right operators work)
+
 ### 0.4.0 (2020-11-04)
 
 * Discounting (`Model.discount`)
