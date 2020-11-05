@@ -378,6 +378,17 @@ class ObservableFloat(ABC):
     def __neg__(self) -> "ObservableFloat":
         return Minus(self)
 
+    def __sub__(self, other: Union["ObservableFloat", float]) -> "ObservableFloat":
+        if isinstance(other, ObservableFloat):
+            return Sum(self, -other)
+        elif isinstance(other, Real):
+            return Sum(self, -KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
+    def __rsub__(self, other: float) -> "ObservableFloat":
+        return Sum(KonstFloat(other), -self)
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
