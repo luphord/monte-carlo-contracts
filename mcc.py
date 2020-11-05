@@ -375,6 +375,9 @@ class ObservableFloat(ABC):
     def __radd__(self, other: float) -> "ObservableFloat":
         return Sum(KonstFloat(other), self)
 
+    def __neg__(self) -> "ObservableFloat":
+        return Minus(self)
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
@@ -410,6 +413,19 @@ class Sum(ObservableFloat):
 
     def __str__(self) -> str:
         return f"({self.observable1}) + ({self.observable2})"
+
+
+@dataclass
+class Minus(ObservableFloat):
+    """Negative value of observable"""
+
+    observable: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return -self.observable.simulate(model)
+
+    def __str__(self) -> str:
+        return f"-{self.observable}"
 
 
 @dataclass

@@ -230,6 +230,8 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.allclose(once + 123, addconst))
         constadd = (123 + Stock("ABC")).simulate(model)
         self.assertTrue(np.allclose(123 + once, constadd))
+        minus = (-Stock("ABC")).simulate(model)
+        self.assertTrue(np.allclose(minus, -once))
 
     def test_observable_float_comparisons(self) -> None:
         model = _make_model()
