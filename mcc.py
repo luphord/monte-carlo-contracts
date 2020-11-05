@@ -364,6 +364,14 @@ class ObservableFloat(ABC):
     def simulate(self, model: Model) -> np.ndarray:
         pass
 
+    def __add__(self, other: Union["ObservableFloat", float]) -> "ObservableFloat":
+        if isinstance(other, ObservableFloat):
+            return Sum(self, other)
+        elif isinstance(other, Real):
+            return Sum(self, KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
@@ -385,6 +393,20 @@ class ObservableFloat(ABC):
 
     def __lt__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         return ~(self >= other)
+
+
+@dataclass
+class Sum(ObservableFloat):
+    """Equal to the sum of two observables"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) + self.observable2.simulate(model)
+
+    def __str__(self) -> str:
+        return f"({self.observable1}) + ({self.observable2})"
 
 
 @dataclass

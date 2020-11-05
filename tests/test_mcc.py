@@ -220,6 +220,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         idx1 = model.eval_date_index.next_after(at1.simulate(model))
         self.assertTrue((idx1.index == 1).all())
 
+    def test_observable_float_calculations(self) -> None:
+        model = _make_model()
+        stock_twice = Stock("ABC") + Stock("ABC")
+        once = Stock("ABC").simulate(model)
+        twice = stock_twice.simulate(model)
+        self.assertTrue(np.allclose(2 * once, twice))
+
     def test_observable_float_comparisons(self) -> None:
         model = _make_model()
         # greater or equal
