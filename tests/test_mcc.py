@@ -205,6 +205,11 @@ class TestMonteCarloContracts(unittest.TestCase):
             "| (~(Stock(DEF) >= 20)), Scale(Stock(ABC), One(EUR)))))"
         )
         self.assertEqual(str(c), expected)
+        c2 = Scale(Stock("ABC") ** 2 / (Stock("DEF") - 1.7) + 42, One("EUR"))
+        self.assertEqual(
+            str(c2),
+            "Scale((((Stock(ABC)) ** (2)) / ((Stock(DEF)) + (-1.7))) + (42), One(EUR))",
+        )
 
     def test_model_creation(self) -> None:
         nsim = 100
