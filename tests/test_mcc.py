@@ -252,6 +252,14 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.allclose(one, np.ones(shape=zero.shape)))
         org = (1 / (1 / Stock("ABC"))).simulate(model)
         self.assertTrue(np.allclose(org, once))
+        stockpower = (Stock("ABC") ** 123).simulate(model)
+        self.assertTrue(np.allclose(stockpower, once ** 123))
+        powerstock = (123 ** Stock("ABC")).simulate(model)
+        self.assertTrue(np.allclose(powerstock, 123 ** once))
+        stockstock = (Stock("ABC") ** Stock("ABC")).simulate(model)
+        self.assertTrue(np.allclose(stockstock, once ** once))
+        org2 = ((Stock("ABC") ** 3) ** (1 / 3)).simulate(model)
+        self.assertTrue(np.allclose(org2, once))
 
     def test_observable_float_comparisons(self) -> None:
         model = _make_model()

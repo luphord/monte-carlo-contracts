@@ -411,6 +411,17 @@ class ObservableFloat(ABC):
     def __rtruediv__(self, other: float) -> "ObservableFloat":
         return Quotient(KonstFloat(other), self)
 
+    def __pow__(self, other: Union["ObservableFloat", float]) -> "ObservableFloat":
+        if isinstance(other, ObservableFloat):
+            return Power(self, other)
+        elif isinstance(other, Real):
+            return Power(self, KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
+    def __rpow__(self, other: float) -> "ObservableFloat":
+        return Power(KonstFloat(other), self)
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
@@ -487,6 +498,20 @@ class Quotient(ObservableFloat):
 
     def __str__(self) -> str:
         return f"({self.observable1}) / ({self.observable2})"
+
+
+@dataclass
+class Power(ObservableFloat):
+    """Equal to observable1 to the power of observable2"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) ** self.observable2.simulate(model)
+
+    def __str__(self) -> str:
+        return f"({self.observable1}) ** ({self.observable2})"
 
 
 @dataclass
