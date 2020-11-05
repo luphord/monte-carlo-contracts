@@ -226,6 +226,10 @@ class TestMonteCarloContracts(unittest.TestCase):
         once = Stock("ABC").simulate(model)
         twice = stock_twice.simulate(model)
         self.assertTrue(np.allclose(2 * once, twice))
+        addconst = (Stock("ABC") + 123).simulate(model)
+        self.assertTrue(np.allclose(once + 123, addconst))
+        constadd = (123 + Stock("ABC")).simulate(model)
+        self.assertTrue(np.allclose(123 + once, constadd))
 
     def test_observable_float_comparisons(self) -> None:
         model = _make_model()

@@ -372,6 +372,9 @@ class ObservableFloat(ABC):
         else:
             raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
 
+    def __radd__(self, other: float) -> "ObservableFloat":
+        return Sum(KonstFloat(other), self)
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
