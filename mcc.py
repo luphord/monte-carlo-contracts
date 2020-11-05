@@ -389,6 +389,17 @@ class ObservableFloat(ABC):
     def __rsub__(self, other: float) -> "ObservableFloat":
         return Sum(KonstFloat(other), -self)
 
+    def __mul__(self, other: Union["ObservableFloat", float]) -> "ObservableFloat":
+        if isinstance(other, ObservableFloat):
+            return Product(self, other)
+        elif isinstance(other, Real):
+            return Product(self, KonstFloat(other))
+        else:
+            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+
+    def __rmul__(self, other: float) -> "ObservableFloat":
+        return Product(KonstFloat(other), self)
+
     def __ge__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
             return GreaterOrEqualThan(self, other)
@@ -437,6 +448,20 @@ class Minus(ObservableFloat):
 
     def __str__(self) -> str:
         return f"-{self.observable}"
+
+
+@dataclass
+class Product(ObservableFloat):
+    """Equal to the product of two observables"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return self.observable1.simulate(model) * self.observable2.simulate(model)
+
+    def __str__(self) -> str:
+        return f"({self.observable1}) * ({self.observable2})"
 
 
 @dataclass
