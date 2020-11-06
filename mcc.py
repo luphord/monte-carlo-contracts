@@ -552,6 +552,21 @@ class FX(ObservableFloat):
 
 
 @dataclass
+class LinearRate(ObservableFloat):
+    """Value of the linear rate (e.g. a LIBOR) with payment frequency
+    in currency"""
+
+    currency: str
+    frequency: str
+
+    def simulate(self, model: Model) -> np.ndarray:
+        return model.simulated_rates[self.currency].get_linear_rate(self.frequency)
+
+    def __str__(self) -> str:
+        return f"{self.currency}{self.frequency})"
+
+
+@dataclass
 class KonstFloat(ObservableFloat):
     """Always equal to constant"""
 

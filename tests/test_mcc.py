@@ -7,8 +7,10 @@ from mcc import (
     IndexedCashflows,
     DateIndex,
     Model,
+    TermStructuresModel,
     ObservableBool,
     KonstFloat,
+    LinearRate,
     Stock,
     FX,
     At,
@@ -32,6 +34,14 @@ from mcc import (
 )
 
 
+@dataclass
+class DummyTermStructureModel(TermStructuresModel):
+    rate: np.ndarray
+
+    def get_linear_rate(self, frequency: str) -> np.ndarray:
+        return self.rate
+
+
 def _make_model(nsim: int = 100) -> Model:
     dategrid = np.arange(
         np.datetime64("2020-01-01"),
@@ -40,9 +50,17 @@ def _make_model(nsim: int = 100) -> Model:
     )
     numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
     rnd = np.random.RandomState(123)
+    rate = rnd.normal(size=(nsim, dategrid.size))
     eurusd = rnd.lognormal(size=(nsim, dategrid.size))
     abc = rnd.lognormal(size=(nsim, dategrid.size))
-    return Model(dategrid, {}, {("EUR", "USD"): eurusd}, {"ABC": abc}, numeraire, "EUR")
+    return Model(
+        dategrid,
+        {"EUR": DummyTermStructureModel(rate)},
+        {("EUR", "USD"): eurusd},
+        {"ABC": abc},
+        numeraire,
+        "EUR",
+    )
 
 
 @dataclass
@@ -308,6 +326,21 @@ class TestMonteCarloContracts(unittest.TestCase):
         alt2 = AlternatingBool(False)
         self.assertFalse((alt & alt2).simulate(model).any())
         self.assertTrue((alt | alt2).simulate(model).all())
+
+    def test_rates(self) -> None:
+        model = _make_model()
+        dategrid = model.dategrid.flatten()
+        yearfraction = (dategrid[-1] - dategrid[-3]).astype(np.float64) / 365
+        # note that this is an arrears fixing
+        c = When(
+            At(model.dategrid[-1]),
+            Scale(LinearRate("EUR", "3M") * yearfraction, One("EUR")),
+        )
+        cf = model.generate_cashflows(c)
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
+        self.assertEqual(cf.currencies[0], "EUR")
 
     def test_stock(self) -> None:
         model = _make_model()

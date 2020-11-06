@@ -37,6 +37,7 @@ python3 mcc.py
 
 * **BREAKING CHANGE**: Add `simulated_rates` to `Model` (included in constructor);
   pass an empty dict for `simulated_rates` to adapt your code
+* `LinearRate` observable supported by `TermStructureModel`
 * Observables support arithmetic operations (binary `+`, `-`, `*`, `/`, `**` and unary `-`)
   with other observables as well as constants (also right operators work)
 
