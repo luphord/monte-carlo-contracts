@@ -16,6 +16,7 @@ Also, this implementation is tailored towards Monte Carlo based cashflow generat
 ## Examples
 * [Equity Options](examples/Equity%20Options.ipynb)
 * [FX Options](examples/FX%20Options.ipynb)
+* [Working with Observables](examples/Observables.ipynb)
 
 ## Install
 
@@ -41,6 +42,7 @@ python3 mcc.py
 * `FixedAfter` observable to keep an observable fixed after a condition is true
 * Observables support arithmetic operations (binary `+`, `-`, `*`, `/`, `**` and unary `-`)
   with other observables as well as constants (also right operators work)
+* [Working with Observables](examples/Observables.ipynb) example notebook
 
 ### 0.4.0 (2020-11-04)
 
