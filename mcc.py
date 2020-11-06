@@ -999,7 +999,7 @@ class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
 
     def __init__(
-        self, mu_t: Callable[[float], float] = lambda t: t, sigma: float = 1.0
+        self, mu_t: Callable[[float], float] = lambda t: 0, sigma: float = 1.0
     ):
         self.mu_t = mu_t
         self.sigma = sigma
@@ -1024,8 +1024,10 @@ class BrownianMotion(StochasticProcess):
 class GeometricBrownianMotion(StochasticProcess):
     """Geometric Brownian Motion.(with optional drift)."""
 
-    def __init__(self, mu: float = 0.0, sigma: float = 1.0):
-        self.mu = mu
+    def __init__(
+        self, mu_t: Callable[[float], float] = lambda t: 0, sigma: float = 1.0
+    ):
+        self.mu_t = mu_t
         self.sigma = sigma
 
     def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
@@ -1036,13 +1038,13 @@ class GeometricBrownianMotion(StochasticProcess):
         # transposed simulation for automatic broadcasting
         dW = (rnd.normal(size=(t.size, n)).T * np.sqrt(dt)).T
         W = np.cumsum(dW, axis=0)
-        return np.exp(self.sigma * W.T + (self.mu - self.sigma ** 2 / 2) * t)
+        return np.exp(self.sigma * W.T + self.mu_t(t) - self.sigma ** 2 / 2 * t)
 
     def expected(self, t: np.ndarray) -> np.ndarray:
-        return np.exp(self.mu * t)
+        return np.exp(self.mu_t(t))
 
     def stddev(self, t: np.ndarray) -> np.ndarray:
-        return np.sqrt(np.exp(2 * self.mu * t) * (np.exp(self.sigma ** 2 * t) - 1))
+        return np.sqrt(np.exp(2 * self.mu_t(t)) * (np.exp(self.sigma ** 2 * t) - 1))
 
 
 def _get_year_fractions(dategrid: np.ndarray) -> np.ndarray:
@@ -1064,7 +1066,7 @@ def simulate_equity_black_scholes_model(
     assert dategrid.dtype == "datetime64[D]"
     ndates = dategrid.size
     yearfractions = _get_year_fractions(dategrid)
-    gbm = GeometricBrownianMotion(r, sigma)
+    gbm = GeometricBrownianMotion(lambda t: r * t, sigma)
     s = S0 * (
         gbm.simulate_with_moment_matching(yearfractions, n, rnd)
         if use_moment_matching
