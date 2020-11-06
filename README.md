@@ -38,6 +38,8 @@ python3 mcc.py
 
 * **BREAKING CHANGE**: Add `simulated_rates` to `Model` (included in constructor);
   pass an empty dict for `simulated_rates` to adapt your code
+* **BREAKING CHANGE**: `BrownianMotion` and `GeometricBrownianMotion` generalized to
+  dynamic mean/drift; pass `mu_t = lambda t: mu * t` to adapt your code
 * `LinearRate` observable supported by `TermStructureModel`
 * `FixedAfter` observable to keep an observable fixed after a condition is true
 * Observables support arithmetic operations (binary `+`, `-`, `*`, `/`, `**` and unary `-`)
