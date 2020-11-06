@@ -199,8 +199,15 @@ class DateIndex:
         return DateIndex(idx)
 
 
+class TermStructuresModel(ABC):
+    @abstractmethod
+    def get_linear_rate(self, frequency: str) -> np.ndarray:
+        pass
+
+
 class Model:
     dategrid: Final[np.ndarray]
+    simulated_rates: Final[Mapping[str, TermStructuresModel]]
     simulated_fx: Final[Mapping[Tuple[str, str], np.ndarray]]
     simulated_stocks: Final[Mapping[str, np.ndarray]]
     numeraire: Final[np.ndarray]
@@ -212,6 +219,7 @@ class Model:
     def __init__(
         self,
         dategrid: np.ndarray,
+        simulated_rates: Mapping[str, TermStructuresModel],
         simulated_fx: Mapping[Tuple[str, str], np.ndarray],
         simulated_stocks: Mapping[str, np.ndarray],
         numeraire: np.ndarray,
@@ -228,6 +236,7 @@ class Model:
         self.shape = (self.nsim, self.ndates)
         assert numeraire.shape == self.shape
         self.numeraire_currency = numeraire_currency
+        self.simulated_rates = simulated_rates
         for fxkey, val in simulated_fx.items():
             assert (
                 val.dtype == np.float
@@ -1023,7 +1032,7 @@ def simulate_equity_black_scholes_model(
         else gbm.simulate(yearfractions, n, rnd)
     )
     numeraire = np.repeat(np.exp(r * yearfractions).reshape((1, ndates)), n, axis=0)
-    return Model(dategrid, {}, {stock: s}, numeraire, currency)
+    return Model(dategrid, {}, {}, {stock: s}, numeraire, currency)
 
 
 parser = ArgumentParser(description=__doc__)

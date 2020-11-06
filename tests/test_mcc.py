@@ -42,7 +42,7 @@ def _make_model(nsim: int = 100) -> Model:
     rnd = np.random.RandomState(123)
     eurusd = rnd.lognormal(size=(nsim, dategrid.size))
     abc = rnd.lognormal(size=(nsim, dategrid.size))
-    return Model(dategrid, {("EUR", "USD"): eurusd}, {"ABC": abc}, numeraire, "EUR")
+    return Model(dategrid, {}, {("EUR", "USD"): eurusd}, {"ABC": abc}, numeraire, "EUR")
 
 
 @dataclass
@@ -145,6 +145,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model()
         model2 = Model(
             model.dategrid,
+            {},
             {},
             model.simulated_stocks,
             model.numeraire,
@@ -361,7 +362,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         ccyspot = np.arange(1, model.dategrid.size + 1, dtype=np.float_).reshape(
             numeraire.shape
         )
-        model2 = Model(model.dategrid, {("UND", "ACC"): ccyspot}, {}, numeraire, "UND")
+        model2 = Model(
+            model.dategrid, {}, {("UND", "ACC"): ccyspot}, {}, numeraire, "UND"
+        )
         self.assertEqual(model2.currencies, {"UND", "ACC"})
         for i, dt in enumerate(model2.dategrid):
             c = When(At(dt), One("UND"))
