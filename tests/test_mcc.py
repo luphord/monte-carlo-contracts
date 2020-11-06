@@ -11,6 +11,7 @@ from mcc import (
     ObservableBool,
     KonstFloat,
     LinearRate,
+    FixedAfter,
     Stock,
     FX,
     At,
@@ -316,6 +317,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
+
+    def test_fixed_after(self) -> None:
+        model = _make_model()
+        fixed1 = FixedAfter(AlternatingBool(), Stock("ABC"))
+        fixed1sim = fixed1.simulate(model)
+        altsim = AlternatingBool().simulate(model)
+        self.assertTrue(
+            np.allclose(fixed1sim[altsim[:, 0], 0], fixed1sim[altsim[:, 0], -1])
+        )
+        self.assertFalse(
+            np.isclose(fixed1sim[~altsim[:, 0], 0], fixed1sim[~altsim[:, 0], -1]).any()
+        )
+        fixed2 = FixedAfter(At(model.dategrid[-2, 0]), Stock("ABC"))
+        fixed2sim = fixed2.simulate(model)
+        self.assertTrue(np.allclose(fixed2sim[:, -2], fixed2sim[:, -1]))
+        self.assertFalse(np.isclose(fixed2sim[:, -3], fixed2sim[:, -1]).any())
 
     def test_boolean_operators(self) -> None:
         model = _make_model()

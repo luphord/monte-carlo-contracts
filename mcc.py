@@ -524,6 +524,28 @@ class Power(ObservableFloat):
 
 
 @dataclass
+class FixedAfter(ObservableFloat):
+    """Equal to observable, but remains constant as soon as
+    fixing_condition becomes true (seen from the beginning,
+    not from acquisition date)"""
+
+    fixing_condition: "ObservableBool"
+    observable: ObservableFloat
+
+    def simulate(self, model: Model) -> np.ndarray:
+        underlying = self.observable.simulate(model).copy()
+        fixing_times = self.fixing_condition.simulate(model)
+        fixing_idx = model.eval_date_index.next_after(fixing_times)
+        for i in range(1, underlying.shape[1]):
+            fixing_mask = (i > fixing_idx.index) & (fixing_idx.index >= 0)
+            underlying[fixing_mask, i] = underlying[fixing_mask, i - 1]
+        return underlying
+
+    def __str__(self) -> str:
+        return f"FixedAfter({self.fixing_condition}, {self.observable})"
+
+
+@dataclass
 class Stock(ObservableFloat):
     """Value of the stock identified by identifier"""
 
