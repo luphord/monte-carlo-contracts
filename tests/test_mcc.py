@@ -348,10 +348,12 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model()
         dategrid = model.dategrid.flatten()
         yearfraction = (dategrid[-1] - dategrid[-3]).astype(np.float64) / 365
-        # note that this is an arrears fixing
         c = When(
             At(model.dategrid[-1]),
-            Scale(LinearRate("EUR", "3M") * yearfraction, One("EUR")),
+            Scale(
+                FixedAfter(At(dategrid[-3]), LinearRate("EUR", "3M")) * yearfraction,
+                One("EUR"),
+            ),
         )
         cf = model.generate_cashflows(c)
         self.assertEqual(cf.currencies.shape, (1,))
