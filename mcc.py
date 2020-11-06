@@ -12,7 +12,7 @@ __version__ = """0.4.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from itertools import groupby
-from typing import Final, Union, Mapping, Tuple, Set, Iterable
+from typing import Final, Union, Mapping, Tuple, Set, Iterable, Callable
 from numbers import Real
 import numpy as np
 from dataclasses import dataclass
@@ -998,8 +998,10 @@ class StochasticProcess(ABC):
 class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
 
-    def __init__(self, mu: float = 0.0, sigma: float = 1.0):
-        self.mu = mu
+    def __init__(
+        self, mu_t: Callable[[float], float] = lambda t: t, sigma: float = 1.0
+    ):
+        self.mu_t = mu_t
         self.sigma = sigma
 
     def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
@@ -1009,11 +1011,11 @@ class BrownianMotion(StochasticProcess):
         assert (dt >= 0).all(), "Increasing time vector required"
         # transposed simulation for automatic broadcasting
         W = rnd.normal(size=(n, t.size))
-        W_drift = W * np.sqrt(dt) * self.sigma + self.mu * dt
+        W_drift = W * np.sqrt(dt) * self.sigma + self.mu_t(t)
         return np.cumsum(W_drift, axis=1)
 
     def expected(self, t: np.ndarray) -> np.ndarray:
-        return self.mu * t
+        return self.mu_t(t)
 
     def stddev(self, t: np.ndarray) -> np.ndarray:
         return np.sqrt(self.sigma ** 2 * t)

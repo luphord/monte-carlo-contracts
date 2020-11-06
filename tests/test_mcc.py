@@ -660,7 +660,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_brownian_motions(self) -> None:
         mu = 0.123
         sigma = 0.456
-        bm = BrownianMotion(mu=mu, sigma=sigma)
+        bm = BrownianMotion(mu_t=lambda t: mu * t, sigma=sigma)
         gbm = GeometricBrownianMotion(mu=mu, sigma=sigma)
         rnd = np.random.RandomState(1234)
         t = np.linspace(0, 20, 20)
@@ -677,7 +677,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         gbm.moment_match(t, x)
 
     def test_moment_matched_brownian_motions(self) -> None:
-        bm = BrownianMotion(mu=1, sigma=1)
+        bm = BrownianMotion()
         rnd = np.random.RandomState(1234)
         t = np.linspace(0, 20, 20)
         n = 200
