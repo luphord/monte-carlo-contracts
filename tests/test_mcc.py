@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from dataclasses import dataclass
+from typing import Callable
 from mcc import (
     parser,
     IndexedCashflows,
@@ -32,6 +33,7 @@ from mcc import (
     BrownianMotion,
     GeometricBrownianMotion,
     simulate_equity_black_scholes_model,
+    HoLeeModel,
 )
 
 
@@ -707,3 +709,25 @@ class TestMonteCarloContracts(unittest.TestCase):
         for t in dategrid:
             c = When(At(t), Scale(Stock("ABC"), One("EUR")))
             self.assertTrue(np.isclose(m.evaluate(c), 123))
+
+    def test_ho_lee_model(self) -> None:
+        dategrid = np.arange(
+            np.datetime64("2020-01-01"),
+            np.datetime64("2020-12-01"),
+            30,
+            dtype="datetime64[D]",
+        )
+        rnd = np.random.RandomState(seed=123)
+        n = 100
+        sigma = 0.2
+        rate = 0.08
+        discountCurve: Callable[[float], float] = lambda t: np.exp(-rate * t)
+        hl = HoLeeModel(dategrid, discountCurve, sigma, n, rnd, True)
+        self.assertTrue(
+            (
+                np.abs(
+                    discountCurve(hl.yearfractions) - hl.simulated_discount_factors()
+                )
+                < 0.01
+            ).all()
+        )

@@ -12,7 +12,7 @@ __version__ = """0.4.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from itertools import groupby
-from typing import Final, Union, Mapping, Tuple, Set, Iterable, Callable
+from typing import Final, Optional, Union, Mapping, Tuple, Set, Iterable, Callable
 from numbers import Real
 import numpy as np
 from dataclasses import dataclass
@@ -1074,6 +1074,68 @@ def simulate_equity_black_scholes_model(
     )
     numeraire = np.repeat(np.exp(r * yearfractions).reshape((1, ndates)), n, axis=0)
     return Model(dategrid, {}, {}, {stock: s}, numeraire, currency)
+
+
+class HoLeeModel(TermStructuresModel):
+
+    h: Final[float] = np.sqrt(np.finfo(float).eps)
+
+    dategrid: Final[np.array]
+    yearfractions: Final[np.array]
+    shortrates: Final[np.ndarray]
+    discountCurve: Optional[
+        Callable[[float], float]
+    ]  # mypy requires hack, see https://ogy.de/mypy-callable-members
+    sigma: Final[float]
+    _mu_t: Final[np.ndarray]
+
+    def __init__(
+        self,
+        dategrid: np.array,
+        discountCurve: Callable[[float], float],
+        sigma: float,
+        n: int,
+        rnd: np.random.RandomState,
+        use_moment_matching: bool = False,
+    ):
+        assert dategrid.dtype == "datetime64[D]"
+        self.dategrid = dategrid
+        self.yearfractions = _get_year_fractions(dategrid)
+        self.discountCurve = discountCurve
+        self.sigma = sigma
+        self._mu_t = self._integral_theta()
+        self.shortrates = self._simulate(n, rnd, use_moment_matching)
+        assert self.shortrates.shape == (n, dategrid.size)
+
+    def _integral_theta(self) -> np.ndarray:
+        assert self.discountCurve
+        dlogBond = (
+            np.log(self.discountCurve(self.yearfractions + self.h))
+            - np.log(self.discountCurve(self.yearfractions))
+        ) / self.h
+        return self.sigma ** 2 * self.yearfractions ** 2 / 2 - dlogBond
+
+    def _simulate(
+        self, n: int, rnd: np.random.RandomState, use_moment_matching: bool
+    ) -> np.ndarray:
+        bm = BrownianMotion(mu_t=self.mu_t, sigma=self.sigma)
+        return (
+            bm.simulate_with_moment_matching(self.yearfractions, n, rnd)
+            if use_moment_matching
+            else bm.simulate(self.yearfractions, n, rnd)
+        )
+
+    def mu_t(self, yearfractions: np.ndarray) -> np.ndarray:
+        assert np.allclose(yearfractions, self.yearfractions)
+        return self._mu_t
+
+    def get_linear_rate(self, frequency: str) -> np.ndarray:
+        raise NotImplementedError()
+
+    def simulated_discount_factors(self) -> np.ndarray:
+        r = self.shortrates.mean(axis=0)
+        dt = np.diff(self.yearfractions, prepend=0)
+        return np.exp(-np.cumsum(r * dt))
 
 
 parser = ArgumentParser(description=__doc__)
