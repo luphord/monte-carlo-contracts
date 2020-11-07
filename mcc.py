@@ -201,7 +201,7 @@ class DateIndex:
 
 class TermStructuresModel(ABC):
     @abstractmethod
-    def get_linear_rate(self, frequency: str) -> np.ndarray:
+    def linear_rate(self, frequency: str) -> np.ndarray:
         pass
 
 
@@ -582,7 +582,7 @@ class LinearRate(ObservableFloat):
     frequency: str
 
     def simulate(self, model: Model) -> np.ndarray:
-        return model.simulated_rates[self.currency].get_linear_rate(self.frequency)
+        return model.simulated_rates[self.currency].linear_rate(self.frequency)
 
     def __str__(self) -> str:
         return f"{self.currency}{self.frequency})"
@@ -1129,7 +1129,7 @@ class HoLeeModel(TermStructuresModel):
         assert np.allclose(yearfractions, self.yearfractions)
         return self._mu_t
 
-    def get_linear_rate(self, frequency: str) -> np.ndarray:
+    def linear_rate(self, frequency: str) -> np.ndarray:
         raise NotImplementedError()
 
     def simulated_discount_factors(self) -> np.ndarray:

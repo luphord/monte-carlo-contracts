@@ -41,7 +41,7 @@ from mcc import (
 class DummyTermStructureModel(TermStructuresModel):
     rate: np.ndarray
 
-    def get_linear_rate(self, frequency: str) -> np.ndarray:
+    def linear_rate(self, frequency: str) -> np.ndarray:
         return self.rate
 
 
