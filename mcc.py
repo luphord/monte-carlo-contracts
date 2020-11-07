@@ -985,7 +985,7 @@ class StochasticProcess(ABC):
         actual_stddev = paths.std(axis=0)
         assert (
             target_stddev[actual_stddev == 0] == 0
-        ), "Cannot scale actual standard deviation of zero to any other value than zero"
+        ).all(), "Cannot scale actual stddev of zero to any other value than zero"
         actual_stddev[actual_stddev == 0] = 1  # prevent division by zero
         return (paths - actual_mean) / actual_stddev * target_stddev + target_mean
 
