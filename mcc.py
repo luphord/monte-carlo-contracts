@@ -1083,7 +1083,7 @@ class HoLeeModel(TermStructuresModel):
     dategrid: Final[np.array]
     yearfractions: Final[np.array]
     shortrates: Final[np.ndarray]
-    discountCurve: Optional[
+    discount_curve: Optional[
         Callable[[float], float]
     ]  # mypy requires hack, see https://ogy.de/mypy-callable-members
     sigma: Final[float]
@@ -1092,7 +1092,7 @@ class HoLeeModel(TermStructuresModel):
     def __init__(
         self,
         dategrid: np.array,
-        discountCurve: Callable[[float], float],
+        discount_curve: Callable[[float], float],
         sigma: float,
         n: int,
         rnd: np.random.RandomState,
@@ -1101,17 +1101,17 @@ class HoLeeModel(TermStructuresModel):
         assert dategrid.dtype == "datetime64[D]"
         self.dategrid = dategrid
         self.yearfractions = _get_year_fractions(dategrid)
-        self.discountCurve = discountCurve
+        self.discount_curve = discount_curve
         self.sigma = sigma
         self._mu_t = self._integral_theta()
         self.shortrates = self._simulate(n, rnd, use_moment_matching)
         assert self.shortrates.shape == (n, dategrid.size)
 
     def _integral_theta(self) -> np.ndarray:
-        assert self.discountCurve
+        assert self.discount_curve
         dlogBond = (
-            np.log(self.discountCurve(self.yearfractions + self.h))
-            - np.log(self.discountCurve(self.yearfractions))
+            np.log(self.discount_curve(self.yearfractions + self.h))
+            - np.log(self.discount_curve(self.yearfractions))
         ) / self.h
         return self.sigma ** 2 * self.yearfractions ** 2 / 2 - dlogBond
 
