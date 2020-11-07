@@ -1132,10 +1132,10 @@ class HoLeeModel(TermStructuresModel):
     def linear_rate(self, frequency: str) -> np.ndarray:
         raise NotImplementedError()
 
-    def simulated_discount_factors(self) -> np.ndarray:
-        r = self.shortrates.mean(axis=0)
-        dt = np.diff(self.yearfractions, prepend=0)
-        return np.exp(-np.cumsum(r * dt))
+    def discount_factors(self) -> np.ndarray:
+        """Stochastic discount factors implied by the model"""
+        dt = np.diff(self.yearfractions, prepend=0).reshape(1, self.dategrid.size)
+        return np.exp(-np.cumsum(self.shortrates * dt, axis=1))
 
 
 parser = ArgumentParser(description=__doc__)
