@@ -1139,6 +1139,14 @@ class HoLeeModel(TermStructuresModel):
         r = np.hstack((r_before_0, self.shortrates[:, :-1]))
         return np.exp(-np.cumsum(r * dt, axis=1))
 
+    def pathwise_terminal_bond(self) -> np.ndarray:
+        """Pathwise value of the zero coupon bond maturing at model horizon"""
+        dt_reversed = np.diff(self.yearfractions, append=self.yearfractions[-1])[
+            ::-1
+        ].reshape(1, self.dategrid.size)
+        r_reversed = self.shortrates[:, ::-1]
+        return np.exp(-np.cumsum(r_reversed * dt_reversed, axis=1))[:, ::-1]
+
 
 parser = ArgumentParser(description=__doc__)
 parser.add_argument(
