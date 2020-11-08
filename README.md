@@ -34,13 +34,14 @@ python3 mcc.py
 
 ## History
 
-### 0.5.0 (not yet)
+### 0.5.0 (2020--11-08)
 
 * **BREAKING CHANGE**: Add `simulated_rates` to `Model` (included in constructor);
   pass an empty dict for `simulated_rates` to adapt your code
 * **BREAKING CHANGE**: `BrownianMotion` and `GeometricBrownianMotion` generalized to
   dynamic mean/drift; pass `mu_t = lambda t: mu * t` to adapt your code
 * `LinearRate` observable supported by `TermStructureModel`
+* First steps towards term structure models
 * `FixedAfter` observable to keep an observable fixed after a condition is true
 * Observables support arithmetic operations (binary `+`, `-`, `*`, `/`, `**` and unary `-`)
   with other observables as well as constants (also right operators work)
