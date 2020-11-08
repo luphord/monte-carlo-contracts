@@ -734,3 +734,5 @@ class TestMonteCarloContracts(unittest.TestCase):
                 < 0.001
             ).all()
         )
+        bp = hl.bond_prices(hl.yearfractions[-1])
+        self.assertTrue(np.allclose(bp[:, -1], 1))

@@ -1115,6 +1115,16 @@ class HoLeeModel(TermStructuresModel):
         ) / self.h
         return self.sigma ** 2 * self.yearfractions ** 2 / 2 - dlogBond
 
+    def _integral_mu_t(self, T: float) -> np.ndarray:
+        """Integral over mu_t (i.e. double integral over theta)
+        from model grid to T"""
+        assert T >= self.yearfractions[0]
+        assert T <= self.yearfractions[-1]
+        t = np.linspace(self.yearfractions[0], self.yearfractions[-1], num=100)
+        int_mu = np.cumsum(self.mu_t(t) * np.diff(t, prepend=self.yearfractions[0] - 1))
+        int_mu_fn: Callable[[float], float] = lambda tau: np.interp(tau, t, int_mu)
+        return int_mu_fn(T) - int_mu_fn(self.yearfractions)
+
     def _simulate(
         self, n: int, rnd: np.random.RandomState, use_moment_matching: bool
     ) -> np.ndarray:
@@ -1137,6 +1147,17 @@ class HoLeeModel(TermStructuresModel):
         r_before_0 = np.zeros((self.shortrates.shape[0], 1))
         r = np.hstack((r_before_0, self.shortrates[:, :-1]))
         return np.exp(-np.cumsum(r * dt, axis=1))
+
+    def bond_prices(self, T: float) -> np.ndarray:
+        """Stochastic T-bond prices implied by the model,
+        quoted for all times even after T"""
+        t = self.yearfractions
+        lb = (
+            -(T - t) * self.shortrates
+            - self._integral_mu_t(T)
+            + self.sigma ** 2 / 6 * (T - t) ** 3
+        )
+        return np.exp(lb)
 
     def pathwise_terminal_bond(self) -> np.ndarray:
         """Pathwise value of the zero coupon bond maturing at model horizon"""
