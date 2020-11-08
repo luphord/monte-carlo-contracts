@@ -730,6 +730,6 @@ class TestMonteCarloContracts(unittest.TestCase):
                     discount_curve(hl.yearfractions)
                     - hl.discount_factors().mean(axis=0)
                 )
-                < 0.01
+                < 0.001
             ).all()
         )

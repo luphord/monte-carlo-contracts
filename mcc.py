@@ -1135,7 +1135,9 @@ class HoLeeModel(TermStructuresModel):
     def discount_factors(self) -> np.ndarray:
         """Stochastic discount factors implied by the model"""
         dt = np.diff(self.yearfractions, prepend=0).reshape(1, self.dategrid.size)
-        return np.exp(-np.cumsum(self.shortrates * dt, axis=1))
+        r_before_0 = np.zeros((self.shortrates.shape[0], 1))
+        r = np.hstack((r_before_0, self.shortrates[:, :-1]))
+        return np.exp(-np.cumsum(r * dt, axis=1))
 
 
 parser = ArgumentParser(description=__doc__)
