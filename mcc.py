@@ -1126,8 +1126,7 @@ class HoLeeModel(TermStructuresModel):
         )
 
     def mu_t(self, yearfractions: np.ndarray) -> np.ndarray:
-        assert np.allclose(yearfractions, self.yearfractions)
-        return self._mu_t
+        return np.interp(yearfractions, self.yearfractions, self._mu_t)
 
     def linear_rate(self, frequency: str) -> np.ndarray:
         raise NotImplementedError()

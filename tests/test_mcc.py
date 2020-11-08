@@ -724,6 +724,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         discount_curve: Callable[[float], float] = lambda t: np.exp(-rate * t)
         hl = HoLeeModel(dategrid, discount_curve, sigma, n, rnd, True)
         self.assertEqual(hl.shortrates.shape, (n, dategrid.size))
+        self.assertTrue(np.allclose(hl.mu_t(hl.yearfractions), hl._mu_t))
         self.assertTrue(
             (
                 np.abs(
