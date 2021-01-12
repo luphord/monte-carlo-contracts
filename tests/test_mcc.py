@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from pandas.testing import assert_frame_equal
 from dataclasses import dataclass
 from typing import Callable
 from mcc import (
@@ -98,22 +99,17 @@ class TestMonteCarloContracts(unittest.TestCase):
         c = Cond(AlternatingBool(), One("EUR"), One("USD"))
         cf = model.generate_cashflows(c)
         simplecf = cf.to_simple_cashflows()
-        self.assertEqual(simplecf.nsim, model.nsim)
-        self.assertEqual(simplecf.currencies.shape, (2,))
-        self.assertEqual(simplecf.dates.shape, (2,))
-        self.assertTrue(
-            (simplecf.cashflows == model.generate_simple_cashflows(c).cashflows).all()
-        )
+        self.assertEqual(simplecf.shape[1], model.nsim)
+        self.assertEqual(simplecf.shape[0], 2)
+        assert_frame_equal(simplecf, model.generate_simple_cashflows(c))
         simplecf2 = model.generate_simple_cashflows_in_currency(c, "USD")
-        self.assertEqual(simplecf2.nsim, model.nsim)
-        self.assertEqual(simplecf2.currencies.shape, (1,))
-        self.assertEqual(simplecf2.currencies[0], "USD")
-        self.assertEqual(simplecf2.dates.shape, (1,))
+        self.assertEqual(simplecf2.shape[1], model.nsim)
+        self.assertEqual(simplecf2.shape[0], 1)
+        self.assertEqual(simplecf2.index[0][1], "USD")
         simplecf3 = model.generate_simple_cashflows_in_numeraire_currency(c)
-        self.assertEqual(simplecf3.nsim, model.nsim)
-        self.assertEqual(simplecf3.currencies.shape, (1,))
-        self.assertEqual(simplecf3.currencies[0], model.numeraire_currency)
-        self.assertEqual(simplecf3.dates.shape, (1,))
+        self.assertEqual(simplecf3.shape[1], model.nsim)
+        self.assertEqual(simplecf3.shape[0], 1)
+        self.assertEqual(simplecf3.index[0][1], model.numeraire_currency)
 
     def test_cashflows(self) -> None:
         n = 10

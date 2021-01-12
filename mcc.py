@@ -15,6 +15,7 @@ from itertools import groupby
 from typing import Final, Optional, Union, Mapping, Tuple, Set, Iterable, Callable
 from numbers import Real
 import numpy as np
+import pandas as pd
 from dataclasses import dataclass
 
 
@@ -23,13 +24,7 @@ _null_ccy = "NNN"
 ArrayLike = Union[np.ndarray, float]
 
 
-@dataclass
-class SimpleCashflows:
-    cashflows: np.ndarray
-    currencies: np.ndarray
-    dates: np.ndarray
-    nsim: int
-
+class SimpleCashflows(pd.DataFrame):
     def __init__(
         self, cashflows: np.ndarray, currencies: np.ndarray, dates: np.ndarray
     ):
@@ -39,10 +34,8 @@ class SimpleCashflows:
         assert currencies.shape == (cashflows.shape[1],)
         assert dates.dtype == "datetime64[D]"
         assert dates.shape == (cashflows.shape[1],)
-        self.cashflows = cashflows
-        self.currencies = currencies
-        self.dates = dates
-        self.nsim = cashflows.shape[0]
+        index = pd.MultiIndex.from_arrays([dates, currencies])
+        super().__init__(cashflows.T, index=index)
 
 
 class SimulatedCashflows:
