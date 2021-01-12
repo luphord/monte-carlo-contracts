@@ -15,4 +15,4 @@ script:
   - mypy . tests/*.py
   - black --check .
   - flake8 mcc.py tests
-  - python3 -m unittest discover tests
+  - py.test -v --nbval

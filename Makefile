@@ -49,7 +49,7 @@ format:
 	black .
 
 test: ## run tests quickly with the default Python
-	python3 -m unittest discover tests -v
+	py.test -v --nbval
 
 release: clean lint test dist ## package and upload a release
 	twine check dist/*
