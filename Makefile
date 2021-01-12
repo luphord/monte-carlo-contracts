@@ -49,7 +49,7 @@ format:
 	black .
 
 test: ## run tests quickly with the default Python
-	py.test -v --nbval
+	py.test -v --nbval-lax
 
 release: clean lint test dist ## package and upload a release
 	twine check dist/*

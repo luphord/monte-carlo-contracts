@@ -15,4 +15,4 @@ script:
   - mypy . tests/*.py
   - black --check .
   - flake8 mcc.py tests
-  - py.test -v --nbval
+  - py.test -v --nbval-lax
