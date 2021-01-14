@@ -25,9 +25,14 @@ ArrayLike = Union[np.ndarray, float]
 
 
 class SimpleCashflows(pd.DataFrame):
-    def __init__(
-        self, cashflows: np.ndarray, currencies: np.ndarray, dates: np.ndarray
-    ):
+    @property
+    def _constructor(self) -> Callable:
+        return SimpleCashflows
+
+    @classmethod
+    def from_arrays(
+        cls, cashflows: np.ndarray, currencies: np.ndarray, dates: np.ndarray
+    ) -> "SimpleCashflows":
         assert cashflows.dtype == np.float64
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
         assert currencies.dtype == (np.unicode_, _ccy_letters)
@@ -35,7 +40,7 @@ class SimpleCashflows(pd.DataFrame):
         assert dates.dtype == "datetime64[D]"
         assert dates.shape == (cashflows.shape[1],)
         index = pd.MultiIndex.from_arrays([dates, currencies])
-        super().__init__(cashflows.T, index=index)
+        return cls(pd.DataFrame(cashflows.T, index=index))
 
 
 class SimulatedCashflows:
@@ -88,7 +93,7 @@ class SimulatedCashflows:
             cashflows[:, i] = cf
             currencies[i] = ccy
             dates[i] = dt
-        return SimpleCashflows(cashflows, currencies, dates)
+        return SimpleCashflows.from_arrays(cashflows, currencies, dates)
 
 
 class IndexedCashflows:
