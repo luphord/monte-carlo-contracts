@@ -39,7 +39,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '__pycache__' -exec rm -fr {} +
 
 type: ## type check with mypy
-	mypy --exclude '*/build/*' .
+	mypy mcc.py tests/*.py
 
 lint: ## check style with flake8
 	# stop the build if there are Python syntax errors or undefined names

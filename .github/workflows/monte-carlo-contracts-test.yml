@@ -41,7 +41,7 @@ jobs:
         black --check .
     - name: Type-check with mypy
       run: |
-        mypy --exclude '*/build/*' .
+        mypy mcc.py tests/*.py
     - name: Test with pytest
       run: |
         py.test -v --nbval-lax
