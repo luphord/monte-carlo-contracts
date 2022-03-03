@@ -39,7 +39,7 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '__pycache__' -exec rm -fr {} +
 
 type: ## type check with mypy
-	mypy . tests/*.py
+	mypy .
 
 lint: ## check style with flake8
 	black --check .

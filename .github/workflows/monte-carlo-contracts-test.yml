@@ -41,7 +41,7 @@ jobs:
         black --check .
     - name: Type-check with mypy
       run: |
-        mypy . tests/*.py
+        mypy .
     - name: Test with pytest
       run: |
         py.test -v --nbval-lax
