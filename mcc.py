@@ -1016,7 +1016,7 @@ class BrownianMotion(StochasticProcess):
         return self.mu_t(t)
 
     def stddev(self, t: np.ndarray) -> np.ndarray:
-        return np.sqrt(self.sigma ** 2 * t)
+        return np.sqrt(self.sigma**2 * t)
 
 
 class GeometricBrownianMotion(StochasticProcess):
@@ -1036,13 +1036,13 @@ class GeometricBrownianMotion(StochasticProcess):
         # transposed simulation for automatic broadcasting
         dW = (rnd.normal(size=(t.size, n)).T * np.sqrt(dt)).T
         W = np.cumsum(dW, axis=0)
-        return np.exp(self.sigma * W.T + self.mu_t(t) - self.sigma ** 2 / 2 * t)
+        return np.exp(self.sigma * W.T + self.mu_t(t) - self.sigma**2 / 2 * t)
 
     def expected(self, t: np.ndarray) -> np.ndarray:
         return np.exp(self.mu_t(t))
 
     def stddev(self, t: np.ndarray) -> np.ndarray:
-        return np.sqrt(np.exp(2 * self.mu_t(t)) * (np.exp(self.sigma ** 2 * t) - 1))
+        return np.sqrt(np.exp(2 * self.mu_t(t)) * (np.exp(self.sigma**2 * t) - 1))
 
 
 def _get_year_fractions(dategrid: np.ndarray) -> np.ndarray:
@@ -1111,7 +1111,7 @@ class HoLeeModel(TermStructuresModel):
             np.log(self.discount_curve(self.yearfractions + self.h))
             - np.log(self.discount_curve(self.yearfractions))
         ) / self.h
-        return self.sigma ** 2 * self.yearfractions ** 2 / 2 - dlogBond
+        return self.sigma**2 * self.yearfractions**2 / 2 - dlogBond
 
     def _integral_mu_t(self, T: float) -> np.ndarray:
         """Integral over mu_t (i.e. double integral over theta)
@@ -1153,7 +1153,7 @@ class HoLeeModel(TermStructuresModel):
         lb = (
             -(T - t) * self.shortrates
             - self._integral_mu_t(T)
-            + self.sigma ** 2 / 6 * (T - t) ** 3
+            + self.sigma**2 / 6 * (T - t) ** 3
         )
         return np.exp(lb)
 
