@@ -34,7 +34,7 @@ python3 mcc.py
 
 ## History
 
-### 0.5.0 (2020--11-08)
+### 0.5.0 (2020-11-08)
 
 * **BREAKING CHANGE**: Add `simulated_rates` to `Model` (included in constructor);
   pass an empty dict for `simulated_rates` to adapt your code
