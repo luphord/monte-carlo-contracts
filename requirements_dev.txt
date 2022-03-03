@@ -1,7 +1,7 @@
 pip>=20.0.2
 bumpversion==0.5.3
 wheel==0.32.1
-flake8==3.7.9
+flake8==4.0.1
 twine==3.1.1
 black[jupyter]==22.1.0
 mypy==0.931
