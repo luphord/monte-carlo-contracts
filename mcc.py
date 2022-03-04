@@ -80,7 +80,11 @@ class SimulatedCashflows:
 
         for key, entries in groupby(sorted(self._split_by_date(), key=grpkey), grpkey):
             dt, ccy = key
-            yield sum(cf["value"] for cf, _, _ in entries), ccy, dt
+            sum_cf = sum(cf["value"] for cf, _, _ in entries)
+            assert isinstance(
+                sum_cf, np.ndarray
+            )  # appease mypy that sum_cf is actually an array, not 0
+            yield sum_cf, ccy, dt
 
     def to_simple_cashflows(self) -> SimpleCashflows:
         grouped_cf = list(self._group_cashflows())
