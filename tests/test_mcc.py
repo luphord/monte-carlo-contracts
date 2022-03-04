@@ -52,7 +52,7 @@ def _make_model(nsim: int = 100) -> Model:
         np.datetime64("2020-01-10"),
         dtype="datetime64[D]",
     )
-    numeraire = np.ones((nsim, dategrid.size), dtype=np.float)
+    numeraire = np.ones((nsim, dategrid.size), dtype=np.float64)
     rnd = np.random.RandomState(123)
     rate = rnd.normal(size=(nsim, dategrid.size))
     eurusd = rnd.lognormal(size=(nsim, dategrid.size))

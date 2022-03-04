@@ -227,7 +227,7 @@ class Model:
         self.ndates = dategrid.size
         assert self.ndates > 0
         self.dategrid = np.reshape(dategrid, (self.ndates, 1))
-        assert numeraire.dtype == np.float
+        assert numeraire.dtype == np.float64
         assert numeraire.ndim == 2
         self.numeraire = numeraire
         self.nsim = numeraire.shape[0]
@@ -237,7 +237,7 @@ class Model:
         self.simulated_rates = simulated_rates
         for fxkey, val in simulated_fx.items():
             assert (
-                val.dtype == np.float
+                val.dtype == np.float64
             ), f"FX spot '{fxkey}' is of dtype {val.dtype}, expecting float"
             assert (
                 val.shape == self.shape
@@ -245,7 +245,7 @@ class Model:
         self.simulated_fx = simulated_fx
         for key, val in simulated_stocks.items():
             assert (
-                val.dtype == np.float
+                val.dtype == np.float64
             ), f"Stock '{key}' is of dtype {val.dtype}, expecting float"
             assert (
                 val.shape == self.shape
@@ -593,7 +593,7 @@ class KonstFloat(ObservableFloat):
     constant: float
 
     def simulate(self, model: Model) -> np.ndarray:
-        return self.constant * np.ones(model.shape, dtype=np.float)
+        return self.constant * np.ones(model.shape, dtype=np.float64)
 
     def __str__(self) -> str:
         return str(self.constant)
