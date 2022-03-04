@@ -90,9 +90,9 @@ class SimulatedCashflows:
         grouped_cf = list(self._group_cashflows())
         assert grouped_cf, "Got no cashflows to convert"
         numcf = len(grouped_cf)
-        cashflows = np.ndarray((self.nsim, numcf), dtype=np.float64)
-        currencies = np.ndarray((numcf,), dtype=(np.unicode_, _ccy_letters))
-        dates = np.ndarray((numcf,), dtype="datetime64[D]")
+        cashflows: np.ndarray = np.ndarray((self.nsim, numcf), dtype=np.float64)
+        currencies: np.ndarray = np.ndarray((numcf,), dtype=(np.unicode_, _ccy_letters))
+        dates: np.ndarray = np.ndarray((numcf,), dtype="datetime64[D]")
         for i, (cf, ccy, dt) in enumerate(grouped_cf):
             cashflows[:, i] = cf
             currencies[i] = ccy
