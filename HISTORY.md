@@ -1,5 +1,9 @@
 ## History
 
+### 0.7.0 (not yet)
+* Support Python 3.10
+* Make use of type annotations added to numpy
+
 ### 0.6.0 (2022-03-04)
 
 * **BREAKING CHANGE**: Make `SimpleCashflows` a `pandas.DataFrame`
