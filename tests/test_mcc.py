@@ -187,12 +187,6 @@ class TestMonteCarloContracts(unittest.TestCase):
         KonstFloat(123)
         KonstFloat(np.float_(1.23))
         KonstFloat(np.int_(123))
-        KonstFloat(np.float64(123))
-        KonstFloat(np.float32(123))
-        KonstFloat(np.int64(123))
-        KonstFloat(np.int32(123))
-        KonstFloat(np.int16(123))
-        KonstFloat(np.int8(123))
 
     def test_resolvable_contract_creation(self) -> None:
         model = _make_model()
