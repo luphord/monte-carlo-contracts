@@ -1,5 +1,13 @@
 ## History
 
+### 0.6.0 (2022-03-04)
+
+* **BREAKING CHANGE**: Make `SimpleCashflows` a `pandas.DataFrame`
+* Run notebooks in automated tests using [nbval](https://github.com/computationalmodelling/nbval)
+* Migrate from travis-ci to [GitHub Actions](https://github.com/luphord/monte-carlo-contracts/actions)
+* Explicitly support Python 3.8 and 3.9
+* Move history to HISTORY.md
+
 ### 0.5.0 (2020-11-08)
 
 * **BREAKING CHANGE**: Add `simulated_rates` to `Model` (included in constructor);
