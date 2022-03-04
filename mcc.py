@@ -1002,7 +1002,9 @@ class BrownianMotion(StochasticProcess):
     """Brownian Motion (Wiener Process) with optional drift."""
 
     def __init__(
-        self, mu_t: Callable[[float], float] = lambda t: 0, sigma: float = 1.0
+        self,
+        mu_t: Callable[[np.ndarray], np.ndarray] = np.zeros_like,
+        sigma: float = 1.0,
     ):
         self.mu_t = mu_t
         self.sigma = sigma
@@ -1028,7 +1030,9 @@ class GeometricBrownianMotion(StochasticProcess):
     """Geometric Brownian Motion.(with optional drift)."""
 
     def __init__(
-        self, mu_t: Callable[[float], float] = lambda t: 0, sigma: float = 1.0
+        self,
+        mu_t: Callable[[np.ndarray], np.ndarray] = np.zeros_like,
+        sigma: float = 1.0,
     ):
         self.mu_t = mu_t
         self.sigma = sigma
@@ -1087,7 +1091,7 @@ class HoLeeModel(TermStructuresModel):
     yearfractions: Final[np.ndarray]
     shortrates: Final[np.ndarray]
     discount_curve: Optional[
-        Callable[[float], float]
+        Callable[[np.ndarray], np.ndarray]
     ]  # mypy requires hack, see https://ogy.de/mypy-callable-members
     sigma: Final[float]
     _mu_t: Final[np.ndarray]
@@ -1095,7 +1099,7 @@ class HoLeeModel(TermStructuresModel):
     def __init__(
         self,
         dategrid: np.ndarray,
-        discount_curve: Callable[[float], float],
+        discount_curve: Callable[[np.ndarray], np.ndarray],
         sigma: float,
         n: int,
         rnd: np.random.RandomState,
@@ -1118,14 +1122,16 @@ class HoLeeModel(TermStructuresModel):
         ) / self.h
         return self.sigma**2 * self.yearfractions**2 / 2 - dlogBond
 
-    def _integral_mu_t(self, T: float) -> np.ndarray:
+    def _integral_mu_t(self, T: np.ndarray) -> np.ndarray:
         """Integral over mu_t (i.e. double integral over theta)
         from model grid to T"""
         assert T >= self.yearfractions[0]
         assert T <= self.yearfractions[-1]
         t = np.linspace(self.yearfractions[0], self.yearfractions[-1], num=100)
         int_mu = np.cumsum(self.mu_t(t) * np.diff(t, prepend=self.yearfractions[0] - 1))
-        int_mu_fn: Callable[[float], float] = lambda tau: np.interp(tau, t, int_mu)
+        int_mu_fn: Callable[[np.ndarray], np.ndarray] = lambda tau: np.interp(
+            tau, t, int_mu
+        )
         return int_mu_fn(T) - int_mu_fn(self.yearfractions)
 
     def _simulate(
@@ -1151,7 +1157,7 @@ class HoLeeModel(TermStructuresModel):
         r = np.hstack((r_before_0, self.shortrates[:, :-1]))
         return np.exp(-np.cumsum(r * dt, axis=1))
 
-    def bond_prices(self, T: float) -> np.ndarray:
+    def bond_prices(self, T: np.ndarray) -> np.ndarray:
         """Stochastic T-bond prices implied by the model,
         quoted for all times even after T"""
         t = self.yearfractions
