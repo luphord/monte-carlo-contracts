@@ -985,6 +985,7 @@ class StochasticProcess(ABC):
         target_stddev = self.stddev(t)
         actual_mean = paths.mean(axis=0)
         actual_stddev = paths.std(axis=0)
+        assert isinstance(actual_stddev, np.ndarray)
         assert (
             target_stddev[actual_stddev == 0] == 0
         ).all(), "Cannot scale actual stddev of zero to any other value than zero"
