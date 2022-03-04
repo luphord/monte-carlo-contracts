@@ -364,7 +364,7 @@ class Model:
                 "Expecting IndexedCashflows or Contract, "
                 f"got {type(cashflows_or_contract)}"
             )
-        return self.discount(cf).sum(axis=1).mean(axis=0)
+        return float(self.discount(cf).sum(axis=1).mean(axis=0))
 
 
 class ObservableFloat(ABC):
