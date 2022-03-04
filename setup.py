@@ -19,7 +19,7 @@ test_requirements = []
 setup(
     author="luphord",
     author_email="luphord@protonmail.com",
-    python_requires=">=3.5",
+    python_requires=">=3.8,<3.10",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
@@ -27,6 +27,7 @@ setup(
         "Natural Language :: English",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     description="""Composable financial contracts with Monte Carlo valuation """,
     entry_points={
