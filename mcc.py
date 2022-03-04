@@ -97,7 +97,7 @@ class SimulatedCashflows:
 
 
 class IndexedCashflows:
-    dtype: Final = np.dtype([("index", np.int), ("value", np.float64)])
+    dtype: Final = np.dtype([("index", np.int64), ("value", np.float64)])
     cashflows: Final[np.ndarray]
     currencies: Final[np.ndarray]
     dategrid: Final[np.ndarray]
@@ -168,7 +168,7 @@ class DateIndex:
     nsim: Final[int]
 
     def __init__(self, index: np.ndarray):
-        assert index.dtype == np.int
+        assert index.dtype == np.int64
         assert index.ndim == 1
         self.index = index
         self.nsim = index.size
@@ -258,7 +258,7 @@ class Model:
 
     @property
     def eval_date_index(self) -> DateIndex:
-        return DateIndex(np.zeros((self.nsim,), dtype=np.int))
+        return DateIndex(np.zeros((self.nsim,), dtype=np.int64))
 
     @property
     def currencies(self) -> Set[str]:

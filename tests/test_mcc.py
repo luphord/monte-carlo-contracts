@@ -478,7 +478,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["value"] == 1).all())
         self.assertTrue((cf.cashflows["index"] == 0).all())
         self.assertEqual(cf.currencies[0], ccy)
-        bad_eval_idx = DateIndex(np.zeros((model.nsim + 1,), dtype=np.int))
+        bad_eval_idx = DateIndex(np.zeros((model.nsim + 1,), dtype=np.int64))
         self.assertRaises(
             AssertionError, lambda: c.generate_cashflows(bad_eval_idx, model)
         )
