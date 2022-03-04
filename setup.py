@@ -12,7 +12,8 @@ with open("README.md") as readme_file:
 with open("HISTORY.md") as history_file:
     history = history_file.read()
 
-requirements = ["numpy>=1.19,<1.21", "pandas>=1.2"]
+requirements = ["numpy>=1.19,!=1.21,<1.23", "pandas>=1.2"]
+# numpy 1.21 is not supported due to oddities regarding its type annotations
 
 test_requirements = []
 
