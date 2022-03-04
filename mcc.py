@@ -960,7 +960,7 @@ class StochasticProcess(ABC):
     """Base class for stochastic processes."""
 
     @abstractmethod
-    def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
+    def simulate(self, t: np.ndarray, n: int, rnd: np.random.RandomState) -> np.ndarray:
         pass
 
     @abstractmethod
@@ -988,8 +988,8 @@ class StochasticProcess(ABC):
         return (paths - actual_mean) / actual_stddev * target_stddev + target_mean
 
     def simulate_with_moment_matching(
-        self, t: np.array, n: int, rnd: np.random.RandomState
-    ) -> np.array:
+        self, t: np.ndarray, n: int, rnd: np.random.RandomState
+    ) -> np.ndarray:
         return self.moment_match(t, self.simulate(t, n, rnd))
 
 
@@ -1002,7 +1002,7 @@ class BrownianMotion(StochasticProcess):
         self.mu_t = mu_t
         self.sigma = sigma
 
-    def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
+    def simulate(self, t: np.ndarray, n: int, rnd: np.random.RandomState) -> np.ndarray:
         assert t.ndim == 1, "One dimensional time vector required"
         assert t.size > 0, "At least one time point is required"
         dt = np.concatenate((t[0:1], np.diff(t)))
@@ -1028,7 +1028,7 @@ class GeometricBrownianMotion(StochasticProcess):
         self.mu_t = mu_t
         self.sigma = sigma
 
-    def simulate(self, t: np.array, n: int, rnd: np.random.RandomState) -> np.array:
+    def simulate(self, t: np.ndarray, n: int, rnd: np.random.RandomState) -> np.ndarray:
         assert t.ndim == 1, "One dimensional time vector required"
         assert t.size > 0, "At least one time point is required"
         dt = np.concatenate((t[0:1], np.diff(t)))
@@ -1054,7 +1054,7 @@ def simulate_equity_black_scholes_model(
     stock: str,
     currency: str,
     S0: float,
-    dategrid: np.array,
+    dategrid: np.ndarray,
     sigma: float,
     r: float,
     n: int,
@@ -1078,8 +1078,8 @@ class HoLeeModel(TermStructuresModel):
 
     h: Final[float] = np.sqrt(np.finfo(float).eps)
 
-    dategrid: Final[np.array]
-    yearfractions: Final[np.array]
+    dategrid: Final[np.ndarray]
+    yearfractions: Final[np.ndarray]
     shortrates: Final[np.ndarray]
     discount_curve: Optional[
         Callable[[float], float]
@@ -1089,7 +1089,7 @@ class HoLeeModel(TermStructuresModel):
 
     def __init__(
         self,
-        dategrid: np.array,
+        dategrid: np.ndarray,
         discount_curve: Callable[[float], float],
         sigma: float,
         n: int,
