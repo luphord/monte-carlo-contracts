@@ -17,6 +17,7 @@ Also, this implementation is tailored towards Monte Carlo based cashflow generat
 * [Equity Options](examples/Equity%20Options.ipynb)
 * [FX Options](examples/FX%20Options.ipynb)
 * [Working with Observables](examples/Observables.ipynb)
+* [Cashflow types](examples/Cashflows.ipynb)
 
 ## Install
 
