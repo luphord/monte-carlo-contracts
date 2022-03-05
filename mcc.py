@@ -25,6 +25,17 @@ ArrayLike = Union[np.ndarray, float]
 
 
 class SimpleCashflows(pd.DataFrame):
+    """Simple data structure to represent simulated cashflows.
+    Designed for external usage where an aggregated, simplified
+    view of the cashflow structure is sufficient.
+    Essentially a mapping from date and currency (row index)
+    to cashflow value per path (column index).
+    For convenience, this class is derived from `pandas.DataFrame`
+    to simplify further processing (such as plotting).
+    Can be created from `SimulatedCashflows`, but the reverse
+    direction is not possible.
+    """
+
     @property
     def _constructor(self) -> Callable:
         return SimpleCashflows
@@ -44,6 +55,17 @@ class SimpleCashflows(pd.DataFrame):
 
 
 class SimulatedCashflows:
+    """Complex data structure to represent simulated cashflows.
+    Designed for external usage where a detailed view
+    of the cashflow structure is desired.
+    Contains full information about the cashflow structure
+    indexed by datetime64[D] dates. Does not contain the integer
+    index values that correspond to these dates within the model.
+    Can be turned into `SimpleCashflows` via `to_simple_cashflows`.
+    Can be created from `IndexedCashflows`, but the reverse
+    direction is not possible.
+    """
+
     dtype: Final = np.dtype([("date", "datetime64[D]"), ("value", np.float64)])
     cashflows: Final[np.ndarray]
     currencies: Final[np.ndarray]
@@ -101,6 +123,14 @@ class SimulatedCashflows:
 
 
 class IndexedCashflows:
+    """Complex data structure to represent simulated cashflows
+    bound to a specific model.
+    Designed for internal usage within composable contracts.
+    Contains full information about the cashflow structure
+    indexed by integers corresponding to dates within the associated model.
+    Can be turned into `SimulatedCashflows` via `apply_index`.
+    """
+
     dtype: Final = np.dtype([("index", np.int64), ("value", np.float64)])
     cashflows: Final[np.ndarray]
     currencies: Final[np.ndarray]
