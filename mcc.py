@@ -752,6 +752,12 @@ class Contract(ABC):
     def __sub__(self, other: "Contract") -> "Contract":
         return And(self, Give(other))
 
+    def __mul__(self, observable: ObservableFloat) -> "Contract":
+        return Scale(observable, self)
+
+    def __rmul__(self, observable: ObservableFloat) -> "Contract":
+        return Scale(observable, self)
+
 
 @dataclass
 class Zero(Contract):
@@ -985,9 +991,7 @@ class ZeroCouponBond(ResolvableContract):
     currency: str
 
     def resolve(self) -> Contract:
-        return When(
-            At(self.maturity), Scale(KonstFloat(self.notional), One(self.currency))
-        )
+        return When(At(self.maturity), KonstFloat(self.notional) * One(self.currency))
 
 
 @dataclass

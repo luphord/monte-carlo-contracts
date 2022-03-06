@@ -73,7 +73,7 @@ class MyContract(ResolvableContract):
     notional: float
 
     def resolve(self) -> Contract:
-        return When(At(self.maturity), Scale(KonstFloat(self.notional), One("EUR")))
+        return When(At(self.maturity), KonstFloat(self.notional) * One("EUR"))
 
 
 class AlternatingBool(ObservableBool):
@@ -197,10 +197,10 @@ class TestMonteCarloContracts(unittest.TestCase):
             Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
             When(At(np.datetime64("2030-07-14")), One("EUR")),
         ) + (
-            Until(FX("EUR", "USD") < 1.0, -Scale(KonstFloat(1.23), One("USD")))
+            Until(FX("EUR", "USD") < 1.0, -(KonstFloat(1.23) * One("USD")))
             + Anytime(
                 (Stock("DEF") >= 50) | (Stock("DEF") < 20),
-                Scale(Stock("ABC"), One("EUR")),
+                Stock("ABC") * One("EUR"),
             )
         )
         expected = (
@@ -210,7 +210,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             "| (~(Stock(DEF) >= 20)), Scale(Stock(ABC), One(EUR)))))"
         )
         self.assertEqual(str(c), expected)
-        c2 = Scale(Stock("ABC") ** 2 / (Stock("DEF") - 1.7) + 42, One("EUR"))
+        c2 = (Stock("ABC") ** 2 / (Stock("DEF") - 1.7) + 42) * One("EUR")
         self.assertEqual(
             str(c2),
             "Scale((((Stock(ABC)) ** (2)) / ((Stock(DEF)) + (-1.7))) + (42), One(EUR))",
@@ -335,10 +335,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         yearfraction = (dategrid[-1] - dategrid[-3]).astype(np.float64) / 365
         c = When(
             At(model.dategrid[-1]),
-            Scale(
-                FixedAfter(At(dategrid[-3]), LinearRate("EUR", "3M")) * yearfraction,
-                One("EUR"),
-            ),
+            FixedAfter(At(dategrid[-3]), LinearRate("EUR", "3M"))
+            * yearfraction
+            * One("EUR"),
         )
         cf = model.generate_cashflows(c)
         self.assertEqual(cf.currencies.shape, (1,))
@@ -348,7 +347,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_stock(self) -> None:
         model = _make_model()
-        c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
+        c = When(At(model.dategrid[-1]), Stock("ABC") * One("EUR"))
         cf = model.generate_cashflows(c)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -360,7 +359,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_fx(self) -> None:
         model = _make_model()
-        c = When(At(model.dategrid[-1]), Scale(FX("EUR", "USD"), One("EUR")))
+        c = When(At(model.dategrid[-1]), FX("EUR", "USD") * One("EUR"))
         cf = model.generate_cashflows(c)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -371,7 +370,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
         self.assertEqual(cf.currencies[0], "EUR")
-        c = When(At(model.dategrid[-1]), Scale(FX("USD", "EUR"), One("EUR")))
+        c = When(At(model.dategrid[-1]), FX("USD", "EUR") * One("EUR"))
         cf = model.generate_cashflows(c)
         self.assertTrue(
             (
@@ -383,7 +382,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_cashflow_currency_conversion(self) -> None:
         model = _make_model()
         self.assertEqual(model.currencies, {"EUR", "USD"})
-        c = When(At(model.dategrid[-1]), Scale(Stock("ABC"), One("EUR")))
+        c = When(At(model.dategrid[-1]), Stock("ABC") * One("EUR"))
         cf_eur = c.generate_cashflows(model.eval_date_index, model)
         self.assertRaises(AssertionError, lambda: model.in_currency(cf_eur, "GBP"))
         cf_usd = model.in_currency(cf_eur, "USD")
@@ -481,7 +480,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_scale_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Scale(KonstFloat(1.23), One("EUR")))
+        cf = model.generate_cashflows(KonstFloat(1.23) * One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -505,7 +504,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model()
         c2 = Or(One("EUR"), When(At(model.dategrid[-1]), One("EUR")))
         self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
-        c3 = Or(One("EUR"), Scale(KonstFloat(2), One("EUR")))
+        c3 = Or(One("EUR"), KonstFloat(2) * One("EUR"))
         cf = model.generate_cashflows(c3)
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -627,7 +626,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         opt = EuropeanOption(
-            model.dategrid[-2], zcb - Scale(KonstFloat(strike), One(currency))
+            model.dategrid[-2], zcb - KonstFloat(strike) * One(currency)
         )
         cf = model.generate_cashflows(opt)
         self.assertEqual(cf.currencies.shape, (3,))
@@ -690,7 +689,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(m.simulated_stocks["ABC"].shape, (n, ndates))
         self.assertEqual(m.numeraire.shape, (n, ndates))
         for t in dategrid:
-            c = When(At(t), Scale(Stock("ABC"), One("EUR")))
+            c = When(At(t), Stock("ABC") * One("EUR"))
             self.assertTrue(np.isclose(m.evaluate(c), 123))
 
     def test_ho_lee_model(self) -> None:
