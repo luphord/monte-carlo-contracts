@@ -1,6 +1,7 @@
 ## History
 
 ### 0.7.0 (not yet)
+* Add operator overloading for `Contract` classes, i.e. you can now do `One("USD") - One("EUR") | 1.2 * One("GBP")` instead of `Or(And(One("USD"), Give(One("EUR"))), Scale(1.2, One("GBP")))`
 * Support Python 3.10
 * Make use of type annotations added to numpy
 
