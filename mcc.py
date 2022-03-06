@@ -411,7 +411,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return Sum(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __radd__(self, other: float) -> "ObservableFloat":
         return Sum(KonstFloat(other), self)
@@ -425,7 +425,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return Sum(self, -KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __rsub__(self, other: float) -> "ObservableFloat":
         return Sum(KonstFloat(other), -self)
@@ -436,7 +436,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return Product(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __rmul__(self, other: float) -> "ObservableFloat":
         return Product(KonstFloat(other), self)
@@ -447,7 +447,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return Quotient(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __rtruediv__(self, other: float) -> "ObservableFloat":
         return Quotient(KonstFloat(other), self)
@@ -458,7 +458,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return Power(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __rpow__(self, other: float) -> "ObservableFloat":
         return Power(KonstFloat(other), self)
@@ -469,7 +469,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return GreaterOrEqualThan(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __gt__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         if isinstance(other, ObservableFloat):
@@ -477,7 +477,7 @@ class ObservableFloat(ABC):
         elif isinstance(other, Real):
             return GreaterThan(self, KonstFloat(other))
         else:
-            raise TypeError(f"Expecting real number, got {other} of type {type(other)}")
+            return NotImplemented
 
     def __le__(self, other: Union["ObservableFloat", float]) -> "ObservableBool":
         return ~(self > other)
