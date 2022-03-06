@@ -193,9 +193,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
 
     def test_contract_str(self) -> None:
-        c = Or(
-            Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
-            When(At(np.datetime64("2030-07-14")), One("EUR")),
+        c = (
+            Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD"))
+            | When(At(np.datetime64("2030-07-14")), One("EUR"))
         ) + (
             Until(FX("EUR", "USD") < 1.0, -(1.23 * One("USD")))
             + Anytime(
@@ -502,9 +502,9 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_or_cashflow_generation(self) -> None:
         model = _make_model()
-        c2 = Or(One("EUR"), When(At(model.dategrid[-1]), One("EUR")))
+        c2 = One("EUR") | When(At(model.dategrid[-1]), One("EUR"))
         self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
-        c3 = Or(One("EUR"), 2 * One("EUR"))
+        c3 = One("EUR") | 2 * One("EUR")
         cf = model.generate_cashflows(c3)
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -514,7 +514,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((np.isnat(cf.cashflows["date"][:, 0])).all())
         self.assertTrue((cf.cashflows["value"][:, 1] == 2).all())
         self.assertTrue((cf.cashflows["date"][:, 1] == model.eval_date).all())
-        c4 = Or(One("EUR"), One("USD"))
+        c4 = One("EUR") | One("USD")
         cf4 = model.generate_cashflows(c4)
         self.assertEqual(cf4.currencies.shape, (2,))
         self.assertEqual(cf4.currencies[0], "EUR")

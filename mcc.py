@@ -763,6 +763,9 @@ class Contract(ABC):
     def __rmul__(self, observable: Union[ObservableFloat, float]) -> "Contract":
         return self.__mul__(observable)
 
+    def __or__(self, other: "Contract") -> "Contract":
+        return Or(self, other)
+
 
 @dataclass
 class Zero(Contract):
@@ -1005,7 +1008,7 @@ class EuropeanOption(ResolvableContract):
     contract: Contract
 
     def resolve(self) -> Contract:
-        return When(At(self.maturity), Or(self.contract, Zero()))
+        return When(At(self.maturity), self.contract | Zero())
 
 
 class StochasticProcess(ABC):
