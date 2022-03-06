@@ -73,7 +73,7 @@ class MyContract(ResolvableContract):
     notional: float
 
     def resolve(self) -> Contract:
-        return When(At(self.maturity), KonstFloat(self.notional) * One("EUR"))
+        return When(At(self.maturity), self.notional * One("EUR"))
 
 
 class AlternatingBool(ObservableBool):
@@ -197,7 +197,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
             When(At(np.datetime64("2030-07-14")), One("EUR")),
         ) + (
-            Until(FX("EUR", "USD") < 1.0, -(KonstFloat(1.23) * One("USD")))
+            Until(FX("EUR", "USD") < 1.0, -(1.23 * One("USD")))
             + Anytime(
                 (Stock("DEF") >= 50) | (Stock("DEF") < 20),
                 Stock("ABC") * One("EUR"),
@@ -480,7 +480,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_scale_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(KonstFloat(1.23) * One("EUR"))
+        cf = model.generate_cashflows(1.23 * One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -504,7 +504,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         model = _make_model()
         c2 = Or(One("EUR"), When(At(model.dategrid[-1]), One("EUR")))
         self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
-        c3 = Or(One("EUR"), KonstFloat(2) * One("EUR"))
+        c3 = Or(One("EUR"), 2 * One("EUR"))
         cf = model.generate_cashflows(c3)
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -625,9 +625,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         currency = "USD"
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        opt = EuropeanOption(
-            model.dategrid[-2], zcb - KonstFloat(strike) * One(currency)
-        )
+        opt = EuropeanOption(model.dategrid[-2], zcb - strike * One(currency))
         cf = model.generate_cashflows(opt)
         self.assertEqual(cf.currencies.shape, (3,))
         self.assertEqual(cf.currencies[0], currency)
