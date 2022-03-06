@@ -743,6 +743,9 @@ class Contract(ABC):
     ) -> IndexedCashflows:
         pass
 
+    def __add__(self, other: "Contract") -> "Contract":
+        return And(self, other)
+
 
 @dataclass
 class Zero(Contract):

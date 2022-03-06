@@ -193,20 +193,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
 
     def test_contract_str(self) -> None:
-        c = And(
-            Or(
-                Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
-                When(At(np.datetime64("2030-07-14")), One("EUR")),
-            ),
-            And(
-                Until(
-                    FX("EUR", "USD") < 1.0, Give(Scale(KonstFloat(1.23), One("USD")))
-                ),
-                Anytime(
-                    (Stock("DEF") >= 50) | (Stock("DEF") < 20),
-                    Scale(Stock("ABC"), One("EUR")),
-                ),
-            ),
+        c = Or(
+            Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
+            When(At(np.datetime64("2030-07-14")), One("EUR")),
+        ) + (
+            Until(FX("EUR", "USD") < 1.0, Give(Scale(KonstFloat(1.23), One("USD"))))
+            + Anytime(
+                (Stock("DEF") >= 50) | (Stock("DEF") < 20),
+                Scale(Stock("ABC"), One("EUR")),
+            )
         )
         expected = (
             "And(Or(Cond((Stock(ABC) > 28) & (~(Stock(DEF) > 28)), Zero, One(USD)), "
@@ -494,7 +489,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
 
     def test_and_cashflow_generation(self) -> None:
-        c = And(One("EUR"), One("USD"))
+        c = One("EUR") + One("USD")
         model = _make_model()
         cf = c.generate_cashflows(model.eval_date_index, model)
         self.assertEqual(cf.currencies.shape, (2,))
@@ -632,7 +627,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         opt = EuropeanOption(
-            model.dategrid[-2], And(zcb, Give(Scale(KonstFloat(strike), One(currency))))
+            model.dategrid[-2], zcb + Give(Scale(KonstFloat(strike), One(currency)))
         )
         cf = model.generate_cashflows(opt)
         self.assertEqual(cf.currencies.shape, (3,))
