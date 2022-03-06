@@ -197,7 +197,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             Cond((Stock("ABC") > 28) & ~(Stock("DEF") > 28), Zero(), One("USD")),
             When(At(np.datetime64("2030-07-14")), One("EUR")),
         ) + (
-            Until(FX("EUR", "USD") < 1.0, Give(Scale(KonstFloat(1.23), One("USD"))))
+            Until(FX("EUR", "USD") < 1.0, -Scale(KonstFloat(1.23), One("USD")))
             + Anytime(
                 (Stock("DEF") >= 50) | (Stock("DEF") < 20),
                 Scale(Stock("ABC"), One("EUR")),
@@ -472,7 +472,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_give_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Give(One("EUR")))
+        cf = model.generate_cashflows(-One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -627,7 +627,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         opt = EuropeanOption(
-            model.dategrid[-2], zcb + Give(Scale(KonstFloat(strike), One(currency)))
+            model.dategrid[-2], zcb - Scale(KonstFloat(strike), One(currency))
         )
         cf = model.generate_cashflows(opt)
         self.assertEqual(cf.currencies.shape, (3,))

@@ -746,6 +746,12 @@ class Contract(ABC):
     def __add__(self, other: "Contract") -> "Contract":
         return And(self, other)
 
+    def __neg__(self) -> "Contract":
+        return Give(self)
+
+    def __sub__(self, other: "Contract") -> "Contract":
+        return And(self, Give(other))
+
 
 @dataclass
 class Zero(Contract):
