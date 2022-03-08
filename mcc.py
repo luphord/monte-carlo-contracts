@@ -564,6 +564,29 @@ class Power(ObservableFloat):
 
 
 @dataclass
+class RunningMax(ObservableFloat):
+    """Running maximum of observable over time, seen from first_observation_idx."""
+
+    observable: ObservableFloat
+
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        underlying = self.observable.simulate(first_observation_idx, model).copy()
+        running_max = underlying.copy()
+        mask = np.repeat(
+            np.reshape(np.arange(underlying.shape[1]), (1, underlying.shape[1])),
+            underlying.shape[0],
+            axis=0,
+        ) < np.reshape(first_observation_idx.index, (first_observation_idx.nsim, 1))
+        running_max[mask] = np.nan
+        running_max = np.fmax.accumulate(running_max, axis=1)
+        running_max[mask] = underlying[mask]
+        return running_max
+
+    def __str__(self) -> str:
+        return f"RunningMax({self.observable})"
+
+
+@dataclass
 class FixedAfter(ObservableFloat):
     """Equal to observable, but remains constant as soon as
     fixing_condition becomes true after (including) first_observation_idx."""
