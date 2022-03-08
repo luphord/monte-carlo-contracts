@@ -326,6 +326,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         fixed2sim = fixed2.simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(fixed2sim[:, -2], fixed2sim[:, -1]))
         self.assertFalse(np.isclose(fixed2sim[:, -3], fixed2sim[:, -1]).any())
+        # ensure fixing condition is checked after first_observation_idx
+        always = Stock("ABC") > 0
+        fixed3 = FixedAfter(always, Stock("ABC"))
+        fixed3sim1 = fixed3.simulate(model.eval_date_index, model)
+        self.assertTrue(
+            np.allclose(
+                fixed3sim1,
+                np.repeat(model.simulated_stocks["ABC"][:, :1], model.ndates, axis=1),
+            )  # all columns equal to first one as immediately fixed
+        )
+        fixed3sim2 = fixed3.simulate(
+            DateIndex(model.eval_date_index.index + model.ndates - 1), model
+        )
+        self.assertTrue(
+            np.allclose(fixed3sim2, Stock("ABC").simulate(model.eval_date_index, model))
+        )
 
     def test_boolean_operators(self) -> None:
         model = _make_model()

@@ -566,17 +566,15 @@ class Power(ObservableFloat):
 @dataclass
 class FixedAfter(ObservableFloat):
     """Equal to observable, but remains constant as soon as
-    fixing_condition becomes true (seen from the beginning,
-    not from acquisition date)"""
+    fixing_condition becomes true after (including) first_observation_idx."""
 
     fixing_condition: "ObservableBool"
     observable: ObservableFloat
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        initial_idx = DateIndex(first_observation_idx.index * 0)
-        underlying = self.observable.simulate(initial_idx, model).copy()
-        fixing_times = self.fixing_condition.simulate(initial_idx, model)
-        fixing_idx = model.eval_date_index.next_after(fixing_times)
+        underlying = self.observable.simulate(first_observation_idx, model).copy()
+        fixing_times = self.fixing_condition.simulate(first_observation_idx, model)
+        fixing_idx = first_observation_idx.next_after(fixing_times)
         for i in range(1, underlying.shape[1]):
             fixing_mask = (i > fixing_idx.index) & (fixing_idx.index >= 0)
             underlying[fixing_mask, i] = underlying[fixing_mask, i - 1]
