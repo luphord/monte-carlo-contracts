@@ -80,7 +80,7 @@ class AlternatingBool(ObservableBool):
     def __init__(self, start_with_false: bool = True):
         self.offset = 0 if start_with_false else 1
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         mask = np.array(
             (np.arange(model.nsim) + self.offset) % 2, dtype=np.bool_
         ).reshape((model.nsim, 1))
@@ -224,79 +224,87 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_date_index(self) -> None:
         model = _make_model()
         at0 = At(model.dategrid[0])
-        idx0 = model.eval_date_index.next_after(at0.simulate(model))
+        idx0 = model.eval_date_index.next_after(
+            at0.simulate(model.eval_date_index, model)
+        )
         self.assertTrue((idx0.index == 0).all())
         at1 = At(model.dategrid[1])
-        idx1 = model.eval_date_index.next_after(at1.simulate(model))
+        idx1 = model.eval_date_index.next_after(
+            at1.simulate(model.eval_date_index, model)
+        )
         self.assertTrue((idx1.index == 1).all())
 
     def test_observable_float_calculations(self) -> None:
         model = _make_model()
         stock_twice = Stock("ABC") + Stock("ABC")
-        once = Stock("ABC").simulate(model)
-        twice = stock_twice.simulate(model)
+        once = Stock("ABC").simulate(model.eval_date_index, model)
+        twice = stock_twice.simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(2 * once, twice))
-        addconst = (Stock("ABC") + 123).simulate(model)
+        addconst = (Stock("ABC") + 123).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(once + 123, addconst))
-        constadd = (123 + Stock("ABC")).simulate(model)
+        constadd = (123 + Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(123 + once, constadd))
-        minus = (-Stock("ABC")).simulate(model)
+        minus = (-Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(minus, -once))
-        constsub = (Stock("ABC") - 123).simulate(model)
+        constsub = (Stock("ABC") - 123).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(constsub, once - 123))
-        subconst = (123 - Stock("ABC")).simulate(model)
+        subconst = (123 - Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(subconst, 123 - once))
-        zero = (Stock("ABC") - Stock("ABC")).simulate(model)
+        zero = (Stock("ABC") - Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(zero, np.zeros(shape=zero.shape)))
-        stockmulti = (Stock("ABC") * 123).simulate(model)
+        stockmulti = (Stock("ABC") * 123).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(stockmulti, 123 * once))
-        multistock = (123 * Stock("ABC")).simulate(model)
+        multistock = (123 * Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(multistock, once * 123))
-        stocksquared = (Stock("ABC") * Stock("ABC")).simulate(model)
+        stocksquared = (Stock("ABC") * Stock("ABC")).simulate(
+            model.eval_date_index, model
+        )
         self.assertTrue(np.allclose(stocksquared, once**2))
-        stockdiv = (Stock("ABC") / 123).simulate(model)
+        stockdiv = (Stock("ABC") / 123).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(stockdiv, once / 123))
-        divstock = (123 / Stock("ABC")).simulate(model)
+        divstock = (123 / Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(divstock, 123 / once))
-        one = (Stock("ABC") / Stock("ABC")).simulate(model)
+        one = (Stock("ABC") / Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(one, np.ones(shape=zero.shape)))
-        org = (1 / (1 / Stock("ABC"))).simulate(model)
+        org = (1 / (1 / Stock("ABC"))).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(org, once))
-        stockpower = (Stock("ABC") ** 123).simulate(model)
+        stockpower = (Stock("ABC") ** 123).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(stockpower, once**123))
-        powerstock = (123 ** Stock("ABC")).simulate(model)
+        powerstock = (123 ** Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(powerstock, 123**once))
-        stockstock = (Stock("ABC") ** Stock("ABC")).simulate(model)
+        stockstock = (Stock("ABC") ** Stock("ABC")).simulate(
+            model.eval_date_index, model
+        )
         self.assertTrue(np.allclose(stockstock, once**once))
-        org2 = ((Stock("ABC") ** 3) ** (1 / 3)).simulate(model)
+        org2 = ((Stock("ABC") ** 3) ** (1 / 3)).simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(org2, once))
 
     def test_observable_float_comparisons(self) -> None:
         model = _make_model()
         # greater or equal
         barrier_breach = Stock("ABC") >= 1
-        bbsim = barrier_breach.simulate(model)
+        bbsim = barrier_breach.simulate(model.eval_date_index, model)
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] >= 1)).all())
         shouldbeall = Stock("ABC") >= Stock("ABC")
-        self.assertTrue(shouldbeall.simulate(model).all())
+        self.assertTrue(shouldbeall.simulate(model.eval_date_index, model).all())
         # strictly greater
         barrier_breach = Stock("ABC") > 1
-        bbsim = barrier_breach.simulate(model)
+        bbsim = barrier_breach.simulate(model.eval_date_index, model)
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] > 1)).all())
         shouldbenone = Stock("ABC") > Stock("ABC")
-        self.assertFalse(shouldbenone.simulate(model).any())
+        self.assertFalse(shouldbenone.simulate(model.eval_date_index, model).any())
         # less or equal
         barrier_breach = Stock("ABC") <= 1
-        bbsim = barrier_breach.simulate(model)
+        bbsim = barrier_breach.simulate(model.eval_date_index, model)
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] <= 1)).all())
         shouldbeall = Stock("ABC") <= Stock("ABC")
-        self.assertTrue(shouldbeall.simulate(model).all())
+        self.assertTrue(shouldbeall.simulate(model.eval_date_index, model).all())
         # strictly less
         barrier_breach = Stock("ABC") < 1
-        bbsim = barrier_breach.simulate(model)
+        bbsim = barrier_breach.simulate(model.eval_date_index, model)
         self.assertTrue((bbsim == (model.simulated_stocks["ABC"] < 1)).all())
         shouldbenone = Stock("ABC") < Stock("ABC")
-        self.assertFalse(shouldbenone.simulate(model).any())
+        self.assertFalse(shouldbenone.simulate(model.eval_date_index, model).any())
         # test right comparison operator application
         self.assertIsInstance(1 <= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
@@ -306,8 +314,8 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_fixed_after(self) -> None:
         model = _make_model()
         fixed1 = FixedAfter(AlternatingBool(), Stock("ABC"))
-        fixed1sim = fixed1.simulate(model)
-        altsim = AlternatingBool().simulate(model)
+        fixed1sim = fixed1.simulate(model.eval_date_index, model)
+        altsim = AlternatingBool().simulate(model.eval_date_index, model)
         self.assertTrue(
             np.allclose(fixed1sim[altsim[:, 0], 0], fixed1sim[altsim[:, 0], -1])
         )
@@ -315,19 +323,19 @@ class TestMonteCarloContracts(unittest.TestCase):
             np.isclose(fixed1sim[~altsim[:, 0], 0], fixed1sim[~altsim[:, 0], -1]).any()
         )
         fixed2 = FixedAfter(At(model.dategrid[-2, 0]), Stock("ABC"))
-        fixed2sim = fixed2.simulate(model)
+        fixed2sim = fixed2.simulate(model.eval_date_index, model)
         self.assertTrue(np.allclose(fixed2sim[:, -2], fixed2sim[:, -1]))
         self.assertFalse(np.isclose(fixed2sim[:, -3], fixed2sim[:, -1]).any())
 
     def test_boolean_operators(self) -> None:
         model = _make_model()
         alt = AlternatingBool()
-        altsim = alt.simulate(model)
-        altinvertsim = (~alt).simulate(model)
+        altsim = alt.simulate(model.eval_date_index, model)
+        altinvertsim = (~alt).simulate(model.eval_date_index, model)
         self.assertTrue((altsim == ~altinvertsim).all())
         alt2 = AlternatingBool(False)
-        self.assertFalse((alt & alt2).simulate(model).any())
-        self.assertTrue((alt | alt2).simulate(model).all())
+        self.assertFalse((alt & alt2).simulate(model.eval_date_index, model).any())
+        self.assertTrue((alt | alt2).simulate(model.eval_date_index, model).all())
 
     def test_rates(self) -> None:
         model = _make_model()
@@ -429,19 +437,19 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_boolean_obs_at(self) -> None:
         model = _make_model()
         at0 = At(model.dategrid[0])
-        at0sim = at0.simulate(model)
+        at0sim = at0.simulate(model.eval_date_index, model)
         self.assertEqual(at0sim.dtype, np.bool_)
         self.assertEqual(at0sim.shape, model.shape)
         self.assertTrue(at0sim[:, 0].all())
         self.assertFalse(at0sim[:, 1].any())
         at1 = At(model.dategrid[1])
-        at1sim = at1.simulate(model)
+        at1sim = at1.simulate(model.eval_date_index, model)
         self.assertEqual(at1sim.dtype, np.bool_)
         self.assertEqual(at1sim.shape, model.shape)
         self.assertFalse(at1sim[:, 0].any())
         self.assertTrue(at1sim[:, 1].all())
         alt = AlternatingBool()
-        altsim = alt.simulate(model)
+        altsim = alt.simulate(model.eval_date_index, model)
         self.assertFalse(altsim[np.arange(0, model.nsim, 2), :].any())
         self.assertTrue(altsim[np.arange(1, model.nsim, 2), :].all())
 

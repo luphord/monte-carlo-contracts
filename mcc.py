@@ -402,7 +402,7 @@ class ObservableFloat(ABC):
     essentially a real-valued stochastic process"""
 
     @abstractmethod
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         pass
 
     def __add__(self, other: Union["ObservableFloat", float]) -> "ObservableFloat":
@@ -493,8 +493,10 @@ class Sum(ObservableFloat):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) + self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) + self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) + ({self.observable2})"
@@ -506,8 +508,8 @@ class Minus(ObservableFloat):
 
     observable: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return -self.observable.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return -self.observable.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"-{self.observable}"
@@ -520,8 +522,10 @@ class Product(ObservableFloat):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) * self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) * self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) * ({self.observable2})"
@@ -534,8 +538,10 @@ class Quotient(ObservableFloat):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) / self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) / self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) / ({self.observable2})"
@@ -548,8 +554,10 @@ class Power(ObservableFloat):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) ** self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) ** self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) ** ({self.observable2})"
@@ -564,9 +572,10 @@ class FixedAfter(ObservableFloat):
     fixing_condition: "ObservableBool"
     observable: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        underlying = self.observable.simulate(model).copy()
-        fixing_times = self.fixing_condition.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        initial_idx = DateIndex(first_observation_idx.index * 0)
+        underlying = self.observable.simulate(initial_idx, model).copy()
+        fixing_times = self.fixing_condition.simulate(initial_idx, model)
         fixing_idx = model.eval_date_index.next_after(fixing_times)
         for i in range(1, underlying.shape[1]):
             fixing_mask = (i > fixing_idx.index) & (fixing_idx.index >= 0)
@@ -583,7 +592,7 @@ class Stock(ObservableFloat):
 
     identifier: str
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         return model.simulated_stocks[self.identifier]
 
     def __str__(self) -> str:
@@ -598,7 +607,7 @@ class FX(ObservableFloat):
     base_currency: str
     counter_currency: str
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         return model.get_simulated_fx(self.base_currency, self.counter_currency)
 
     def __str__(self) -> str:
@@ -613,7 +622,7 @@ class LinearRate(ObservableFloat):
     currency: str
     frequency: str
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         return model.simulated_rates[self.currency].linear_rate(self.frequency)
 
     def __str__(self) -> str:
@@ -626,7 +635,7 @@ class KonstFloat(ObservableFloat):
 
     constant: float
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         return self.constant * np.ones(model.shape, dtype=np.float64)
 
     def __str__(self) -> str:
@@ -637,7 +646,7 @@ class ObservableBool(ABC):
     """Abstract base class for all observables of underlying type bool"""
 
     @abstractmethod
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         pass
 
     def __invert__(self) -> "ObservableBool":
@@ -656,8 +665,8 @@ class Not(ObservableBool):
 
     observable: ObservableBool
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return ~self.observable.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return ~self.observable.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"~({self.observable})"
@@ -670,8 +679,10 @@ class AndObservable(ObservableBool):
     observable1: ObservableBool
     observable2: ObservableBool
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) & self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) & self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) & ({self.observable2})"
@@ -684,8 +695,10 @@ class OrObservable(ObservableBool):
     observable1: ObservableBool
     observable2: ObservableBool
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) | self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) | self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"({self.observable1}) | ({self.observable2})"
@@ -698,8 +711,10 @@ class GreaterOrEqualThan(ObservableBool):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) >= self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) >= self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"{self.observable1} >= {self.observable2}"
@@ -712,8 +727,10 @@ class GreaterThan(ObservableBool):
     observable1: ObservableFloat
     observable2: ObservableFloat
 
-    def simulate(self, model: Model) -> np.ndarray:
-        return self.observable1.simulate(model) > self.observable2.simulate(model)
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return self.observable1.simulate(
+            first_observation_idx, model
+        ) > self.observable2.simulate(first_observation_idx, model)
 
     def __str__(self) -> str:
         return f"{self.observable1} > {self.observable2}"
@@ -725,9 +742,10 @@ class At(ObservableBool):
 
     date: np.datetime64
 
-    def simulate(self, model: Model) -> np.ndarray:
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         mask = (model.dategrid == self.date).reshape((1, model.ndates))
         assert mask.any(), f"{self.date} not contained in dategrid"
+        # ToDo: Should we assert that self.date is after first_observation_idx?
         return np.repeat(mask, model.nsim, axis=0)
 
     def __str__(self) -> str:
@@ -885,7 +903,9 @@ class Cond(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        obs = acquisition_idx.index_column(self.observable.simulate(model))
+        obs = acquisition_idx.index_column(
+            self.observable.simulate(acquisition_idx, model)
+        )
         never = acquisition_idx.index < 0
         cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
         cf1.cashflows["value"][~obs, :] = 0
@@ -913,7 +933,9 @@ class Scale(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         cf = self.contract.generate_cashflows(acquisition_idx, model)
-        obs = acquisition_idx.index_column(self.observable.simulate(model))
+        obs = acquisition_idx.index_column(
+            self.observable.simulate(acquisition_idx, model)
+        )
         assert cf.cashflows.ndim == 2
         assert cf.cashflows.shape[0] == model.nsim
         assert obs.ndim == 1
@@ -935,7 +957,9 @@ class When(Contract):
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        idx = acquisition_idx.next_after(self.observable.simulate(model))
+        idx = acquisition_idx.next_after(
+            self.observable.simulate(acquisition_idx, model)
+        )
         return self.contract.generate_cashflows(idx, model)
 
     def __str__(self) -> str:
@@ -971,7 +995,9 @@ class Until(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         cf = self.contract.generate_cashflows(acquisition_idx, model)
-        ko_idx = acquisition_idx.next_after(self.observable.simulate(model))
+        ko_idx = acquisition_idx.next_after(
+            self.observable.simulate(acquisition_idx, model)
+        )
         return cf.zero_after(ko_idx)
 
     def __str__(self) -> str:
