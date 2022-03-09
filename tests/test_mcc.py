@@ -14,6 +14,7 @@ from mcc import (
     KonstFloat,
     LinearRate,
     FixedAfter,
+    RunningMax,
     Stock,
     FX,
     At,
@@ -342,6 +343,16 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(
             np.allclose(fixed3sim2, Stock("ABC").simulate(model.eval_date_index, model))
         )
+
+    def test_running_maximum(self) -> None:
+        model = _make_model()
+        stocksim = Stock("ABC").simulate(model.eval_date_index, model)
+        maxsim = RunningMax(Stock("ABC")).simulate(model.eval_date_index, model)
+        self.assertTrue(np.all(maxsim >= stocksim))
+        self.assertTrue(np.any(maxsim > stocksim))
+        increments = np.diff(maxsim, axis=1)
+        self.assertTrue(np.all(increments >= 0))
+        self.assertTrue(np.any(increments > 0))
 
     def test_boolean_operators(self) -> None:
         model = _make_model()
