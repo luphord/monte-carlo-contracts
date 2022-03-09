@@ -198,6 +198,13 @@ class IndexedCashflows:
 
 
 class DateIndex:
+    """Integer index for time points (dates) within a model.
+    Index value may be different for each path.
+    Mathematically, this could be interpreted as the simulation
+    of a *stopping time* stochastic process.
+    Index value -1 indicates "never" (as in "this contract is never acquired").
+    """
+
     index: Final[np.ndarray]
     nsim: Final[int]
 
@@ -208,6 +215,9 @@ class DateIndex:
         self.nsim = index.size
 
     def index_column(self, observable: np.ndarray) -> np.ndarray:
+        """Apply this DateIndes to observable.
+        Essentially the same as observable[:, self.index],
+        but with proper handling for negative index values."""
         assert observable.ndim == 2
         assert observable.shape[0] == self.nsim
         assert (self.index < observable.shape[1]).all()
@@ -217,6 +227,8 @@ class DateIndex:
         return obs
 
     def next_after(self, obs: np.ndarray) -> "DateIndex":
+        """Create a new DateIndex where obs is True
+        for the first time after (including) this DateIndex."""
         assert obs.dtype == np.bool_
         assert obs.ndim == 2
         assert obs.shape[0] == self.nsim
@@ -232,7 +244,7 @@ class DateIndex:
 
     def after_mask(self, ndates: int) -> np.ndarray:
         """Return a boolean array of size (nsim, ndates)
-        where values after (including) this index are true."""
+        where values after (including) this index are True."""
         return np.repeat(
             np.reshape(np.arange(ndates), (1, ndates)),
             self.nsim,
