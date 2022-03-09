@@ -354,6 +354,48 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.all(increments >= 0))
         self.assertTrue(np.any(increments > 0))
 
+    def test_running_maximum_specific_example(self) -> None:
+        dategrid = np.array(
+            [
+                np.datetime64("2020-01-01"),
+                np.datetime64("2020-01-02"),
+                np.datetime64("2020-01-03"),
+                np.datetime64("2020-01-04"),
+                np.datetime64("2020-01-05"),
+                np.datetime64("2020-01-06"),
+                np.datetime64("2020-01-07"),
+                np.datetime64("2020-01-09"),
+            ],
+            dtype="datetime64[D]",
+        )
+        abc = np.reshape(
+            np.array([1, 2, 1, 1.5, 3, -1, 4, 3]), newshape=(1, dategrid.size)
+        )
+        targets = np.array(
+            [
+                [1, 2, 2, 2, 3, 3, 4, 4],
+                [1, 2, 2, 2, 3, 3, 4, 4],
+                [1, 2, 1, 1.5, 3, 3, 4, 4],
+                [1, 2, 1, 1.5, 3, 3, 4, 4],
+                [1, 2, 1, 1.5, 3, 3, 4, 4],
+                [1, 2, 1, 1.5, 3, -1, 4, 4],
+                [1, 2, 1, 1.5, 3, -1, 4, 4],
+                [1, 2, 1, 1.5, 3, -1, 4, 3],
+            ]
+        )
+        model = Model(
+            dategrid,
+            {},
+            {},
+            {"ABC": abc},
+            np.ones((1, dategrid.size), dtype=np.float64),
+            "EUR",
+        )
+        for i in range(targets.shape[0]):
+            idx = DateIndex(np.array([i]))
+            maxsim = RunningMax(Stock("ABC")).simulate(idx, model)
+            self.assertTrue(np.allclose(targets[i, :], maxsim))
+
     def test_boolean_operators(self) -> None:
         model = _make_model()
         alt = AlternatingBool()
