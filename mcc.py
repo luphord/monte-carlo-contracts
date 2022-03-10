@@ -26,7 +26,7 @@ ArrayLike = Union[np.ndarray, float]
 
 class SimpleCashflows(pd.DataFrame):
     """Simple data structure to represent simulated cashflows.
-    Designed for external usage where an aggregated, simplified
+    Designed for external usage where an accumulated, simplified
     view of the cashflow structure is sufficient.
     Essentially a mapping from date and currency (row index)
     to cashflow value per path (column index).
@@ -591,6 +591,21 @@ class Power(ObservableFloat):
         return f"({self.observable1}) ** ({self.observable2})"
 
 
+def _simulate_accumulate(
+    accfn: np.ufunc,
+    observable: ObservableFloat,
+    first_observation_idx: DateIndex,
+    model: Model,
+) -> np.ndarray:
+    underlying = observable.simulate(first_observation_idx, model).copy()
+    running_accumulate = underlying.copy()
+    mask = first_observation_idx.before_mask(model.ndates)
+    running_accumulate[mask] = np.nan
+    running_accumulate = accfn.accumulate(running_accumulate, axis=1)
+    running_accumulate[mask] = underlying[mask]
+    return running_accumulate
+
+
 @dataclass
 class RunningMax(ObservableFloat):
     """Running maximum of observable over time, seen from first_observation_idx."""
@@ -598,13 +613,9 @@ class RunningMax(ObservableFloat):
     observable: ObservableFloat
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        underlying = self.observable.simulate(first_observation_idx, model).copy()
-        running_max = underlying.copy()
-        mask = first_observation_idx.before_mask(model.ndates)
-        running_max[mask] = np.nan
-        running_max = np.fmax.accumulate(running_max, axis=1)
-        running_max[mask] = underlying[mask]
-        return running_max
+        return _simulate_accumulate(
+            np.fmax, self.observable, first_observation_idx, model
+        )
 
     def __str__(self) -> str:
         return f"RunningMax({self.observable})"
