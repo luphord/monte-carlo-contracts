@@ -15,6 +15,7 @@ from mcc import (
     LinearRate,
     FixedAfter,
     RunningMax,
+    RunningMin,
     Stock,
     FX,
     At,
@@ -442,6 +443,58 @@ class TestMonteCarloContracts(unittest.TestCase):
         for i in range(targets.shape[0]):
             idx = DateIndex(np.array([i]))
             maxsim = RunningMax(Stock("ABC")).simulate(idx, model)
+            self.assertTrue(np.allclose(targets[i, :], maxsim))
+
+    def test_running_minimum(self) -> None:
+        model = _make_model()
+        stocksim = Stock("ABC").simulate(model.eval_date_index, model)
+        maxsim = RunningMin(Stock("ABC")).simulate(model.eval_date_index, model)
+        self.assertTrue(np.all(maxsim <= stocksim))
+        self.assertTrue(np.any(maxsim < stocksim))
+        increments = np.diff(maxsim, axis=1)
+        self.assertTrue(np.all(increments <= 0))
+        self.assertTrue(np.any(increments < 0))
+
+    def test_running_minimum_specific_example(self) -> None:
+        dategrid = np.array(
+            [
+                np.datetime64("2020-01-01"),
+                np.datetime64("2020-01-02"),
+                np.datetime64("2020-01-03"),
+                np.datetime64("2020-01-04"),
+                np.datetime64("2020-01-05"),
+                np.datetime64("2020-01-06"),
+                np.datetime64("2020-01-07"),
+                np.datetime64("2020-01-09"),
+            ],
+            dtype="datetime64[D]",
+        )
+        abc = np.reshape(
+            np.array([1, 2, 1, 1.5, 3, -1, 4, 3]), newshape=(1, dategrid.size)
+        )
+        targets = np.array(
+            [
+                [1, 1, 1, 1, 1, -1, -1, -1],
+                [1, 2, 1, 1, 1, -1, -1, -1],
+                [1, 2, 1, 1, 1, -1, -1, -1],
+                [1, 2, 1, 1.5, 1.5, -1, -1, -1],
+                [1, 2, 1, 1.5, 3, -1, -1, -1],
+                [1, 2, 1, 1.5, 3, -1, -1, -1],
+                [1, 2, 1, 1.5, 3, -1, 4, 3],
+                [1, 2, 1, 1.5, 3, -1, 4, 3],
+            ]
+        )
+        model = Model(
+            dategrid,
+            {},
+            {},
+            {"ABC": abc},
+            np.ones((1, dategrid.size), dtype=np.float64),
+            "EUR",
+        )
+        for i in range(targets.shape[0]):
+            idx = DateIndex(np.array([i]))
+            maxsim = RunningMin(Stock("ABC")).simulate(idx, model)
             self.assertTrue(np.allclose(targets[i, :], maxsim))
 
     def test_boolean_operators(self) -> None:
