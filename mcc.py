@@ -245,11 +245,18 @@ class DateIndex:
     def after_mask(self, ndates: int) -> np.ndarray:
         """Return a boolean array of size (nsim, ndates)
         where values after (including) this index are True."""
-        return np.repeat(
+        mask = np.repeat(
             np.reshape(np.arange(ndates), (1, ndates)),
             self.nsim,
             axis=0,
-        ) < np.reshape(self.index, (self.nsim, 1))
+        ) >= np.reshape(self.index, (self.nsim, 1))
+        mask[self.index < 0, :] = False
+        return mask
+
+    def before_mask(self, ndates: int) -> np.ndarray:
+        """Return a boolean array of size (nsim, ndates)
+        where values before (excluding) this index are True."""
+        return ~self.after_mask(ndates)
 
 
 class TermStructuresModel(ABC):
@@ -593,7 +600,7 @@ class RunningMax(ObservableFloat):
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         underlying = self.observable.simulate(first_observation_idx, model).copy()
         running_max = underlying.copy()
-        mask = first_observation_idx.after_mask(model.ndates)
+        mask = first_observation_idx.before_mask(model.ndates)
         running_max[mask] = np.nan
         running_max = np.fmax.accumulate(running_max, axis=1)
         running_max[mask] = underlying[mask]
