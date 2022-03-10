@@ -622,6 +622,21 @@ class RunningMax(ObservableFloat):
 
 
 @dataclass
+class RunningMin(ObservableFloat):
+    """Running minimum of observable over time, seen from first_observation_idx."""
+
+    observable: ObservableFloat
+
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return _simulate_accumulate(
+            np.fmin, self.observable, first_observation_idx, model
+        )
+
+    def __str__(self) -> str:
+        return f"RunningMin({self.observable})"
+
+
+@dataclass
 class FixedAfter(ObservableFloat):
     """Equal to observable, but remains constant as soon as
     fixing_condition becomes true after (including) first_observation_idx."""
