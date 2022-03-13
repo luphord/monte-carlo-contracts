@@ -591,6 +591,23 @@ class Power(ObservableFloat):
         return f"({self.observable1}) ** ({self.observable2})"
 
 
+@dataclass
+class Maximum(ObservableFloat):
+    """Equal to the maximum of two observables"""
+
+    observable1: ObservableFloat
+    observable2: ObservableFloat
+
+    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
+        return np.maximum(
+            self.observable1.simulate(first_observation_idx, model),
+            self.observable2.simulate(first_observation_idx, model),
+        )
+
+    def __str__(self) -> str:
+        return f"Maximum({self.observable1}, {self.observable2})"
+
+
 def _simulate_accumulate(
     accfn: np.ufunc,
     observable: ObservableFloat,
