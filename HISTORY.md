@@ -4,6 +4,7 @@
 * **BREAKING CHANGE**: `ObservableFloat.simulate` and `ObservableBool.simulate` now accept a `DateIndex` `first_observation_idx` as first argument, `Contract` classes will pass `acquisition_idx`; this allows observations to depend on the time of entering a contract, e.g. "maximum spot since acquisition"
 * **BREAKING CHANGE**: `FixedAfter` fixes composed observable after (including) `first_observation_idx`, not from the beginning
 * Add operator overloading for `Contract` classes, i.e. you can now do `One("USD") - One("EUR") | 1.2 * One("GBP")` instead of `Or(And(One("USD"), Give(One("EUR"))), Scale(1.2, One("GBP")))`
+* `Maximum` and `Minimum` observables to observe the larger and smaller value of two observables at the same time on the same path
 * `RunningMax` and `RunningMin` observables to observe running extreme values from `first_observation_idx` onwards
 * Support Python 3.10
 * Make use of type annotations added to numpy
