@@ -16,6 +16,7 @@ from mcc import (
     FixedAfter,
     RunningMax,
     RunningMin,
+    Maximum,
     Stock,
     FX,
     At,
@@ -360,6 +361,45 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
+
+    def test_maximum_specific_example(self) -> None:
+        dategrid = np.array(
+            [
+                np.datetime64("2020-01-01"),
+                np.datetime64("2020-01-02"),
+                np.datetime64("2020-01-03"),
+                np.datetime64("2020-01-04"),
+                np.datetime64("2020-01-05"),
+                np.datetime64("2020-01-06"),
+                np.datetime64("2020-01-07"),
+                np.datetime64("2020-01-09"),
+            ],
+            dtype="datetime64[D]",
+        )
+        abc = np.reshape(
+            np.array([[1, 2, 1, 1.5, 3, -1, 4, 3], [1, 2, 3, 4, 5, 6, 7, 8]]),
+            newshape=(2, dategrid.size),
+        )
+        defg = np.reshape(
+            np.array([[-1, -2, 10, 1.5, 2, 0, 5, 5], [8, 7, 6, 5, 4, 3, 2, 1]]),
+            newshape=(2, dategrid.size),
+        )
+        targets = np.reshape(
+            np.array([[1, 2, 10, 1.5, 3, 0, 5, 5], [8, 7, 6, 5, 5, 6, 7, 8]]),
+            newshape=(2, dategrid.size),
+        )
+        model = Model(
+            dategrid,
+            {},
+            {},
+            {"ABC": abc, "DEFG": defg},
+            np.ones((2, dategrid.size), dtype=np.float64),
+            "EUR",
+        )
+        maxsim = Maximum(Stock("ABC"), Stock("DEFG")).simulate(
+            model.eval_date_index, model
+        )
+        self.assertTrue(np.allclose(targets, maxsim))
 
     def test_fixed_after(self) -> None:
         model = _make_model()
