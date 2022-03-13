@@ -60,11 +60,12 @@ def _make_model(nsim: int = 100) -> Model:
     rate = rnd.normal(size=(nsim, dategrid.size))
     eurusd = rnd.lognormal(size=(nsim, dategrid.size))
     abc = rnd.lognormal(size=(nsim, dategrid.size))
+    defg = rnd.lognormal(size=(nsim, dategrid.size))
     return Model(
         dategrid,
         {"EUR": DummyTermStructureModel(rate)},
         {("EUR", "USD"): eurusd},
-        {"ABC": abc},
+        {"ABC": abc, "DEFG": defg},
         numeraire,
         "EUR",
     )
@@ -361,6 +362,22 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
+
+    def test_maximum(self) -> None:
+        model = _make_model()
+        abcsim = Stock("ABC").simulate(model.eval_date_index, model)
+        defgsim = Stock("DEFG").simulate(model.eval_date_index, model)
+        maxsim = Maximum(Stock("ABC"), Stock("DEFG")).simulate(
+            model.eval_date_index, model
+        )
+        self.assertTrue(np.all(maxsim >= abcsim))
+        self.assertTrue(np.any(maxsim > abcsim))
+        self.assertTrue(np.all(maxsim >= defgsim))
+        self.assertTrue(np.any(maxsim > defgsim))
+        maxreversim = Maximum(Stock("DEFG"), Stock("ABC")).simulate(
+            model.eval_date_index, model
+        )
+        self.assertTrue(np.allclose(maxsim, maxreversim))
 
     def test_maximum_specific_example(self) -> None:
         dategrid = np.array(
