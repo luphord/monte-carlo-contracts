@@ -12,7 +12,17 @@ __version__ = """0.7.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from itertools import groupby
-from typing import Final, Optional, Union, Mapping, Tuple, Set, Iterable, Callable
+from typing import (
+    Final,
+    Optional,
+    Union,
+    Mapping,
+    Tuple,
+    Set,
+    FrozenSet,
+    Iterable,
+    Callable,
+)
 from numbers import Real
 import numpy as np
 import pandas as pd
@@ -263,6 +273,26 @@ class TermStructuresModel(ABC):
     @abstractmethod
     def linear_rate(self, frequency: str) -> np.ndarray:
         pass
+
+
+@dataclass
+class ModelRequirements:
+    """Requirements to a model to compute cashflows for a contract."""
+
+    currencies: FrozenSet[str]
+    stocks: FrozenSet[str]
+    linear_rates: FrozenSet[Tuple[str, str]]
+    dates: FrozenSet[np.datetime64]
+
+    def union(self, other: "ModelRequirements") -> "ModelRequirements":
+        """Non-destructively merge to ModelRequirements.
+        Result contains union of currencies, stocks, linear_rates and dates."""
+        return ModelRequirements(
+            self.currencies.union(other.currencies),
+            self.stocks.union(other.stocks),
+            self.linear_rates.union(other.linear_rates),
+            self.dates.union(other.dates),
+        )
 
 
 class Model:
