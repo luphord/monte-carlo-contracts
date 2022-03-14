@@ -897,7 +897,9 @@ class Contract(ABC):
         pass
 
     @abstractmethod
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         pass
 
     def __add__(self, other: "Contract") -> "Contract":
@@ -937,7 +939,9 @@ class Zero(Contract):
         ccys = np.array([_null_ccy], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         return ModelRequirements(frozenset(), frozenset(), frozenset(), frozenset())
 
     def __str__(self) -> str:
@@ -961,7 +965,9 @@ class One(Contract):
         ccys = np.array([self.currency], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         return ModelRequirements(
             frozenset([self.currency]), frozenset(), frozenset(), frozenset()
         )
@@ -982,8 +988,10 @@ class Give(Contract):
     ) -> IndexedCashflows:
         return -self.contract.generate_cashflows(acquisition_idx, model)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
-        return self.contract.get_model_requirements(earliest)
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.contract.get_model_requirements(earliest, latest)
 
     def __str__(self) -> str:
         return f"Give({self.contract})"
@@ -1003,9 +1011,11 @@ class And(Contract):
         cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
         return cf1 + cf2
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
-        return self.contract1.get_model_requirements(earliest).union(
-            self.contract2.get_model_requirements(earliest)
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.contract1.get_model_requirements(earliest, latest).union(
+            self.contract2.get_model_requirements(earliest, latest)
         )
 
     def __str__(self) -> str:
@@ -1043,9 +1053,11 @@ class Or(Contract):
         cf2.cashflows["value"][choose1] = 0
         return cf1 + cf2
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
-        return self.contract1.get_model_requirements(earliest).union(
-            self.contract2.get_model_requirements(earliest)
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.contract1.get_model_requirements(earliest, latest).union(
+            self.contract2.get_model_requirements(earliest, latest)
         )
 
     def __str__(self) -> str:
@@ -1077,7 +1089,9 @@ class Cond(Contract):
         cf2.cashflows["value"][never, :] = 0
         return cf1 + cf2
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -1105,7 +1119,9 @@ class Scale(Contract):
         assert obs.shape[0] == model.nsim
         return cf * obs
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -1128,7 +1144,9 @@ class When(Contract):
         )
         return self.contract.generate_cashflows(idx, model)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -1148,7 +1166,9 @@ class Anytime(Contract):
     ) -> IndexedCashflows:
         raise NotImplementedError()
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -1172,7 +1192,9 @@ class Until(Contract):
         )
         return cf.zero_after(ko_idx)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
         raise NotImplementedError()
 
     def __str__(self) -> str:
@@ -1189,8 +1211,10 @@ class ResolvableContract(Contract):
     ) -> IndexedCashflows:
         return self.resolve().generate_cashflows(acquisition_idx, model)
 
-    def get_model_requirements(self, earliest: np.datetime64) -> ModelRequirements:
-        return self.resolve().get_model_requirements(earliest)
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.resolve().get_model_requirements(earliest, latest)
 
     def __str__(self) -> str:
         return str(self.resolve())
