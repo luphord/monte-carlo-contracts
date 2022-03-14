@@ -784,6 +784,12 @@ class ObservableBool(ABC):
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         pass
 
+    @abstractmethod
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        pass
+
     def __invert__(self) -> "ObservableBool":
         return Not(self)
 
@@ -803,6 +809,11 @@ class Not(ObservableBool):
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
         return ~self.observable.simulate(first_observation_idx, model)
 
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.observable.get_model_requirements(earliest, latest)
+
     def __str__(self) -> str:
         return f"~({self.observable})"
 
@@ -818,6 +829,13 @@ class AndObservable(ObservableBool):
         return self.observable1.simulate(
             first_observation_idx, model
         ) & self.observable2.simulate(first_observation_idx, model)
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.observable1.get_model_requirements(earliest, latest).union(
+            self.observable2.get_model_requirements(earliest, latest)
+        )
 
     def __str__(self) -> str:
         return f"({self.observable1}) & ({self.observable2})"
@@ -835,6 +853,13 @@ class OrObservable(ObservableBool):
             first_observation_idx, model
         ) | self.observable2.simulate(first_observation_idx, model)
 
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        return self.observable1.get_model_requirements(earliest, latest).union(
+            self.observable2.get_model_requirements(earliest, latest)
+        )
+
     def __str__(self) -> str:
         return f"({self.observable1}) | ({self.observable2})"
 
@@ -850,6 +875,11 @@ class GreaterOrEqualThan(ObservableBool):
         return self.observable1.simulate(
             first_observation_idx, model
         ) >= self.observable2.simulate(first_observation_idx, model)
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        raise NotImplementedError()
 
     def __str__(self) -> str:
         return f"{self.observable1} >= {self.observable2}"
@@ -867,6 +897,11 @@ class GreaterThan(ObservableBool):
             first_observation_idx, model
         ) > self.observable2.simulate(first_observation_idx, model)
 
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        raise NotImplementedError()
+
     def __str__(self) -> str:
         return f"{self.observable1} > {self.observable2}"
 
@@ -882,6 +917,14 @@ class At(ObservableBool):
         assert mask.any(), f"{self.date} not contained in dategrid"
         # ToDo: Should we assert that self.date is after first_observation_idx?
         return np.repeat(mask, model.nsim, axis=0)
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        # ToDo: Should we assert that earliest <= self.date <= latest?
+        return ModelRequirements(
+            frozenset(), frozenset(), frozenset(), frozenset([self.date])
+        )
 
     def __str__(self) -> str:
         return str(self.date)

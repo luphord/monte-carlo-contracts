@@ -8,6 +8,7 @@ from mcc import (
     parser,
     IndexedCashflows,
     DateIndex,
+    ModelRequirements,
     Model,
     TermStructuresModel,
     ObservableBool,
@@ -90,6 +91,11 @@ class AlternatingBool(ObservableBool):
             (np.arange(model.nsim) + self.offset) % 2, dtype=np.bool_
         ).reshape((model.nsim, 1))
         return np.repeat(mask, model.ndates, axis=1)
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        raise NotImplementedError()
 
 
 class TestMonteCarloContracts(unittest.TestCase):
