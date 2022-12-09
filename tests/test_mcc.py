@@ -175,6 +175,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         # shift to index 1, meaning all cashflows at 1
         shifted3 = cf.shift_to(DateIndex(np.array([1, 1])))
         self.assertTrue((shifted3.cashflows["index"] == 1).all())
+        # shift to index -1 (never), implying no shift
+        shifted4 = cf.shift_to(DateIndex(np.array([-1, -1])))
+        self.assertEqual(cf, shifted4)
 
     def test_negative_date_index(self) -> None:
         dategrid = np.array([np.datetime64("2030-07-14"), np.datetime64("2031-07-14")])

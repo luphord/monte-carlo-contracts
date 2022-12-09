@@ -207,7 +207,11 @@ class IndexedCashflows:
         assert self.nsim == date_idx.nsim
         shiftedcf = self.cashflows.copy()
         for i, cf in enumerate(shiftedcf.T):
-            before_mask = cf["index"] <= date_idx.index
+            before_mask = (
+                (cf["index"] <= date_idx.index)
+                & (date_idx.index >= 0)
+                & (cf["index"] >= 0)
+            )
             shiftedcf["index"][before_mask, i] = date_idx.index[before_mask]
         return IndexedCashflows(shiftedcf, self.currencies, self.dategrid)
 
