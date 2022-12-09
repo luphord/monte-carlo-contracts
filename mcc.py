@@ -185,6 +185,14 @@ class IndexedCashflows:
     def __neg__(self) -> "IndexedCashflows":
         return self * -1
 
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, IndexedCashflows)
+            and (self.cashflows == other.cashflows).all()
+            and (self.currencies == other.currencies).all()
+            and (self.dategrid == other.dategrid).all()
+        )
+
     def zero_after(self, date_idx: "DateIndex") -> "IndexedCashflows":
         assert self.nsim == date_idx.nsim
         zeroedcf = self.cashflows.copy()
@@ -192,6 +200,16 @@ class IndexedCashflows:
             ko_mask = (cf["index"] >= date_idx.index) & (date_idx.index >= 0)
             zeroedcf["value"][ko_mask, i] = 0
         return IndexedCashflows(zeroedcf, self.currencies, self.dategrid)
+
+    def shift_to(self, date_idx: "DateIndex") -> "IndexedCashflows":
+        """Shift all cashflows before date_idx to date_idx (no discounting applied,
+        just move the cashflow date)."""
+        assert self.nsim == date_idx.nsim
+        shiftedcf = self.cashflows.copy()
+        for i, cf in enumerate(shiftedcf.T):
+            before_mask = cf["index"] <= date_idx.index
+            shiftedcf["index"][before_mask, i] = date_idx.index[before_mask]
+        return IndexedCashflows(shiftedcf, self.currencies, self.dategrid)
 
     def apply_index(self) -> SimulatedCashflows:
         dategrid_rep = np.reshape(self.dategrid, (1, self.dategrid.size))
