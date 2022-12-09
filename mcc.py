@@ -1219,6 +1219,31 @@ class When(Contract):
 
 
 @dataclass
+class ShiftTo(Contract):
+    """Obtain the underlying contract and shift all payments
+    to first occurence of observable."""
+
+    observable: ObservableBool
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> IndexedCashflows:
+        idx = acquisition_idx.next_after(
+            self.observable.simulate(acquisition_idx, model)
+        )
+        return self.contract.generate_cashflows(acquisition_idx, model).shift_to(idx)
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        raise NotImplementedError()
+
+    def __str__(self) -> str:
+        return f"ShiftTo({self.observable}, {self.contract})"
+
+
+@dataclass
 class Anytime(Contract):
     """At any point in time after acquisition when observable is True, choose whether
     to obtain the underlying contract or not; can be exercised only once"""

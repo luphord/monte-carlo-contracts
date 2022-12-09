@@ -29,6 +29,7 @@ from mcc import (
     And,
     Or,
     When,
+    ShiftTo,
     Cond,
     Until,
     Anytime,
@@ -866,6 +867,46 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         self.assertTrue(
             (cf2.cashflows["value"][np.arange(1, model.nsim, 2), :] == 1).all()
+        )
+
+    def test_shiftto_cashflow_generation(self) -> None:
+        model = _make_model()
+        cf = model.generate_cashflows(
+            ShiftTo(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
+        )
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.currencies[0], "EUR")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] == 1).all())
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
+        cf1 = model.generate_cashflows(
+            ShiftTo(At(model.dategrid[1]), When(At(model.dategrid[0]), One("EUR")))
+        )
+        self.assertEqual(cf1.currencies.shape, (1,))
+        self.assertTrue(cf1.currencies[0], "EUR")
+        self.assertEqual(cf1.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf1.cashflows["value"] == 1).all())
+        self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())
+        cf2 = model.generate_cashflows(
+            ShiftTo(At(model.dategrid[1]), When(AlternatingBool(), One("EUR")))
+        )
+        self.assertEqual(cf2.currencies.shape, (1,))
+        self.assertTrue(cf2.currencies[0], "EUR")
+        self.assertEqual(cf2.cashflows.shape, (model.nsim, 1))
+        self.assertTrue(
+            (cf2.cashflows["value"][np.arange(0, model.nsim, 2), :] == 0).all()
+        )
+        self.assertTrue(
+            (np.isnat(cf2.cashflows["date"][np.arange(0, model.nsim, 2), :])).all()
+        )
+        self.assertTrue(
+            (cf2.cashflows["value"][np.arange(1, model.nsim, 2), :] == 1).all()
+        )
+        self.assertTrue(
+            (
+                cf2.cashflows["date"][np.arange(1, model.nsim, 2), :]
+                == model.dategrid[1]
+            ).all()
         )
 
     def test_cond_cashflow_generation(self) -> None:
