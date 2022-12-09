@@ -1,5 +1,9 @@
 ## History
 
+### 0.8.0 (not yet)
+* Add `ShiftTo` contract to shift cashflows to a later point in time (main use case is FX payment offset)
+* First steps towards model requirements (yet incomplete)
+
 ### 0.7.0 (2022-03-13)
 * **BREAKING CHANGE**: `ObservableFloat.simulate` and `ObservableBool.simulate` now accept a `DateIndex` `first_observation_idx` as first argument, `Contract` classes will pass `acquisition_idx`; this allows observations to depend on the time of entering a contract, e.g. "maximum spot since acquisition"
 * **BREAKING CHANGE**: `FixedAfter` fixes composed observable after (including) `first_observation_idx`, not from the beginning
