@@ -227,7 +227,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_resolvable_contract_creation(self) -> None:
         model = _make_model()
         c = MyContract(model.dategrid[-1], 1234)
-        model.generate_cashflows(c)
+        model.generate_cashflows(c.resolve())
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
 
     def test_contract_str(self) -> None:
@@ -976,7 +976,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         notional = 1234
         currency = "USD"
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        cf = model.generate_cashflows(zcb)
+        cf = model.generate_cashflows(zcb.resolve())
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], currency)
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -989,8 +989,8 @@ class TestMonteCarloContracts(unittest.TestCase):
         currency = "USD"
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        opt = EuropeanOption(model.dategrid[-2], zcb - strike * One(currency))
-        cf = model.generate_cashflows(opt)
+        opt = EuropeanOption(model.dategrid[-2], zcb.resolve() - strike * One(currency))
+        cf = model.generate_cashflows(opt.resolve())
         self.assertEqual(cf.currencies.shape, (3,))
         self.assertEqual(cf.currencies[0], currency)
         self.assertEqual(cf.currencies[1], currency)

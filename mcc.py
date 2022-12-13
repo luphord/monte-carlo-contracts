@@ -952,7 +952,16 @@ class At(ObservableBool):
         return str(self.date)
 
 
-class Contract(ABC):
+class ResolvableContract(ABC):
+    @abstractmethod
+    def resolve(self) -> "Contract":
+        pass
+
+    def __str__(self) -> str:
+        return str(self.resolve())
+
+
+class Contract(ResolvableContract):
     """Abstract base class for all contracts"""
 
     @abstractmethod
@@ -966,6 +975,9 @@ class Contract(ABC):
         self, earliest: np.datetime64, latest: np.datetime64
     ) -> ModelRequirements:
         pass
+
+    def resolve(self) -> "Contract":
+        return self
 
     def __add__(self, other: "Contract") -> "Contract":
         return And(self, other)
@@ -1289,25 +1301,6 @@ class Until(Contract):
 
     def __str__(self) -> str:
         return f"Until({self.observable}, {self.contract})"
-
-
-class ResolvableContract(Contract):
-    @abstractmethod
-    def resolve(self) -> Contract:
-        pass
-
-    def generate_cashflows(
-        self, acquisition_idx: DateIndex, model: Model
-    ) -> IndexedCashflows:
-        return self.resolve().generate_cashflows(acquisition_idx, model)
-
-    def get_model_requirements(
-        self, earliest: np.datetime64, latest: np.datetime64
-    ) -> ModelRequirements:
-        return self.resolve().get_model_requirements(earliest, latest)
-
-    def __str__(self) -> str:
-        return str(self.resolve())
 
 
 @dataclass
