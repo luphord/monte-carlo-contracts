@@ -1,6 +1,7 @@
 ## History
 
 ### 0.8.0 (not yet)
+* **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
 * Add `ShiftTo` contract to shift cashflows to a later point in time (main use case is FX payment offset)
 * First steps towards model requirements (yet incomplete)
 
