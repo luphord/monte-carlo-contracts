@@ -21,6 +21,7 @@ from typing import (
     Set,
     FrozenSet,
     Iterable,
+    List,
     Callable,
 )
 from numbers import Real
@@ -315,6 +316,11 @@ class ModelRequirements:
             self.linear_rates.union(other.linear_rates),
             self.dates.union(other.dates),
         )
+
+    def __add__(self, other: "ModelRequirements") -> "ModelRequirements":
+        """Non-destructively merge to ModelRequirements.
+        Result contains union of currencies, stocks, linear_rates and dates."""
+        return self.union(other)
 
 
 class Model:
@@ -1076,27 +1082,41 @@ class Give(Contract):
 
 @dataclass
 class And(Contract):
-    """Obtain rights and obligations of both underlying contracts"""
+    """Obtain rights and obligations of all underlying contracts"""
 
-    contract1: Contract
-    contract2: Contract
+    contracts: List[Contract]
+
+    def __init__(self, *contracts: Contract) -> None:
+        self.contracts = list(contracts)
+        assert any(self.contracts), "At least one contract is required"
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
-        cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
-        return cf1 + cf2
+        cfs = [
+            contract.generate_cashflows(acquisition_idx, model)
+            for contract in self.contracts
+        ]
+        assert cfs
+        sum_cfs = sum(cfs[1:], cfs[0])
+        assert sum_cfs
+        return sum_cfs
 
     def get_model_requirements(
         self, earliest: np.datetime64, latest: np.datetime64
     ) -> ModelRequirements:
-        return self.contract1.get_model_requirements(earliest, latest).union(
-            self.contract2.get_model_requirements(earliest, latest)
-        )
+        reqs = [
+            contract.get_model_requirements(earliest, latest)
+            for contract in self.contracts
+        ]
+        assert reqs
+        sum_reqs = sum(reqs[1:], reqs[0])
+        assert sum_reqs
+        return sum_reqs
 
     def __str__(self) -> str:
-        return f"And({self.contract1}, {self.contract2})"
+        contracts = [str(contract) for contract in self.contracts]
+        return f"And({', '.join(contracts)})"
 
 
 @dataclass
