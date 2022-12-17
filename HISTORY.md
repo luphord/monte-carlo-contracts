@@ -2,6 +2,7 @@
 
 ### 0.8.0 (not yet)
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
+* **BREAKING CHANGE**: `And` contract now accepts more than two contracts to be combined
 * Add `Delay` contract to delay cashflows to a later point in time (main use case is FX payment offset)
 * First steps towards model requirements (yet incomplete)
 
