@@ -243,9 +243,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         expected = (
             "And(Or(Cond((Stock(ABC) > 28) & (~(Stock(DEF) > 28)), Zero, One(USD)), "
-            "When(2030-07-14, One(EUR))), And(Until(~(FX(EUR/USD) >= 1.0), "
+            "When(2030-07-14, One(EUR))), Until(~(FX(EUR/USD) >= 1.0), "
             "Give(Scale(1.23, One(USD)))), Anytime((Stock(DEF) >= 50) "
-            "| (~(Stock(DEF) >= 20)), Scale(Stock(ABC), One(EUR)))))"
+            "| (~(Stock(DEF) >= 20)), Scale(Stock(ABC), One(EUR))))"
         )
         self.assertEqual(str(c), expected)
         c2 = (Stock("ABC") ** 2 / (Stock("DEF") - 1.7) + 42) * One("EUR")
@@ -941,6 +941,19 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(
             (cf.cashflows["value"][np.arange(1, model.nsim, 2), 0] == 0).all()
         )
+
+    def test_and_contract_flattening(self) -> None:
+        c = And(Zero(), Zero())
+        self.assertEqual(2, len(c.contracts))
+        c2 = And(c, Zero())
+        self.assertEqual(3, len(c2.contracts))
+        c3 = And(Zero(), c)
+        self.assertEqual(3, len(c3.contracts))
+        c4 = sum([Zero() for i in range(9)], Zero())
+        assert isinstance(c4, And)
+        self.assertEqual(10, len(c4.contracts))
+        c5 = And(Zero(), And(Zero(), And(Zero(), And(Zero()))))
+        self.assertEqual(4, len(c5.contracts))
 
     def test_discounting(self) -> None:
         dategrid = np.arange(
