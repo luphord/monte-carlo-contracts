@@ -1,9 +1,9 @@
-pip==22.0.3
+pip==22.3.1
 bump2version==1.0.1
-wheel==0.37.1
-flake8==4.0.1
-twine==3.8.0
-black[jupyter]==22.1.0
-mypy==0.931
+wheel==0.38.4
+flake8==5.0.4
+twine==4.0.2
+black[jupyter]==22.12.0 
+mypy==0.991
 nbval==0.9.6
-matplotlib==3.3.3
+matplotlib==3.6.2
