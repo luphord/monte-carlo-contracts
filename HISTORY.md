@@ -1,6 +1,9 @@
 ## History
 
 ### 0.8.0 (not yet)
+* ToDo: Modify `Or` contract like `And` contract
+* ToDo: Add new `Exchange(currency, contract)` contract
+* ToDo: Modify FX options examples to use Exchange for cash settlement
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
 * **BREAKING CHANGE**: `And` contract now accepts more than two contracts to be combined
 * Add `Delay` contract to delay cashflows to a later point in time (main use case is FX payment offset)
