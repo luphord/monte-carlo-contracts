@@ -29,7 +29,7 @@ from mcc import (
     And,
     Or,
     When,
-    ShiftTo,
+    Delay,
     Cond,
     Until,
     Anytime,
@@ -168,16 +168,16 @@ class TestMonteCarloContracts(unittest.TestCase):
             dategrid,
         )
         # shift to same index as cashflows are anyway
-        shifted1 = cf.shift_to(DateIndex(np.array([0, 1])))
+        shifted1 = cf.delay(DateIndex(np.array([0, 1])))
         self.assertEqual(cf, shifted1)
         # shift to index 0, meaning effectively no change
-        shifted2 = cf.shift_to(DateIndex(np.array([0, 0])))
+        shifted2 = cf.delay(DateIndex(np.array([0, 0])))
         self.assertEqual(cf, shifted2)
         # shift to index 1, meaning all cashflows at 1
-        shifted3 = cf.shift_to(DateIndex(np.array([1, 1])))
+        shifted3 = cf.delay(DateIndex(np.array([1, 1])))
         self.assertTrue((shifted3.cashflows["index"] == 1).all())
         # shift to index -1 (never), implying no shift
-        shifted4 = cf.shift_to(DateIndex(np.array([-1, -1])))
+        shifted4 = cf.delay(DateIndex(np.array([-1, -1])))
         self.assertEqual(cf, shifted4)
 
     def test_negative_date_index(self) -> None:
@@ -872,7 +872,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_shiftto_cashflow_generation(self) -> None:
         model = _make_model()
         cf = model.generate_cashflows(
-            ShiftTo(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
+            Delay(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
         )
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -880,7 +880,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["value"] == 1).all())
         self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
         cf1 = model.generate_cashflows(
-            ShiftTo(At(model.dategrid[1]), When(At(model.dategrid[0]), One("EUR")))
+            Delay(At(model.dategrid[1]), When(At(model.dategrid[0]), One("EUR")))
         )
         self.assertEqual(cf1.currencies.shape, (1,))
         self.assertTrue(cf1.currencies[0], "EUR")
@@ -888,7 +888,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf1.cashflows["value"] == 1).all())
         self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())
         cf2 = model.generate_cashflows(
-            ShiftTo(At(model.dategrid[1]), When(AlternatingBool(), One("EUR")))
+            Delay(At(model.dategrid[1]), When(AlternatingBool(), One("EUR")))
         )
         self.assertEqual(cf2.currencies.shape, (1,))
         self.assertTrue(cf2.currencies[0], "EUR")

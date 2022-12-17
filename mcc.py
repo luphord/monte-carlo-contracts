@@ -202,8 +202,8 @@ class IndexedCashflows:
             zeroedcf["value"][ko_mask, i] = 0
         return IndexedCashflows(zeroedcf, self.currencies, self.dategrid)
 
-    def shift_to(self, date_idx: "DateIndex") -> "IndexedCashflows":
-        """Shift all cashflows before date_idx to date_idx (no discounting applied,
+    def delay(self, date_idx: "DateIndex") -> "IndexedCashflows":
+        """Delay all cashflows before date_idx to date_idx (no discounting applied,
         just move the cashflow date)."""
         assert self.nsim == date_idx.nsim
         shiftedcf = self.cashflows.copy()
@@ -1260,8 +1260,8 @@ class When(Contract):
 
 
 @dataclass
-class ShiftTo(Contract):
-    """Obtain the underlying contract and shift all payments
+class Delay(Contract):
+    """Obtain the underlying contract and delay all payments
     to first occurence of observable."""
 
     observable: ObservableBool
@@ -1273,7 +1273,7 @@ class ShiftTo(Contract):
         idx = acquisition_idx.next_after(
             self.observable.simulate(acquisition_idx, model)
         )
-        return self.contract.generate_cashflows(acquisition_idx, model).shift_to(idx)
+        return self.contract.generate_cashflows(acquisition_idx, model).delay(idx)
 
     def get_model_requirements(
         self, earliest: np.datetime64, latest: np.datetime64

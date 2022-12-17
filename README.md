@@ -9,7 +9,7 @@ However, the implementation is not based on functional programming but rather us
 Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
 ## Features
-* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime` and `Until`
+* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until` and `Delay`
 * Boolean and real valued observables (stochastic processes) to be referenced by contracts
 * Cashflow generation for composed contracts given simulation models on fixed dategrids
 
