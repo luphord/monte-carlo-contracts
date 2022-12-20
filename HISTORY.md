@@ -1,13 +1,13 @@
 ## History
 
 ### 0.8.0 (not yet)
-* ToDo: Modify `Or` contract like `And` contract
 * ToDo: Add new `Exchange(currency, contract)` contract
-* ToDo: Modify FX options examples to use Exchange for cash settlement
+* ToDo: Modify FX options examples to use `Exchange` for cash settlement
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
-* **BREAKING CHANGE**: `And` contract now accepts more than two contracts to be combined
-* Add `Delay` contract to delay cashflows to a later point in time (main use case is FX payment offset)
+* **BREAKING CHANGE**: `And` and `Or` contracts now accept more than two contracts to be combined; these have equivalent semantics to nested `And` or `Or` contracts and allow for flat structures to improve readability
+* Add `Delay(observableBool, contract)` contract to delay cashflows to a later point in time (main use case is FX payment offset)
 * First steps towards model requirements (yet incomplete)
+* Fix cashflow generation for nested contracts
 
 ### 0.7.0 (2022-03-13)
 * **BREAKING CHANGE**: `ObservableFloat.simulate` and `ObservableBool.simulate` now accept a `DateIndex` `first_observation_idx` as first argument, `Contract` classes will pass `acquisition_idx`; this allows observations to depend on the time of entering a contract, e.g. "maximum spot since acquisition"
