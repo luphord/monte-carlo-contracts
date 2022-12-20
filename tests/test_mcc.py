@@ -844,6 +844,8 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf4.currencies[0], "EUR")
         self.assertEqual(cf4.currencies[1], "USD")
         c5 = One("EUR") | One("USD") | 2 * One("EUR")
+        assert isinstance(c5, Or)
+        self.assertEqual(3, len(c5.contracts))
         cf5 = model.generate_cashflows(c5)
         self.assertEqual(cf5.currencies.shape, (3,))
         self.assertEqual(cf5.currencies[0], "EUR")
