@@ -12,6 +12,8 @@ __version__ = """0.7.0"""
 from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from itertools import groupby
+from functools import reduce
+from operator import add
 from typing import (
     Final,
     Optional,
@@ -1132,42 +1134,54 @@ class And(Contract):
 class Or(Contract):
     """Choose at acquisition between the underlying contracts"""
 
-    contract1: Contract
-    contract2: Contract
+    contracts: List[Contract]
+
+    def __init__(self, *contracts: Contract) -> None:
+        self.contracts = list(contracts)
+        assert any(self.contracts), "At least one contract is required"
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
-        cf1 = self.contract1.generate_cashflows(acquisition_idx, model)
-        cf2 = self.contract2.generate_cashflows(acquisition_idx, model)
-        ccys = np.unique(
-            np.concatenate((cf1.currencies.flatten(), cf2.currencies.flatten()))
-        )
+        cfs = [
+            contract.generate_cashflows(acquisition_idx, model)
+            for contract in self.contracts
+        ]
+        ccys = np.unique(np.concatenate([cf.currencies.flatten() for cf in cfs]))
         ccys = ccys[ccys != "NNN"].flatten()
-        for cf in (cf1 + cf2).cashflows.T:
+        concatenated_cf = reduce(add, cfs)
+        assert isinstance(concatenated_cf, IndexedCashflows)
+        for cf in concatenated_cf.cashflows.T:
             if (acquisition_idx.index != cf["index"]).any():
                 raise NotImplementedError(
                     "Cashflow generation for OR contract at any moment"
                     " other than cashflow date is not implemented"
                 )
-        cf1sum = model.in_numeraire_currency(cf1).cashflows["value"].sum(axis=1)
-        cf2sum = model.in_numeraire_currency(cf2).cashflows["value"].sum(axis=1)
-        choose1 = cf1sum > cf2sum
-        cf1.cashflows["index"][~choose1] = -1
-        cf1.cashflows["value"][~choose1] = 0
-        cf2.cashflows["index"][choose1] = -1
-        cf2.cashflows["value"][choose1] = 0
-        return cf1 + cf2
+        cfsums = [
+            model.in_numeraire_currency(cf).cashflows["value"].sum(axis=1) for cf in cfs
+        ]
+        choose_idx = np.argmax(cfsums, axis=0)
+        for i, cf in enumerate(cfs):
+            choose_this = choose_idx == i
+            cf.cashflows["index"][~choose_this] = -1
+            cf.cashflows["value"][~choose_this] = 0
+        return reduce(add, cfs)
 
     def get_model_requirements(
         self, earliest: np.datetime64, latest: np.datetime64
     ) -> ModelRequirements:
-        return self.contract1.get_model_requirements(earliest, latest).union(
-            self.contract2.get_model_requirements(earliest, latest)
-        )
+        reqs = [
+            contract.get_model_requirements(earliest, latest)
+            for contract in self.contracts
+        ]
+        assert reqs
+        sum_reqs = sum(reqs[1:], reqs[0])
+        assert sum_reqs
+        return sum_reqs
 
     def __str__(self) -> str:
-        return f"Or({self.contract1}, {self.contract2})"
+        contracts = [str(contract) for contract in self.contracts]
+        return f"Or({', '.join(contracts)})"
 
 
 @dataclass
