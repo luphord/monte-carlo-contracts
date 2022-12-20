@@ -1139,6 +1139,15 @@ class Or(Contract):
     def __init__(self, *contracts: Contract) -> None:
         self.contracts = list(contracts)
         assert any(self.contracts), "At least one contract is required"
+        self.contracts = list(self._flattened_contracts)
+
+    @property
+    def _flattened_contracts(self) -> Iterable[Contract]:
+        for contract in self.contracts:
+            if isinstance(contract, Or):
+                yield from contract.contracts
+            else:
+                yield contract
 
     def generate_cashflows(
         self, acquisition_idx: DateIndex, model: Model
