@@ -1161,7 +1161,7 @@ class Or(Contract):
         concatenated_cf = reduce(add, cfs)
         assert isinstance(concatenated_cf, IndexedCashflows)
         for cf in concatenated_cf.cashflows.T:
-            if (acquisition_idx.index != cf["index"]).any():
+            if ((acquisition_idx.index != cf["index"]) & (cf["index"] >= 0)).any():
                 raise NotImplementedError(
                     "Cashflow generation for OR contract at any moment"
                     " other than cashflow date is not implemented"

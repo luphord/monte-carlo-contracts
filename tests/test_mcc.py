@@ -850,6 +850,9 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf5.currencies[1], "USD")
         self.assertEqual(cf5.currencies[2], "EUR")
         self.assertTrue((np.isnat(cf.cashflows["date"][:, 0])).all())
+        c6 = One("EUR") | (Zero() + (One("USD") | 2 * One("EUR")))
+        cf6 = model.generate_cashflows(c6)
+        self.assertEqual(cf6.currencies.shape, (4,))
 
     def test_when_cashflow_generation(self) -> None:
         model = _make_model()
