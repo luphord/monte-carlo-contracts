@@ -32,11 +32,6 @@ setup(
         "Programming Language :: Python :: 3.10",
     ],
     description="""Composable financial contracts with Monte Carlo valuation """,
-    entry_points={
-        "console_scripts": [
-            "mcc=mcc:main",
-        ],
-    },
     install_requires=requirements,
     license="MIT license",
     long_description=readme + "\n\n" + history,

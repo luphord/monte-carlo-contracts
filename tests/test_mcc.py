@@ -5,7 +5,6 @@ from pandas.testing import assert_frame_equal
 from dataclasses import dataclass
 from typing import Callable
 from mcc import (
-    parser,
     IndexedCashflows,
     DateIndex,
     ModelRequirements,
@@ -100,12 +99,6 @@ class AlternatingBool(ObservableBool):
 
 
 class TestMonteCarloContracts(unittest.TestCase):
-    def test_argument_parsing(self) -> None:
-        args = parser.parse_args([])
-        self.assertEqual(args.version, False)
-        args = parser.parse_args(["--version"])
-        self.assertEqual(args.version, True)
-
     def test_simple_cashflows(self) -> None:
         model = _make_model()
         c = Cond(AlternatingBool(), One("EUR"), One("USD"))

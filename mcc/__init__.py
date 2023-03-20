@@ -9,7 +9,6 @@ __email__ = """luphord@protonmail.com"""
 __version__ = """0.8.0"""
 
 
-from argparse import ArgumentParser, Namespace
 from abc import ABC, abstractmethod
 from itertools import groupby
 from functools import reduce
@@ -1589,36 +1588,3 @@ class HoLeeModel(TermStructuresModel):
         ].reshape(1, self.dategrid.size)
         r_reversed = self.shortrates[:, ::-1]
         return np.exp(-np.cumsum(r_reversed * dt_reversed, axis=1))[:, ::-1]
-
-
-parser = ArgumentParser(description=__doc__)
-parser.add_argument(
-    "--version", help="Print version number", default=False, action="store_true"
-)
-
-subparsers = parser.add_subparsers(
-    title="subcommands", dest="subcommand", help="Available subcommands"
-)
-
-mycmd_parser = subparsers.add_parser("mycmd", help="An example subcommand")
-mycmd_parser.add_argument("-n", "--number", help="some number", default=17, type=int)
-
-
-def _mycmd(args: Namespace) -> None:
-    print("Running mycmd subcommand with n={}...".format(args.number))
-    print("mycmd completed")
-
-
-mycmd_parser.set_defaults(func=_mycmd)
-
-
-def main() -> None:
-    args = parser.parse_args()
-    if args.version:
-        print("""Monte Carlo Contracts """ + __version__)
-    elif hasattr(args, "func"):
-        args.func(args)
-
-
-if __name__ == "__main__":
-    main()

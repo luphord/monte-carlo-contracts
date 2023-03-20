@@ -8,7 +8,7 @@
 ### 0.9.0 (not yet)
 * ToDo: Split `mcc.py` into multiple modules forming package `mcc`
 * ToDo: Split tests into multiple modules
-* Remove CLI stub
+* **BREAKING CHANGE**: Remove CLI stub (there was no real CLI functionality anyway)
 
 ### 0.8.0 (2023-03-20)
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round

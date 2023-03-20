@@ -65,7 +65,3 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	pip3 install -e .
-
-cli: ## give cli a test run
-	mcc --version
-	mcc --help
