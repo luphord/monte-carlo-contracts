@@ -3,10 +3,12 @@
 ### 0.10.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
 * ToDo: Modify FX options examples to use `Exchange` for cash settlement
+* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
 
 ### 0.9.0 (not yet)
 * ToDo: Split `mcc.py` into multiple modules forming package `mcc`
 * ToDo: Split tests into multiple modules
+* Remove CLI stub
 
 ### 0.8.0 (2023-03-20)
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
