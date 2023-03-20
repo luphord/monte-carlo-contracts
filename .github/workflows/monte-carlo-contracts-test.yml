@@ -41,7 +41,7 @@ jobs:
         black --check .
     - name: Type-check with mypy
       run: |
-        mypy -v --config-file mypy.ini mcc.py tests/*.py
+        mypy -v --config-file mypy.ini mcc tests/*.py
     - name: Test with pytest
       run: |
         py.test -v --nbval-lax
