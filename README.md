@@ -29,7 +29,13 @@ pip install monte-carlo-contracts
 
 which will automatically install the hard dependencies `numpy` and `pandas`.
 
-For development or running the examples, you may also want to run
+For development or running the examples, you may instead want to run
+
+```bash
+pip install -e .
+```
+
+and then
 
 ```bash
 pip install -r requirements_dev.txt
