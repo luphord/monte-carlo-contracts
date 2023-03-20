@@ -8,6 +8,8 @@
 ### 0.9.0 (not yet)
 * ToDo: Split `mcc.py` into multiple modules forming package `mcc`
 * ToDo: Split tests into multiple modules
+* ToDo: Support Python 3.11
+* ToDo: Upgrade (dev) dependencies
 * **BREAKING CHANGE**: Remove CLI stub (there was no real CLI functionality anyway)
 
 ### 0.8.0 (2023-03-20)
