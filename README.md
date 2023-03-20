@@ -21,17 +21,21 @@ Also, this implementation is tailored towards Monte Carlo based cashflow generat
 
 ## Install
 
-You can install `monte-carlo-contracts` using `pip` with
+With Python 3.8+ on your machine, you can install `monte-carlo-contracts` using `pip` by running (ideally in a [virtual environment](https://docs.python.org/3/glossary.html#term-virtual-environment))
 
 ```bash
-pip3 install monte-carlo-contracts
+pip install monte-carlo-contracts
 ```
 
-or you can simply download `mcc.py` and then run it using `python3` with
+which will automatically install the hard dependencies `numpy` and `pandas`.
+
+For development or running the examples, you may also want to run
 
 ```bash
-python3 mcc.py
+pip install -r requirements_dev.txt
 ```
+
+from the root directory of this repository.
 
 ## History
 
@@ -39,4 +43,6 @@ See [HISTORY.md](HISTORY.md).
 
 ## Credits
 
-Main developer is luphord <luphord@protonmail.com>. [cookiecutter-pyscript](https://github.com/luphord/cookiecutter-pyscript) is used as project template.
+Main developer is luphord <luphord@protonmail.com>.
+
+[cookiecutter-pyscript](https://github.com/luphord/cookiecutter-pyscript) was used as project template, but the repository structure has evolved considerably.
