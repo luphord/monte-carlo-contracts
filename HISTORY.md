@@ -1,8 +1,14 @@
 ## History
 
-### 0.8.0 (not yet)
+### 0.10.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
 * ToDo: Modify FX options examples to use `Exchange` for cash settlement
+
+### 0.9.0 (not yet)
+* ToDo: Split `mcc.py` into multiple modules forming package `mcc`
+* ToDo: Split tests into multiple modules
+
+### 0.8.0 (not yet)
 * **BREAKING CHANGE**: `Contract` now inherits from `ResolvableContract` instead of the other way round
 * **BREAKING CHANGE**: `And` and `Or` contracts now accept more than two contracts to be combined; these have equivalent semantics to nested `And` or `Or` contracts and allow for flat structures to improve readability
 * Add `Delay(observableBool, contract)` contract to delay cashflows to a later point in time (main use case is FX payment offset)
