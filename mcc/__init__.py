@@ -18,7 +18,6 @@ from typing import (
     Callable,
 )
 import numpy as np
-from dataclasses import dataclass
 
 from .cashflows import (
     SimpleCashflows,
@@ -72,6 +71,8 @@ from .contracts import (
     Zero,
 )
 
+from .reusable_contracts import ZeroCouponBond, EuropeanOption
+
 
 def generate_cashflows(model: Model, contract: Contract) -> SimulatedCashflows:
     return contract.generate_cashflows(model.eval_date_index, model).apply_index()
@@ -115,6 +116,7 @@ __all__ = [
     "Contract",
     "DateIndex",
     "Delay",
+    "EuropeanOption",
     "FX",
     "FixedAfter",
     "Give",
@@ -152,6 +154,7 @@ __all__ = [
     "Until",
     "When",
     "Zero",
+    "ZeroCouponBond",
     "_ccy_letters",
     "_null_ccy",
     "evaluateAnd",
@@ -160,25 +163,6 @@ __all__ = [
     "generate_simple_cashflows_in_currency",
     "generate_simple_cashflows_in_numeraire_currency",
 ]
-
-
-@dataclass
-class ZeroCouponBond(ResolvableContract):
-    maturity: np.datetime64
-    notional: float
-    currency: str
-
-    def resolve(self) -> Contract:
-        return When(At(self.maturity), self.notional * One(self.currency))
-
-
-@dataclass
-class EuropeanOption(ResolvableContract):
-    maturity: np.datetime64
-    contract: Contract
-
-    def resolve(self) -> Contract:
-        return When(At(self.maturity), self.contract | Zero())
 
 
 class StochasticProcess(ABC):
