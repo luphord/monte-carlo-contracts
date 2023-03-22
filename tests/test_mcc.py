@@ -9,6 +9,11 @@ from mcc import (
     DateIndex,
     ModelRequirements,
     Model,
+    generate_cashflows,
+    generate_simple_cashflows,
+    generate_simple_cashflows_in_currency,
+    generate_simple_cashflows_in_numeraire_currency,
+    evaluate,
     TermStructuresModel,
     ObservableBool,
     KonstFloat,
@@ -102,16 +107,16 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_simple_cashflows(self) -> None:
         model = _make_model()
         c = Cond(AlternatingBool(), One("EUR"), One("USD"))
-        cf = model.generate_cashflows(c)
+        cf = generate_cashflows(model, c)
         simplecf = cf.to_simple_cashflows()
         self.assertEqual(simplecf.shape[1], model.nsim)
         self.assertEqual(simplecf.shape[0], 2)
-        assert_frame_equal(simplecf, model.generate_simple_cashflows(c))
-        simplecf2 = model.generate_simple_cashflows_in_currency(c, "USD")
+        assert_frame_equal(simplecf, generate_simple_cashflows(model, c))
+        simplecf2 = generate_simple_cashflows_in_currency(model, c, "USD")
         self.assertEqual(simplecf2.shape[1], model.nsim)
         self.assertEqual(simplecf2.shape[0], 1)
         self.assertEqual(simplecf2.index[0][1], "USD")
-        simplecf3 = model.generate_simple_cashflows_in_numeraire_currency(c)
+        simplecf3 = generate_simple_cashflows_in_numeraire_currency(model, c)
         self.assertEqual(simplecf3.shape[1], model.nsim)
         self.assertEqual(simplecf3.shape[0], 1)
         self.assertEqual(simplecf3.index[0][1], model.numeraire_currency)
@@ -220,7 +225,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_resolvable_contract_creation(self) -> None:
         model = _make_model()
         c = MyContract(model.dategrid[-1], 1234)
-        model.generate_cashflows(c.resolve())
+        generate_cashflows(model, c.resolve())
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
 
     def test_contract_str(self) -> None:
@@ -656,7 +661,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             * yearfraction
             * One("EUR"),
         )
-        cf = model.generate_cashflows(c)
+        cf = generate_cashflows(model, c)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
@@ -665,7 +670,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_stock(self) -> None:
         model = _make_model()
         c = When(At(model.dategrid[-1]), Stock("ABC") * One("EUR"))
-        cf = model.generate_cashflows(c)
+        cf = generate_cashflows(model, c)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue(
@@ -677,7 +682,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_fx(self) -> None:
         model = _make_model()
         c = When(At(model.dategrid[-1]), FX("EUR", "USD") * One("EUR"))
-        cf = model.generate_cashflows(c)
+        cf = generate_cashflows(model, c)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue(
@@ -688,7 +693,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-1]).all())
         self.assertEqual(cf.currencies[0], "EUR")
         c = When(At(model.dategrid[-1]), FX("USD", "EUR") * One("EUR"))
-        cf = model.generate_cashflows(c)
+        cf = generate_cashflows(model, c)
         self.assertTrue(
             (
                 cf.cashflows["value"][:, 0]
@@ -764,7 +769,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_zero_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Zero())
+        cf = generate_cashflows(model, Zero())
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "NNN")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -788,7 +793,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_give_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(-One("EUR"))
+        cf = generate_cashflows(model, -One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -797,7 +802,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_scale_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(1.23 * One("EUR"))
+        cf = generate_cashflows(model, 1.23 * One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -814,15 +819,15 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.cashflows.shape, (model.nsim, 2))
         self.assertTrue((cf.cashflows["value"] == 1).all())
         self.assertTrue((cf.cashflows["index"] == 0).all())
-        cf_alt = model.generate_cashflows(c)
+        cf_alt = generate_cashflows(model, c)
         self.assertTrue(cf_alt, cf.apply_index())
 
     def test_or_cashflow_generation(self) -> None:
         model = _make_model()
         c2 = One("EUR") | When(At(model.dategrid[-1]), One("EUR"))
-        self.assertRaises(NotImplementedError, lambda: model.generate_cashflows(c2))
+        self.assertRaises(NotImplementedError, lambda: generate_cashflows(model, c2))
         c3 = One("EUR") | 2 * One("EUR")
-        cf = model.generate_cashflows(c3)
+        cf = generate_cashflows(model, c3)
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.currencies[1], "EUR")
@@ -832,38 +837,38 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["value"][:, 1] == 2).all())
         self.assertTrue((cf.cashflows["date"][:, 1] == model.eval_date).all())
         c4 = One("EUR") | One("USD")
-        cf4 = model.generate_cashflows(c4)
+        cf4 = generate_cashflows(model, c4)
         self.assertEqual(cf4.currencies.shape, (2,))
         self.assertEqual(cf4.currencies[0], "EUR")
         self.assertEqual(cf4.currencies[1], "USD")
         c5 = One("EUR") | One("USD") | 2 * One("EUR")
         assert isinstance(c5, Or)
         self.assertEqual(3, len(c5.contracts))
-        cf5 = model.generate_cashflows(c5)
+        cf5 = generate_cashflows(model, c5)
         self.assertEqual(cf5.currencies.shape, (3,))
         self.assertEqual(cf5.currencies[0], "EUR")
         self.assertEqual(cf5.currencies[1], "USD")
         self.assertEqual(cf5.currencies[2], "EUR")
         self.assertTrue((np.isnat(cf.cashflows["date"][:, 0])).all())
         c6 = One("EUR") | (Zero() + (One("USD") | 2 * One("EUR")))
-        cf6 = model.generate_cashflows(c6)
+        cf6 = generate_cashflows(model, c6)
         self.assertEqual(cf6.currencies.shape, (4,))
 
     def test_when_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(When(At(model.dategrid[0]), One("EUR")))
+        cf = generate_cashflows(model, When(At(model.dategrid[0]), One("EUR")))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf.cashflows["value"] == 1).all())
         self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
-        cf1 = model.generate_cashflows(When(At(model.dategrid[1]), One("EUR")))
+        cf1 = generate_cashflows(model, When(At(model.dategrid[1]), One("EUR")))
         self.assertEqual(cf1.currencies.shape, (1,))
         self.assertTrue(cf1.currencies[0], "EUR")
         self.assertEqual(cf1.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf1.cashflows["value"] == 1).all())
         self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())
-        cf2 = model.generate_cashflows(When(AlternatingBool(), One("EUR")))
+        cf2 = generate_cashflows(model, When(AlternatingBool(), One("EUR")))
         self.assertEqual(cf2.currencies.shape, (1,))
         self.assertTrue(cf2.currencies[0], "EUR")
         self.assertEqual(cf2.cashflows.shape, (model.nsim, 1))
@@ -876,24 +881,24 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_shiftto_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(
-            Delay(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
+        cf = generate_cashflows(
+            model, Delay(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
         )
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf.cashflows["value"] == 1).all())
         self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
-        cf1 = model.generate_cashflows(
-            Delay(At(model.dategrid[1]), When(At(model.dategrid[0]), One("EUR")))
+        cf1 = generate_cashflows(
+            model, Delay(At(model.dategrid[1]), When(At(model.dategrid[0]), One("EUR")))
         )
         self.assertEqual(cf1.currencies.shape, (1,))
         self.assertTrue(cf1.currencies[0], "EUR")
         self.assertEqual(cf1.cashflows.shape, (model.nsim, 1))
         self.assertTrue((cf1.cashflows["value"] == 1).all())
         self.assertTrue((cf1.cashflows["date"] == model.dategrid[1]).all())
-        cf2 = model.generate_cashflows(
-            Delay(At(model.dategrid[1]), When(AlternatingBool(), One("EUR")))
+        cf2 = generate_cashflows(
+            model, Delay(At(model.dategrid[1]), When(AlternatingBool(), One("EUR")))
         )
         self.assertEqual(cf2.currencies.shape, (1,))
         self.assertTrue(cf2.currencies[0], "EUR")
@@ -916,7 +921,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_cond_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Cond(AlternatingBool(), One("EUR"), One("USD")))
+        cf = generate_cashflows(model, Cond(AlternatingBool(), One("EUR"), One("USD")))
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.currencies[1], "USD")
@@ -936,7 +941,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_until_cashflow_generation(self) -> None:
         model = _make_model()
-        cf = model.generate_cashflows(Until(AlternatingBool(), One("EUR")))
+        cf = generate_cashflows(model, Until(AlternatingBool(), One("EUR")))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -977,16 +982,16 @@ class TestMonteCarloContracts(unittest.TestCase):
             c = When(At(t), One("USD"))
             cf = c.generate_cashflows(model.eval_date_index, model)
             npv = model.discount(cf)[:, 0].mean()
-            self.assertEqual(model.evaluate(c), npv)
+            self.assertEqual(evaluate(model, c), npv)
             self.assertEqual(model.evaluate(cf), npv)
             dt = (t - dategrid[0]).astype(np.float64) / 365
             self.assertTrue(np.isclose(npv, np.exp(-rate * dt)))
-        model.evaluate(When(Stock("ABC") > 130, One("USD")))
+        evaluate(model, When(Stock("ABC") > 130, One("USD")))
 
     def test_evaluation(self) -> None:
         model = _make_model()
         c = When(At(model.dategrid[-1]), One("EUR"))
-        npv = model.evaluate(c)
+        npv = evaluate(model, c)
         self.assertEqual(npv, 1)
 
     def test_zero_coupon_bond(self) -> None:
@@ -994,7 +999,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         notional = 1234
         currency = "USD"
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        cf = model.generate_cashflows(zcb.resolve())
+        cf = generate_cashflows(model, zcb.resolve())
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], currency)
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -1008,7 +1013,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         strike = 1000
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
         opt = EuropeanOption(model.dategrid[-2], zcb.resolve() - strike * One(currency))
-        cf = model.generate_cashflows(opt.resolve())
+        cf = generate_cashflows(model, opt.resolve())
         self.assertEqual(cf.currencies.shape, (3,))
         self.assertEqual(cf.currencies[0], currency)
         self.assertEqual(cf.currencies[1], currency)
@@ -1070,7 +1075,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(m.numeraire.shape, (n, ndates))
         for t in dategrid:
             c = When(At(t), Stock("ABC") * One("EUR"))
-            self.assertTrue(np.isclose(m.evaluate(c), 123))
+            self.assertTrue(np.isclose(evaluate(m, c), 123))
 
     def test_ho_lee_model(self) -> None:
         dategrid = np.arange(
