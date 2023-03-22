@@ -9,6 +9,7 @@
 * ToDo: Change cashflow structures to represent only a *single* cashflow
 
 ### 0.9.0 (not yet)
+* **BREAKING CHANGE** Convenvience methods `generate_cashflows`, `generate_simple_cashflows`, `generate_simple_cashflows_in_currency`, `generate_simple_cashflows_in_numeraire_currency` and `evaluate` that used to be defined on `Model` are now standalone functions that accept a model instance as first argument; i.e. instead of `model.evaluate(contract)` you now do `evaluate(model, contract)`
 * ToDo: Split `mcc.py` into multiple modules forming package `mcc`
 * ToDo: Split tests into multiple modules
 * ToDo: Support Python 3.11

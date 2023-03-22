@@ -102,7 +102,6 @@ def generate_simple_cashflows_in_numeraire_currency(
 
 
 def evaluate(model: Model, contract: Contract) -> float:
-
     cf = contract.generate_cashflows(model.eval_date_index, model)
     return float(model.discount(cf).sum(axis=1).mean(axis=0))
 
