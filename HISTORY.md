@@ -1,9 +1,12 @@
 ## History
 
-### 0.10.0 (not yet)
+### 0.11.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
 * ToDo: Modify FX options examples to use `Exchange` for cash settlement
 * ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
+
+### 0.10.0 (not yet)
+* ToDo: Change cashflow structures to represent only a *single* cashflow
 
 ### 0.9.0 (not yet)
 * ToDo: Split `mcc.py` into multiple modules forming package `mcc`
