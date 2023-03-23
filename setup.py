@@ -40,7 +40,7 @@ setup(
     data_files=[(".", ["LICENSE", "HISTORY.md"])],
     keywords="composable financial contracts Monte Carlo method",
     name="monte-carlo-contracts",
-    packages=["mcc"],
+    packages=["mcc", "mcc.pricing_models"],
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/luphord/monte-carlo-contracts",
