@@ -41,10 +41,11 @@ from mcc import (
     ResolvableContract,
     ZeroCouponBond,
     EuropeanOption,
+)
+from mcc.pricing_models import simulate_equity_black_scholes_model, HoLeeModel
+from mcc.pricing_models.stochastic_processes import (
     BrownianMotion,
     GeometricBrownianMotion,
-    simulate_equity_black_scholes_model,
-    HoLeeModel,
 )
 
 
