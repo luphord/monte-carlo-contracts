@@ -152,7 +152,7 @@ __all__ = [
     "ZeroCouponBond",
     "_ccy_letters",
     "_null_ccy",
-    "evaluateAnd",
+    "evaluate",
     "generate_cashflows",
     "generate_simple_cashflows",
     "generate_simple_cashflows_in_currency",
