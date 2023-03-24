@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 
-_ccy_letters = 3
-_null_ccy = "NNN"
+_ccy_letters: Final[int] = 3
+_null_ccy: Final[str] = "NNN"
 ArrayLike = Union[np.ndarray, float]
 
 
