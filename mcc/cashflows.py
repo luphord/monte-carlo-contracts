@@ -6,7 +6,7 @@ import pandas as pd
 
 
 _ccy_letters: Final[int] = 3
-_null_ccy: Final[str] = "NNN"
+NULL_CURRENCY: Final[str] = "NNN"
 ArrayLike = Union[np.ndarray, float]
 
 
@@ -72,7 +72,7 @@ class SimulatedCashflows:
 
     def _split_by_date(self) -> Iterable[Tuple[np.ndarray, str, np.datetime64]]:
         for i, cf in enumerate(self.cashflows.T):
-            if self.currencies[i] != _null_ccy:
+            if self.currencies[i] != NULL_CURRENCY:
                 for dt in np.unique(cf["date"]):
                     if not np.isnat(dt):
                         cf_dt = cf.copy()

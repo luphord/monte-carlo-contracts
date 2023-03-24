@@ -10,7 +10,7 @@ from .cashflows import (
     IndexedCashflows,
     DateIndex,
     _ccy_letters,
-    _null_ccy,
+    NULL_CURRENCY,
 )
 
 from .model import Model, ModelRequirements
@@ -79,7 +79,7 @@ class Zero(Contract):
         model.validate_date_index(acquisition_idx)
         cf = np.zeros((model.nsim, 1), dtype=IndexedCashflows.dtype)
         cf["index"][:, 0] = acquisition_idx.index
-        ccys = np.array([_null_ccy], dtype=(np.unicode_, _ccy_letters))
+        ccys = np.array([NULL_CURRENCY], dtype=(np.unicode_, _ccy_letters))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
     def get_model_requirements(

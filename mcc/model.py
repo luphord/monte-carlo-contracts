@@ -10,7 +10,7 @@ import numpy as np
 from dataclasses import dataclass
 
 from .cashflows import (
-    _null_ccy,
+    NULL_CURRENCY,
     _ccy_letters,
     DateIndex,
     IndexedCashflows,
@@ -113,7 +113,7 @@ class Model:
 
     def get_simulated_fx(self, base_currency: str, counter_currency: str) -> np.ndarray:
         assert (
-            base_currency != _null_ccy and counter_currency != _null_ccy
+            base_currency != NULL_CURRENCY and counter_currency != NULL_CURRENCY
         ), "Cannot retrieve spot containing null currency NNN"
         assert (
             base_currency in self.currencies
@@ -135,7 +135,7 @@ class Model:
     def in_currency(
         self, cashflows: IndexedCashflows, currency: str
     ) -> IndexedCashflows:
-        assert currency != _null_ccy, "Cannot convert to null currency NNN"
+        assert currency != NULL_CURRENCY, "Cannot convert to null currency NNN"
         currencies = np.zeros(
             cashflows.currencies.shape, dtype=(np.unicode_, _ccy_letters)
         )
@@ -143,8 +143,8 @@ class Model:
         converted = np.zeros(cashflows.cashflows.shape, dtype=IndexedCashflows.dtype)
         for i, cf in enumerate(cashflows.cashflows.T):
             converted["index"][:, i] = cf["index"]
-            if cashflows.currencies[i] == _null_ccy:
-                currencies[i] = _null_ccy
+            if cashflows.currencies[i] == NULL_CURRENCY:
+                currencies[i] = NULL_CURRENCY
             if cashflows.currencies[i] == currencies[i]:
                 converted["value"][:, i] = cf["value"]
             else:

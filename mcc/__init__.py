@@ -20,7 +20,7 @@ from .cashflows import (
     SimulatedCashflows,
     DateIndex,
     _ccy_letters,
-    _null_ccy,
+    NULL_CURRENCY,
 )
 
 from .model import Model, ModelRequirements, TermStructuresModel
@@ -126,7 +126,7 @@ __all__ = [
     "Zero",
     "ZeroCouponBond",
     "_ccy_letters",
-    "_null_ccy",
+    "NULL_CURRENCY",
     "evaluate",
     "generate_cashflows",
     "generate_simple_cashflows",
