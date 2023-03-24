@@ -22,7 +22,7 @@ class DummyTermStructureModel(TermStructuresModel):
         return self.rate
 
 
-def _make_model(nsim: int = 100) -> Model:
+def make_model(nsim: int = 100) -> Model:
     dategrid = np.arange(
         np.datetime64("2020-01-01"),
         np.datetime64("2020-01-10"),

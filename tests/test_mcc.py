@@ -44,12 +44,12 @@ from mcc.pricing_models.stochastic_processes import (
     GeometricBrownianMotion,
 )
 
-from .test_utils import _make_model, AlternatingBool, MyContract
+from .test_utils import make_model, AlternatingBool, MyContract
 
 
 class TestMonteCarloContracts(unittest.TestCase):
     def test_simple_cashflows(self) -> None:
-        model = _make_model()
+        model = make_model()
         c = Cond(AlternatingBool(), One("EUR"), One("USD"))
         cf = generate_cashflows(model, c)
         simplecf = cf.to_simple_cashflows()
@@ -139,7 +139,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.isnat(cf.cashflows["date"][1]))
 
     def test_model_without_fx(self) -> None:
-        model = _make_model()
+        model = make_model()
         model2 = Model(
             model.dategrid,
             {},
@@ -167,7 +167,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         KonstFloat(123)
 
     def test_resolvable_contract_creation(self) -> None:
-        model = _make_model()
+        model = make_model()
         c = MyContract(model.dategrid[-1], 1234)
         generate_cashflows(model, c.resolve())
         self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
@@ -198,7 +198,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_model_creation(self) -> None:
         nsim = 100
-        model = _make_model(nsim=nsim)
+        model = make_model(nsim=nsim)
         self.assertEqual(model.shape, (nsim, model.dategrid.size))
 
     def test_date_index_specific_example(self) -> None:
@@ -250,7 +250,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_date_index(self) -> None:
-        model = _make_model()
+        model = make_model()
         at0 = At(model.dategrid[0])
         idx0 = model.eval_date_index.next_after(
             at0.simulate(model.eval_date_index, model)
@@ -263,7 +263,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((idx1.index == 1).all())
 
     def test_observable_float_calculations(self) -> None:
-        model = _make_model()
+        model = make_model()
         stock_twice = Stock("ABC") + Stock("ABC")
         once = Stock("ABC").simulate(model.eval_date_index, model)
         twice = stock_twice.simulate(model.eval_date_index, model)
@@ -308,7 +308,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.allclose(org2, once))
 
     def test_observable_float_comparisons(self) -> None:
-        model = _make_model()
+        model = make_model()
         # greater or equal
         barrier_breach = Stock("ABC") >= 1
         bbsim = barrier_breach.simulate(model.eval_date_index, model)
@@ -340,7 +340,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
 
     def test_maximum(self) -> None:
-        model = _make_model()
+        model = make_model()
         abcsim = Stock("ABC").simulate(model.eval_date_index, model)
         defgsim = Stock("DEFG").simulate(model.eval_date_index, model)
         maxsim = Maximum(Stock("ABC"), Stock("DEFG")).simulate(
@@ -395,7 +395,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.allclose(targets, maxsim))
 
     def test_minimum(self) -> None:
-        model = _make_model()
+        model = make_model()
         abcsim = Stock("ABC").simulate(model.eval_date_index, model)
         defgsim = Stock("DEFG").simulate(model.eval_date_index, model)
         minsim = Minimum(Stock("ABC"), Stock("DEFG")).simulate(
@@ -450,7 +450,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(np.allclose(targets, minsim))
 
     def test_fixed_after(self) -> None:
-        model = _make_model()
+        model = make_model()
         fixed1 = FixedAfter(AlternatingBool(), Stock("ABC"))
         fixed1sim = fixed1.simulate(model.eval_date_index, model)
         altsim = AlternatingBool().simulate(model.eval_date_index, model)
@@ -482,7 +482,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_running_maximum(self) -> None:
-        model = _make_model()
+        model = make_model()
         stocksim = Stock("ABC").simulate(model.eval_date_index, model)
         maxsim = RunningMax(Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.all(maxsim >= stocksim))
@@ -534,7 +534,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             self.assertTrue(np.allclose(targets[i, :], maxsim))
 
     def test_running_minimum(self) -> None:
-        model = _make_model()
+        model = make_model()
         stocksim = Stock("ABC").simulate(model.eval_date_index, model)
         maxsim = RunningMin(Stock("ABC")).simulate(model.eval_date_index, model)
         self.assertTrue(np.all(maxsim <= stocksim))
@@ -586,7 +586,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             self.assertTrue(np.allclose(targets[i, :], maxsim))
 
     def test_boolean_operators(self) -> None:
-        model = _make_model()
+        model = make_model()
         alt = AlternatingBool()
         altsim = alt.simulate(model.eval_date_index, model)
         altinvertsim = (~alt).simulate(model.eval_date_index, model)
@@ -596,7 +596,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((alt | alt2).simulate(model.eval_date_index, model).all())
 
     def test_rates(self) -> None:
-        model = _make_model()
+        model = make_model()
         dategrid = model.dategrid.flatten()
         yearfraction = (dategrid[-1] - dategrid[-3]).astype(np.float64) / 365
         c = When(
@@ -612,7 +612,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.currencies[0], "EUR")
 
     def test_stock(self) -> None:
-        model = _make_model()
+        model = make_model()
         c = When(At(model.dategrid[-1]), Stock("ABC") * One("EUR"))
         cf = generate_cashflows(model, c)
         self.assertEqual(cf.currencies.shape, (1,))
@@ -624,7 +624,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf.currencies[0], "EUR")
 
     def test_fx(self) -> None:
-        model = _make_model()
+        model = make_model()
         c = When(At(model.dategrid[-1]), FX("EUR", "USD") * One("EUR"))
         cf = generate_cashflows(model, c)
         self.assertEqual(cf.currencies.shape, (1,))
@@ -646,7 +646,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_cashflow_currency_conversion(self) -> None:
-        model = _make_model()
+        model = make_model()
         self.assertEqual(model.currencies, {"EUR", "USD"})
         c = When(At(model.dategrid[-1]), Stock("ABC") * One("EUR"))
         cf_eur = c.generate_cashflows(model.eval_date_index, model)
@@ -680,7 +680,7 @@ class TestMonteCarloContracts(unittest.TestCase):
             self.assertEqual(cf_und.cashflows["value"][0, 0], 1 / (i + 1))
 
     def test_cashflow_currency_conversion_nnn(self) -> None:
-        model = _make_model()
+        model = make_model()
         self.assertEqual(model.currencies, {"EUR", "USD"})
         c = Zero()
         cf = c.generate_cashflows(model.eval_date_index, model)
@@ -693,7 +693,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: model.get_simulated_fx("EUR", "NNN"))
 
     def test_boolean_obs_at(self) -> None:
-        model = _make_model()
+        model = make_model()
         at0 = At(model.dategrid[0])
         at0sim = at0.simulate(model.eval_date_index, model)
         self.assertEqual(at0sim.dtype, np.bool_)
@@ -712,7 +712,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(altsim[np.arange(1, model.nsim, 2), :].all())
 
     def test_zero_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, Zero())
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "NNN")
@@ -723,7 +723,7 @@ class TestMonteCarloContracts(unittest.TestCase):
     def test_one_cashflow_generation(self) -> None:
         ccy = "EUR"
         c = One(ccy)
-        model = _make_model()
+        model = make_model()
         cf = c.generate_cashflows(model.eval_date_index, model)
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
@@ -736,7 +736,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_give_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, -One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -745,7 +745,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["date"] == model.eval_date).all())
 
     def test_scale_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, 1.23 * One("EUR"))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -755,7 +755,7 @@ class TestMonteCarloContracts(unittest.TestCase):
 
     def test_and_cashflow_generation(self) -> None:
         c = One("EUR") + One("USD")
-        model = _make_model()
+        model = make_model()
         cf = c.generate_cashflows(model.eval_date_index, model)
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -767,7 +767,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue(cf_alt, cf.apply_index())
 
     def test_or_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         c2 = One("EUR") | When(At(model.dategrid[-1]), One("EUR"))
         self.assertRaises(NotImplementedError, lambda: generate_cashflows(model, c2))
         c3 = One("EUR") | 2 * One("EUR")
@@ -799,7 +799,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertEqual(cf6.currencies.shape, (4,))
 
     def test_when_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, When(At(model.dategrid[0]), One("EUR")))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -824,7 +824,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_shiftto_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(
             model, Delay(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
         )
@@ -864,7 +864,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_cond_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, Cond(AlternatingBool(), One("EUR"), One("USD")))
         self.assertEqual(cf.currencies.shape, (2,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -884,7 +884,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
 
     def test_until_cashflow_generation(self) -> None:
-        model = _make_model()
+        model = make_model()
         cf = generate_cashflows(model, Until(AlternatingBool(), One("EUR")))
         self.assertEqual(cf.currencies.shape, (1,))
         self.assertEqual(cf.currencies[0], "EUR")
@@ -933,13 +933,13 @@ class TestMonteCarloContracts(unittest.TestCase):
         evaluate(model, When(Stock("ABC") > 130, One("USD")))
 
     def test_evaluation(self) -> None:
-        model = _make_model()
+        model = make_model()
         c = When(At(model.dategrid[-1]), One("EUR"))
         npv = evaluate(model, c)
         self.assertEqual(npv, 1)
 
     def test_zero_coupon_bond(self) -> None:
-        model = _make_model()
+        model = make_model()
         notional = 1234
         currency = "USD"
         zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
@@ -951,7 +951,7 @@ class TestMonteCarloContracts(unittest.TestCase):
         self.assertTrue((cf.cashflows["date"] == model.dategrid[-2]).all())
 
     def test_european_option_on_zcb(self) -> None:
-        model = _make_model()
+        model = make_model()
         notional = 1234
         currency = "USD"
         strike = 1000
