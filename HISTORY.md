@@ -12,7 +12,7 @@
 ### 0.9.0 (not yet)
 * **BREAKING CHANGE** Convenvience methods `generate_cashflows`, `generate_simple_cashflows`, `generate_simple_cashflows_in_currency`, `generate_simple_cashflows_in_numeraire_currency` and `evaluate` that used to be defined on `Model` are now standalone functions that accept a model instance as first argument; i.e. instead of `model.evaluate(contract)` you now do `evaluate(model, contract)`
 * **BREAKING CHANGE** Pricing model implementations (at the moment `HoLee` and `simulate_equity_black_scholes_model`) now need to be imported from `mcc.pricing_models`; stochastic processes (at the moment `BrownianMotion` and `GeometricBrownianMotion`) need to be imported from `mcc.pricing_models.stochastic_processes`
-* ToDo: Split `mcc.py` into multiple modules forming package `mcc`
+* Split `mcc.py` into multiple modules forming package `mcc`; imports will continue to work as before except for the exceptions listed above
 * ToDo: Split tests into multiple modules
 * ToDo: Support Python 3.11
 * ToDo: Upgrade (dev) dependencies
