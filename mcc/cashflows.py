@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 
-_ccy_letters: Final[int] = 3
+CURRENCY_LETTER_COUNT: Final[int] = 3
 NULL_CURRENCY: Final[str] = "NNN"
 ArrayLike = Union[np.ndarray, float]
 
@@ -32,7 +32,7 @@ class SimpleCashflows(pd.DataFrame):
     ) -> "SimpleCashflows":
         assert cashflows.dtype == np.float64
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.unicode_, _ccy_letters)
+        assert currencies.dtype == (np.unicode_, CURRENCY_LETTER_COUNT)
         assert currencies.shape == (cashflows.shape[1],)
         assert dates.dtype == "datetime64[D]"
         assert dates.shape == (cashflows.shape[1],)
@@ -63,7 +63,7 @@ class SimulatedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.unicode_, _ccy_letters)
+        assert currencies.dtype == (np.unicode_, CURRENCY_LETTER_COUNT)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies
@@ -99,7 +99,9 @@ class SimulatedCashflows:
         assert grouped_cf, "Got no cashflows to convert"
         numcf = len(grouped_cf)
         cashflows: np.ndarray = np.ndarray((self.nsim, numcf), dtype=np.float64)
-        currencies: np.ndarray = np.ndarray((numcf,), dtype=(np.unicode_, _ccy_letters))
+        currencies: np.ndarray = np.ndarray(
+            (numcf,), dtype=(np.unicode_, CURRENCY_LETTER_COUNT)
+        )
         dates: np.ndarray = np.ndarray((numcf,), dtype="datetime64[D]")
         for i, (cf, ccy, dt) in enumerate(grouped_cf):
             cashflows[:, i] = cf
@@ -131,7 +133,7 @@ class IndexedCashflows:
             cashflows.dtype == self.dtype
         ), f"Got cashflow array with dtype {cashflows.dtype}, expecting {self.dtype}"
         assert cashflows.ndim == 2, f"Array must have ndim 2, got {cashflows.ndim}"
-        assert currencies.dtype == (np.unicode_, _ccy_letters)
+        assert currencies.dtype == (np.unicode_, CURRENCY_LETTER_COUNT)
         assert currencies.shape == (cashflows.shape[1],)
         self.cashflows = cashflows
         self.currencies = currencies

@@ -19,7 +19,7 @@ from .cashflows import (
     IndexedCashflows,
     SimulatedCashflows,
     DateIndex,
-    _ccy_letters,
+    CURRENCY_LETTER_COUNT,
     NULL_CURRENCY,
 )
 
@@ -125,7 +125,7 @@ __all__ = [
     "When",
     "Zero",
     "ZeroCouponBond",
-    "_ccy_letters",
+    "CURRENCY_LETTER_COUNT",
     "NULL_CURRENCY",
     "evaluate",
     "generate_cashflows",

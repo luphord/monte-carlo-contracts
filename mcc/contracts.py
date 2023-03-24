@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from .cashflows import (
     IndexedCashflows,
     DateIndex,
-    _ccy_letters,
+    CURRENCY_LETTER_COUNT,
     NULL_CURRENCY,
 )
 
@@ -79,7 +79,7 @@ class Zero(Contract):
         model.validate_date_index(acquisition_idx)
         cf = np.zeros((model.nsim, 1), dtype=IndexedCashflows.dtype)
         cf["index"][:, 0] = acquisition_idx.index
-        ccys = np.array([NULL_CURRENCY], dtype=(np.unicode_, _ccy_letters))
+        ccys = np.array([NULL_CURRENCY], dtype=(np.unicode_, CURRENCY_LETTER_COUNT))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
     def get_model_requirements(
@@ -105,7 +105,7 @@ class One(Contract):
         cf["index"][:, 0] = acquisition_idx.index
         cf["index"][acquisition_idx.index < 0, 0] = -1  # index < 0 means never
         cf["value"][acquisition_idx.index < 0, 0] = 0  # index < 0 means never
-        ccys = np.array([self.currency], dtype=(np.unicode_, _ccy_letters))
+        ccys = np.array([self.currency], dtype=(np.unicode_, CURRENCY_LETTER_COUNT))
         return IndexedCashflows(cf, ccys, model.dategrid)
 
     def get_model_requirements(

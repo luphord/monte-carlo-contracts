@@ -11,7 +11,7 @@ from dataclasses import dataclass
 
 from .cashflows import (
     NULL_CURRENCY,
-    _ccy_letters,
+    CURRENCY_LETTER_COUNT,
     DateIndex,
     IndexedCashflows,
 )
@@ -137,7 +137,7 @@ class Model:
     ) -> IndexedCashflows:
         assert currency != NULL_CURRENCY, "Cannot convert to null currency NNN"
         currencies = np.zeros(
-            cashflows.currencies.shape, dtype=(np.unicode_, _ccy_letters)
+            cashflows.currencies.shape, dtype=(np.unicode_, CURRENCY_LETTER_COUNT)
         )
         currencies[:] = currency
         converted = np.zeros(cashflows.cashflows.shape, dtype=IndexedCashflows.dtype)
