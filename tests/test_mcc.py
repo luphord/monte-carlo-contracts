@@ -2,19 +2,16 @@ import unittest
 
 import numpy as np
 from pandas.testing import assert_frame_equal
-from dataclasses import dataclass
 from typing import Callable
 from mcc import (
     IndexedCashflows,
     DateIndex,
-    ModelRequirements,
     Model,
     generate_cashflows,
     generate_simple_cashflows,
     generate_simple_cashflows_in_currency,
     generate_simple_cashflows_in_numeraire_currency,
     evaluate,
-    TermStructuresModel,
     ObservableBool,
     KonstFloat,
     LinearRate,
@@ -37,7 +34,6 @@ from mcc import (
     Cond,
     Until,
     Anytime,
-    Contract,
     ResolvableContract,
     ZeroCouponBond,
     EuropeanOption,
@@ -48,60 +44,7 @@ from mcc.pricing_models.stochastic_processes import (
     GeometricBrownianMotion,
 )
 
-
-@dataclass
-class DummyTermStructureModel(TermStructuresModel):
-    rate: np.ndarray
-
-    def linear_rate(self, frequency: str) -> np.ndarray:
-        return self.rate
-
-
-def _make_model(nsim: int = 100) -> Model:
-    dategrid = np.arange(
-        np.datetime64("2020-01-01"),
-        np.datetime64("2020-01-10"),
-        dtype="datetime64[D]",
-    )
-    numeraire = np.ones((nsim, dategrid.size), dtype=np.float64)
-    rnd = np.random.RandomState(123)
-    rate = rnd.normal(size=(nsim, dategrid.size))
-    eurusd = rnd.lognormal(size=(nsim, dategrid.size))
-    abc = rnd.lognormal(size=(nsim, dategrid.size))
-    defg = rnd.lognormal(size=(nsim, dategrid.size))
-    return Model(
-        dategrid,
-        {"EUR": DummyTermStructureModel(rate)},
-        {("EUR", "USD"): eurusd},
-        {"ABC": abc, "DEFG": defg},
-        numeraire,
-        "EUR",
-    )
-
-
-@dataclass
-class MyContract(ResolvableContract):
-    maturity: np.datetime64
-    notional: float
-
-    def resolve(self) -> Contract:
-        return When(At(self.maturity), self.notional * One("EUR"))
-
-
-class AlternatingBool(ObservableBool):
-    def __init__(self, start_with_false: bool = True):
-        self.offset = 0 if start_with_false else 1
-
-    def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        mask = np.array(
-            (np.arange(model.nsim) + self.offset) % 2, dtype=np.bool_
-        ).reshape((model.nsim, 1))
-        return np.repeat(mask, model.ndates, axis=1)
-
-    def get_model_requirements(
-        self, earliest: np.datetime64, latest: np.datetime64
-    ) -> ModelRequirements:
-        raise NotImplementedError()
+from .test_utils import _make_model, AlternatingBool, MyContract
 
 
 class TestMonteCarloContracts(unittest.TestCase):
