@@ -22,7 +22,7 @@ from mcc import (
 from .test_utils import make_model, AlternatingBool
 
 
-class TestMonteCarloContracts(unittest.TestCase):
+class TestObservables(unittest.TestCase):
     def test_observable_float_calculations(self) -> None:
         model = make_model()
         stock_twice = Stock("ABC") + Stock("ABC")
