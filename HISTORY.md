@@ -1,19 +1,20 @@
 ## History
 
-### 0.11.0 (not yet)
-* ToDo: Add new `Exchange(currency, contract)` contract
-* ToDo: Modify FX options examples to use `Exchange` for cash settlement
+### Some future version (not yet)
 * ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
+* ToDo: Add JSON (de)serialization for contracts and observables
+* ToDo: Add Jupyter based treeview for contracts and observables
 
 ### 0.10.0 (not yet)
-* ToDo: Change cashflow structures to represent only a *single* cashflow
+* ToDo: Add new `Exchange(currency, contract)` contract
+* ToDo: Modify FX options examples to use `Exchange` for cash settlement
 * ToDo: Add observables and contracts overview to package doc
 
 ### 0.9.0 (not yet)
 * **BREAKING CHANGE** Convenvience methods `generate_cashflows`, `generate_simple_cashflows`, `generate_simple_cashflows_in_currency`, `generate_simple_cashflows_in_numeraire_currency` and `evaluate` that used to be defined on `Model` are now standalone functions that accept a model instance as first argument; i.e. instead of `model.evaluate(contract)` you now do `evaluate(model, contract)`
 * **BREAKING CHANGE** Pricing model implementations (at the moment `HoLee` and `simulate_equity_black_scholes_model`) now need to be imported from `mcc.pricing_models`; stochastic processes (at the moment `BrownianMotion` and `GeometricBrownianMotion`) need to be imported from `mcc.pricing_models.stochastic_processes`
 * Split `mcc.py` into multiple modules forming package `mcc`; imports will continue to work as before except for the exceptions listed above
-* ToDo: Split tests into multiple modules
+* Split tests into multiple smaller modules with more specific focus
 * ToDo: Support Python 3.11
 * ToDo: Upgrade (dev) dependencies
 * **BREAKING CHANGE**: Remove CLI stub (there was no real CLI functionality anyway)
