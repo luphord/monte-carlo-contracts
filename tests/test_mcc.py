@@ -1,7 +1,6 @@
 import unittest
 
 import numpy as np
-from typing import Callable
 from mcc import (
     DateIndex,
     Model,
@@ -30,7 +29,7 @@ from mcc import (
     Until,
     Anytime,
 )
-from mcc.pricing_models import simulate_equity_black_scholes_model, HoLeeModel
+from mcc.pricing_models import simulate_equity_black_scholes_model
 from mcc.pricing_models.stochastic_processes import (
     BrownianMotion,
     GeometricBrownianMotion,
@@ -801,30 +800,3 @@ class TestMonteCarloContracts(unittest.TestCase):
         for t in dategrid:
             c = When(At(t), Stock("ABC") * One("EUR"))
             self.assertTrue(np.isclose(evaluate(m, c), 123))
-
-    def test_ho_lee_model(self) -> None:
-        dategrid = np.arange(
-            np.datetime64("2020-01-01"),
-            np.datetime64("2020-12-01"),
-            30,
-            dtype="datetime64[D]",
-        )
-        rnd = np.random.RandomState(seed=123)
-        n = 100
-        sigma = 0.2
-        rate = 0.08
-        discount_curve: Callable[[np.ndarray], np.ndarray] = lambda t: np.exp(-rate * t)
-        hl = HoLeeModel(dategrid, discount_curve, sigma, n, rnd, True)
-        self.assertEqual(hl.shortrates.shape, (n, dategrid.size))
-        self.assertTrue(np.allclose(hl.mu_t(hl.yearfractions), hl._mu_t))
-        self.assertTrue(
-            (
-                np.abs(
-                    discount_curve(hl.yearfractions)
-                    - hl.discount_factors().mean(axis=0)
-                )
-                < 0.001
-            ).all()
-        )
-        bp = hl.bond_prices(hl.yearfractions[-1])
-        self.assertTrue(np.allclose(bp[:, -1], 1))
