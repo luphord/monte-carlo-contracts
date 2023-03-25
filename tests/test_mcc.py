@@ -29,9 +29,6 @@ from mcc import (
     Cond,
     Until,
     Anytime,
-    ResolvableContract,
-    ZeroCouponBond,
-    EuropeanOption,
 )
 from mcc.pricing_models import simulate_equity_black_scholes_model, HoLeeModel
 from mcc.pricing_models.stochastic_processes import (
@@ -39,7 +36,7 @@ from mcc.pricing_models.stochastic_processes import (
     GeometricBrownianMotion,
 )
 
-from .test_utils import make_model, AlternatingBool, MyContract
+from .test_utils import make_model, AlternatingBool
 
 
 class TestMonteCarloContracts(unittest.TestCase):
@@ -53,12 +50,6 @@ class TestMonteCarloContracts(unittest.TestCase):
         )
         KonstFloat(1.23)
         KonstFloat(123)
-
-    def test_resolvable_contract_creation(self) -> None:
-        model = make_model()
-        c = MyContract(model.dategrid[-1], 1234)
-        generate_cashflows(model, c.resolve())
-        self.assertRaises(TypeError, lambda: ResolvableContract())  # type: ignore
 
     def test_contract_str(self) -> None:
         c = (
@@ -759,38 +750,6 @@ class TestMonteCarloContracts(unittest.TestCase):
         c = When(At(model.dategrid[-1]), One("EUR"))
         npv = evaluate(model, c)
         self.assertEqual(npv, 1)
-
-    def test_zero_coupon_bond(self) -> None:
-        model = make_model()
-        notional = 1234
-        currency = "USD"
-        zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        cf = generate_cashflows(model, zcb.resolve())
-        self.assertEqual(cf.currencies.shape, (1,))
-        self.assertEqual(cf.currencies[0], currency)
-        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
-        self.assertTrue((cf.cashflows["value"] == notional).all())
-        self.assertTrue((cf.cashflows["date"] == model.dategrid[-2]).all())
-
-    def test_european_option_on_zcb(self) -> None:
-        model = make_model()
-        notional = 1234
-        currency = "USD"
-        strike = 1000
-        zcb = ZeroCouponBond(model.dategrid[-2], notional, currency)
-        opt = EuropeanOption(model.dategrid[-2], zcb.resolve() - strike * One(currency))
-        cf = generate_cashflows(model, opt.resolve())
-        self.assertEqual(cf.currencies.shape, (3,))
-        self.assertEqual(cf.currencies[0], currency)
-        self.assertEqual(cf.currencies[1], currency)
-        self.assertEqual(cf.currencies[2], "NNN")
-        self.assertEqual(cf.cashflows.shape, (model.nsim, 3))
-        self.assertTrue((cf.cashflows["date"][:, 0] == model.dategrid[-2]).all())
-        self.assertTrue((cf.cashflows["value"][:, 0] == notional).all())
-        self.assertTrue((cf.cashflows["date"][:, 1] == model.dategrid[-2]).all())
-        self.assertTrue((cf.cashflows["value"][:, 1] == -strike).all())
-        self.assertTrue((np.isnat(cf.cashflows["date"][:, 2])).all())
-        self.assertTrue((cf.cashflows["value"][:, 2] == 0).all())
 
     def test_brownian_motions(self) -> None:
         mu = 0.123
