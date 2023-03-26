@@ -19,7 +19,7 @@ test_requirements = []
 setup(
     author="luphord",
     author_email="luphord@protonmail.com",
-    python_requires=">=3.8,<3.11",
+    python_requires=">=3.8",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
