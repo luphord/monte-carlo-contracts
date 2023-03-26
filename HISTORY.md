@@ -8,6 +8,7 @@
 * ToDo: Implement cashflow generation for `Anytime` contract (using Longstaff-Schwartz approach)
 * ToDo: Implement `get_model_requirements` for all observables and contracts
 * ToDO: fix Ho-Lee-Model
+* ToDo: Use instances of a `Currency` class instead of strings to describe currencies
 
 ### 0.10.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
