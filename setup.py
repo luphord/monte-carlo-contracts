@@ -12,17 +12,16 @@ with open("README.md") as readme_file:
 with open("HISTORY.md") as history_file:
     history = history_file.read()
 
-requirements = ["numpy>=1.19,!=1.21,<1.23", "pandas>=1.2"]
-# numpy 1.21 is not supported due to oddities regarding its type annotations
+requirements = ["numpy>=1.24", "pandas>=1.5"]
 
 test_requirements = []
 
 setup(
     author="luphord",
     author_email="luphord@protonmail.com",
-    python_requires=">=3.8,<3.11",
+    python_requires=">=3.8",
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
@@ -30,6 +29,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     description="""Composable financial contracts with Monte Carlo valuation """,
     install_requires=requirements,
@@ -44,6 +44,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/luphord/monte-carlo-contracts",
-    version="0.8.0",
+    version="0.9.0",
     zip_safe=True,
 )

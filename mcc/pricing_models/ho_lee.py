@@ -7,7 +7,6 @@ from .financial import get_year_fractions
 
 
 class HoLeeModel(TermStructuresModel):
-
     h: Final[float] = np.sqrt(np.finfo(float).eps)
 
     dategrid: Final[np.ndarray]
