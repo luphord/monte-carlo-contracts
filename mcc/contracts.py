@@ -411,3 +411,27 @@ class Until(Contract):
 
     def __str__(self) -> str:
         return f"Until({self.observable}, {self.contract})"
+
+
+@dataclass
+class Exchange(Contract):
+    """Exchange cashflows resulting from contract to currency
+    at the current spot rate"""
+
+    currency: str
+    contract: Contract
+
+    def generate_cashflows(
+        self, acquisition_idx: DateIndex, model: Model
+    ) -> IndexedCashflows:
+        cf = self.contract.generate_cashflows(acquisition_idx, model)
+        cf.currencies.flatten()
+        raise NotImplementedError()
+
+    def get_model_requirements(
+        self, earliest: np.datetime64, latest: np.datetime64
+    ) -> ModelRequirements:
+        raise NotImplementedError()
+
+    def __str__(self) -> str:
+        return f"Exchange({self.currency}, {self.contract})"
