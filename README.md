@@ -43,6 +43,25 @@ pip install -r requirements_dev.txt
 
 from the root directory of this repository.
 
+## Usage
+
+| Contract  | Description                                                                                                                                            |
+|---------- |--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Contract  | Abstract base class for all contracts                                                                                                                  |
+| Zero      | Neither receive nor pay anything                                                                                                                       |
+| One       | Receive one unit of currency at acquisition                                                                                                            |
+| Give      | Receive all obligations of the underlying contract and pay all rights, i.e. invert the underlying contract                                             |
+| And       | Obtain rights and obligations of all underlying contracts                                                                                              |
+| Or        | Choose at acquisition between the underlying contracts                                                                                                 |
+| Cond      | If observable is True at acquisition, obtain contract1, otherwise contract2                                                                            |
+| Scale     | Same as the underling contract, but all payments scaled by the value of observable at acquisition                                                      |
+| When      | Obtain the underlying contract as soon as observable becomes True after acquisition                                                                    |
+| Delay     | Obtain the underlying contract and delay all payments to first occurence of observable.                                                                |
+| Anytime   | At any point in time after acquisition when observable is True, choose whether to obtain the underlying contract or not; can be exercised only once    |
+| Until     | Obtain the underlying contract, but as soon as observable becomes True after acquisition all following payments are nullified                          |
+| Exchange  | Exchange cashflows resulting from contract to currency at the current spot rate                                                                        |
+
+
 ## History
 
 See [HISTORY.md](HISTORY.md).

@@ -9,10 +9,7 @@ __email__ = """luphord@protonmail.com"""
 __version__ = """0.9.0"""
 
 
-from typing import (
-    Union,
-    List,
-)
+from typing import Union, List, Iterable
 
 from .cashflows import (
     SimpleCashflows,
@@ -133,3 +130,36 @@ __all__ = [
     "generate_simple_cashflows_in_currency",
     "generate_simple_cashflows_in_numeraire_currency",
 ]
+
+from . import contracts
+
+
+def _contracts_table(first_col_width: int = 9, second_col_width: int = 80) -> str:
+    """Build a Markdown table for contracts"""
+
+    def _lines() -> Iterable[str]:
+        yield "| {contract:{left}} | {description:{right}} |".format(
+            contract="Contract",
+            left=first_col_width,
+            description="Description",
+            right=second_col_width,
+        )
+        yield f"|-{first_col_width * '-'} |-{second_col_width * '-'}-|"
+        for _, obj in contracts.__dict__.items():
+            if isinstance(obj, type) and issubclass(obj, contracts.Contract):
+                yield (
+                    "| {name:{first_col_width}} ".format(
+                        name=obj.__name__, first_col_width=first_col_width
+                    )
+                    + "| {description:{second_col_width}} |".format(
+                        description=" ".join((obj.__doc__ or "").split())[
+                            :second_col_width
+                        ],
+                        second_col_width=second_col_width,
+                    )
+                )
+
+    return "\n".join(_lines())
+
+
+__doc__ += "\n\n" + _contracts_table()
