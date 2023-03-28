@@ -163,11 +163,21 @@ def _doc_table(
     return "\n".join(_lines())
 
 
-__doc__ += "\n\n" + _doc_table(
-    [
-        obj
-        for _, obj in contracts.__dict__.items()
-        if isinstance(obj, type) and issubclass(obj, contracts.Contract)
-    ],
-    name_header="Contract",
-)
+def _contracts_table(
+    name_col_width: int = 9,
+    descr_col_width: int = 80,
+) -> str:
+    """Build a Markdown table of contracts documentations"""
+    return _doc_table(
+        [
+            obj
+            for _, obj in contracts.__dict__.items()
+            if isinstance(obj, type) and issubclass(obj, contracts.Contract)
+        ],
+        name_header="Contract",
+        name_col_width=name_col_width,
+        descr_col_width=descr_col_width,
+    )
+
+
+__doc__ += "\n\n" + _contracts_table()
