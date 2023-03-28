@@ -180,6 +180,7 @@ def _contracts_table(
         descr_col_width=descr_col_width,
     )
 
+
 def _boolean_observables_table(
     name_col_width: int = 19,
     descr_col_width: int = 70,
@@ -197,4 +198,28 @@ def _boolean_observables_table(
     )
 
 
-__doc__ += "\n\n" + _contracts_table() + "\n\n" + _boolean_observables_table()
+def _float_observables_table(
+    name_col_width: int = 16,
+    descr_col_width: int = 70,
+) -> str:
+    """Build a Markdown table of float observables documentations"""
+    return _doc_table(
+        [
+            obj
+            for _, obj in observables.__dict__.items()
+            if isinstance(obj, type) and issubclass(obj, observables.ObservableFloat)
+        ],
+        name_header="Float Observable",
+        name_col_width=name_col_width,
+        descr_col_width=descr_col_width,
+    )
+
+
+__doc__ += (
+    "\n\n"
+    + _contracts_table()
+    + "\n\n"
+    + _boolean_observables_table()
+    + "\n\n"
+    + _float_observables_table()
+)

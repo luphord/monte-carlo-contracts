@@ -71,6 +71,24 @@ from the root directory of this repository.
 | GreaterThan         | True if and only if observable1 is strictly greater than observable2   |
 | At                  | True only at date                                                      |
 
+| Float Observable | Description                                                                                                                             |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| ObservableFloat  | Abstract base class for all observables of underlying type float, essentially a real-valued stochastic process                          |
+| Sum              | Equal to the sum of two observables                                                                                                     |
+| Minus            | Negative value of observable                                                                                                            |
+| Product          | Equal to the product (multiplication) of two observables                                                                                |
+| Quotient         | Equal to the quotient (division) of two observables                                                                                     |
+| Power            | Equal to observable1 to the power of observable2                                                                                        |
+| Maximum          | Equal to the maximum of two observables                                                                                                 |
+| Minimum          | Equal to the minimum of two observables                                                                                                 |
+| RunningMax       | Running maximum of observable over time, seen from first_observation_idx.                                                               |
+| RunningMin       | Running minimum of observable over time, seen from first_observation_idx.                                                               |
+| FixedAfter       | Equal to observable, but remains constant as soon as fixing_condition becomes true after (including) first_observation_idx.             |
+| Stock            | Value of the stock identified by identifier                                                                                             |
+| FX               | Value of the currency spot between base_currency and counter_currency, i.e. 'one unit counter_currency' / 'one unit of base_currency'   |
+| LinearRate       | Value of the linear rate (e.g. a LIBOR) with payment frequency in currency                                                              |
+| KonstFloat       | Always equal to constant                                                                                                                |
+
 
 ## History
 
