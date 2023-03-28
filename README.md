@@ -61,6 +61,16 @@ from the root directory of this repository.
 | Until     | Obtain the underlying contract, but as soon as observable becomes True after acquisition all following payments are nullified                          |
 | Exchange  | Exchange cashflows resulting from contract to currency at the current spot rate                                                                        |
 
+| Boolean Observable  | Description                                                            |
+|---------------------|------------------------------------------------------------------------|
+| ObservableBool      | Abstract base class for all observables of underlying type bool        |
+| Not                 | True if observable is False and vice versa                             |
+| AndObservable       | True if and only if both observables are True                          |
+| OrObservable        | True if either or both observable are True                             |
+| GreaterOrEqualThan  | True if and only if observable1 is greater or equal than observable2   |
+| GreaterThan         | True if and only if observable1 is strictly greater than observable2   |
+| At                  | True only at date                                                      |
+
 
 ## History
 

@@ -132,6 +132,7 @@ __all__ = [
 ]
 
 from . import contracts
+from . import observables
 
 
 def _doc_table(
@@ -179,5 +180,21 @@ def _contracts_table(
         descr_col_width=descr_col_width,
     )
 
+def _boolean_observables_table(
+    name_col_width: int = 19,
+    descr_col_width: int = 70,
+) -> str:
+    """Build a Markdown table of boolean observables documentations"""
+    return _doc_table(
+        [
+            obj
+            for _, obj in observables.__dict__.items()
+            if isinstance(obj, type) and issubclass(obj, observables.ObservableBool)
+        ],
+        name_header="Boolean Observable",
+        name_col_width=name_col_width,
+        descr_col_width=descr_col_width,
+    )
 
-__doc__ += "\n\n" + _contracts_table()
+
+__doc__ += "\n\n" + _contracts_table() + "\n\n" + _boolean_observables_table()
