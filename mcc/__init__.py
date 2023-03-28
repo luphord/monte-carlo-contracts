@@ -134,32 +134,40 @@ __all__ = [
 from . import contracts
 
 
-def _contracts_table(first_col_width: int = 9, second_col_width: int = 80) -> str:
-    """Build a Markdown table for contracts"""
+def _doc_table(
+    types: Iterable[type],
+    name_header: str = "Type",
+    name_col_width: int = 9,
+    descr_header: str = "Description",
+    descr_col_width: int = 80,
+) -> str:
+    """Build a Markdown table of type documentations"""
 
     def _lines() -> Iterable[str]:
-        yield "| {contract:{left}} | {description:{right}} |".format(
-            contract="Contract",
-            left=first_col_width,
-            description="Description",
-            right=second_col_width,
+        line_format = "| {name:{name_width}} | {descr:{descr_width}} |"
+        yield line_format.format(
+            name=name_header,
+            name_width=name_col_width,
+            descr=descr_header,
+            descr_width=descr_col_width,
         )
-        yield f"|-{first_col_width * '-'} |-{second_col_width * '-'}-|"
-        for _, obj in contracts.__dict__.items():
-            if isinstance(obj, type) and issubclass(obj, contracts.Contract):
-                yield (
-                    "| {name:{first_col_width}} ".format(
-                        name=obj.__name__, first_col_width=first_col_width
-                    )
-                    + "| {description:{second_col_width}} |".format(
-                        description=" ".join((obj.__doc__ or "").split())[
-                            :second_col_width
-                        ],
-                        second_col_width=second_col_width,
-                    )
-                )
+        yield f"|-{name_col_width * '-'}-|-{descr_col_width * '-'}-|"
+        for tp in types:
+            yield line_format.format(
+                name=tp.__name__[:name_col_width],
+                name_width=name_col_width,
+                descr=" ".join((tp.__doc__ or "").split())[:descr_col_width],
+                descr_width=descr_col_width,
+            )
 
     return "\n".join(_lines())
 
 
-__doc__ += "\n\n" + _contracts_table()
+__doc__ += "\n\n" + _doc_table(
+    [
+        obj
+        for _, obj in contracts.__dict__.items()
+        if isinstance(obj, type) and issubclass(obj, contracts.Contract)
+    ],
+    name_header="Contract",
+)
