@@ -9,6 +9,9 @@
 * ToDo: Implement `get_model_requirements` for all observables and contracts
 * ToDO: fix Ho-Lee-Model
 * ToDo: Use instances of a `Currency` class instead of strings to describe currencies
+* ToDo: Add documentation about the concepts of contracts, observables and acquisition dates
+* ToDo: Document financial products lifecycle aspects and their relationship to composable contracts
+* ToDo: Pass an acquisition date to `ResolvableContract.resolve`
 
 ### 0.10.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
