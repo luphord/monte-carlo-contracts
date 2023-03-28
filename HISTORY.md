@@ -16,7 +16,7 @@
 ### 0.10.0 (not yet)
 * ToDo: Add new `Exchange(currency, contract)` contract
 * ToDo: Modify FX options examples to use `Exchange` for cash settlement
-* ToDo: Add observables and contracts overview to package doc
+* Add observables and contracts overview to package doc, as well as to [Introduction notebook](examples/Introduction.ipynb)
 
 ### 0.9.0 (2023-03-26)
 * **BREAKING CHANGE** Convenvience methods `generate_cashflows`, `generate_simple_cashflows`, `generate_simple_cashflows_in_currency`, `generate_simple_cashflows_in_numeraire_currency` and `evaluate` that used to be defined on `Model` are now standalone functions that accept a model instance as first argument; i.e. instead of `model.evaluate(contract)` you now do `evaluate(model, contract)`
