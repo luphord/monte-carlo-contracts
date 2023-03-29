@@ -18,6 +18,7 @@
 ### 0.10.0 (not yet)
 * Add new `Exchange(currency, contract)` contract
 * ToDo: add tests for Exchange contract
+* ToDo: add content to [Introduction notebook](examples/Introduction.ipynb)
 * Modify FX options examples to use `Exchange` for cash settlement
 * Add observables and contracts overview to package doc, as well as to [Introduction notebook](examples/Introduction.ipynb)
 
