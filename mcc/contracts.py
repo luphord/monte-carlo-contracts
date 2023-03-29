@@ -425,8 +425,7 @@ class Exchange(Contract):
         self, acquisition_idx: DateIndex, model: Model
     ) -> IndexedCashflows:
         cf = self.contract.generate_cashflows(acquisition_idx, model)
-        cf.currencies.flatten()
-        raise NotImplementedError()
+        return model.in_currency(cf, self.currency)
 
     def get_model_requirements(
         self, earliest: np.datetime64, latest: np.datetime64
