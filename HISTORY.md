@@ -7,6 +7,7 @@
 * ToDo: Implement cashflow generation for `Or` contract with future payment dates
 * ToDo: Implement cashflow generation for `Anytime` contract (using Longstaff-Schwartz approach)
 * ToDo: Implement `get_model_requirements` for all observables and contracts
+* ToDo: Add a "test model" working for arbitrary underlyings to analyze contracts
 * ToDO: fix Ho-Lee-Model
 * ToDo: Use instances of a `Currency` class instead of strings to describe currencies
 * ToDo: Add documentation about the concepts of contracts, observables and acquisition dates
@@ -15,8 +16,9 @@
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
 
 ### 0.10.0 (not yet)
-* ToDo: Add new `Exchange(currency, contract)` contract
-* ToDo: Modify FX options examples to use `Exchange` for cash settlement
+* Add new `Exchange(currency, contract)` contract
+* ToDo: add tests for Exchange contract
+* Modify FX options examples to use `Exchange` for cash settlement
 * Add observables and contracts overview to package doc, as well as to [Introduction notebook](examples/Introduction.ipynb)
 
 ### 0.9.0 (2023-03-26)
