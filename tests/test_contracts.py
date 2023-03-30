@@ -16,6 +16,7 @@ from mcc import (
     Or,
     When,
     Delay,
+    Exchange,
     Cond,
     Until,
     Anytime,
@@ -211,6 +212,15 @@ class TestContracts(unittest.TestCase):
                 == model.dategrid[1]
             ).all()
         )
+
+    def test_exchange_cashflow_generation(self) -> None:
+        model = make_model()
+        cf = generate_cashflows(model, Exchange("USD", One("EUR")))
+        self.assertEqual(cf.currencies.shape, (1,))
+        self.assertEqual(cf.currencies[0], "USD")
+        self.assertEqual(cf.cashflows.shape, (model.nsim, 1))
+        self.assertTrue((cf.cashflows["value"] != 1).all())
+        self.assertTrue((cf.cashflows["date"] == model.dategrid[0]).all())
 
     def test_cond_cashflow_generation(self) -> None:
         model = make_model()
