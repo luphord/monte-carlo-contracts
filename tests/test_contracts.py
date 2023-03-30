@@ -172,7 +172,7 @@ class TestContracts(unittest.TestCase):
             (cf2.cashflows["value"][np.arange(1, model.nsim, 2), :] == 1).all()
         )
 
-    def test_shiftto_cashflow_generation(self) -> None:
+    def test_delay_cashflow_generation(self) -> None:
         model = make_model()
         cf = generate_cashflows(
             model, Delay(At(model.dategrid[0]), When(At(model.dategrid[0]), One("EUR")))
