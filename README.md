@@ -3,18 +3,37 @@
 [![PyPI package](https://img.shields.io/pypi/v/monte-carlo-contracts)](https://pypi.python.org/pypi/monte-carlo-contracts)
 [![Build status](https://github.com/luphord/monte-carlo-contracts/actions/workflows/monte-carlo-contracts-test.yml/badge.svg)](https://github.com/luphord/monte-carlo-contracts/actions)
 
-Composable financial contracts with Monte Carlo valuation.
-This module employs ideas from [How to Write a Financial Contract](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885) by S. L. Peyton Jones and J-M. Eber.
+A Python library to **compose complex fincancial products from elementary contracts**.
+
+This is what it looks like (see [Minimal.ipynb](examples/Minimal.ipynb) for the full example):
+
+```python
+ko_option = Until(
+    Stock("ABC Eqty") > 70,
+    When(
+        At(np.datetime64("2024-06-01")),
+        Or(Stock("ABC Eqty") * One("USD") - 55 * One("USD"), Zero()),
+    ),
+)
+
+evaluate(model, ko_option)
+# 3.2316051920219797
+```
+
+![Minimal example plots](examples/minimal.png)
+
+This library employs ideas from [How to Write a Financial Contract](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885) by S. L. Peyton Jones and J-M. Eber.
 However, the implementation is not based on functional programming but rather using an object oriented approach.
 Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
 ## Features
-* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until` and `Delay`
+* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until`, `Delay` and `Exchange`
 * Boolean and real valued observables (stochastic processes) to be referenced by contracts
 * Cashflow generation for composed contracts given simulation models on fixed dategrids
 
 ## Examples
 * [Introduction](examples/Introduction.ipynb)
+* [Minimal](examples/Minimal.ipynb)
 * [Equity Options](examples/Equity%20Options.ipynb)
 * [FX Options](examples/FX%20Options.ipynb)
 * [Working with Observables](examples/Observables.ipynb)
