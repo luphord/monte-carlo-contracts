@@ -26,6 +26,8 @@ This library employs ideas from [How to Write a Financial Contract](https://cite
 However, the implementation is not based on functional programming but rather using an object oriented approach.
 Also, this implementation is tailored towards Monte Carlo based cashflow generation whereas the paper favours more general methods.
 
+For an introduction to the concepts of composable contracts and usage instructions of this library, see the [Introduction](examples/Introduction.ipynb) notebook.
+
 ## Features
 * Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until`, `Delay` and `Exchange`
 * Boolean and real valued observables (stochastic processes) to be referenced by contracts
@@ -63,7 +65,7 @@ pip install -r requirements_dev.txt
 
 from the root directory of this repository.
 
-## Usage
+## Available Contracts and Observables
 
 | Contract  | Description                                                                                                                                            |
 |---------- |--------------------------------------------------------------------------------------------------------------------------------------------------------|
