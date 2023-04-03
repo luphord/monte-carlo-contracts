@@ -13,6 +13,7 @@
 * ToDo: Add documentation about the concepts of contracts, observables and acquisition dates
 * ToDo: Document financial products lifecycle aspects and their relationship to composable contracts
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
+* ToDo: Add documentation about models in [Introduction notebook](examples/Introduction.ipynb)
 
 ### 0.10.0 (not yet)
 * Add new `Exchange(currency, contract)` contract
