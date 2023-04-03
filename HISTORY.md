@@ -15,9 +15,8 @@
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
 * ToDo: Add documentation about models in [Introduction notebook](examples/Introduction.ipynb)
 
-### 0.10.0 (not yet)
+### 0.10.0 (2022-04-03)
 * Add new `Exchange(currency, contract)` contract
-* ToDo: add content to [Introduction notebook](examples/Introduction.ipynb)
 * Modify FX options examples to use `Exchange` for cash settlement
 * Add observables and contracts overview to package doc, as well as to [Introduction notebook](examples/Introduction.ipynb)
 
