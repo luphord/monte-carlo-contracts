@@ -29,9 +29,14 @@ Also, this implementation is tailored towards Monte Carlo based cashflow generat
 For an introduction to the concepts of composable contracts and usage instructions of this library, see the [Introduction](examples/Introduction.ipynb) notebook.
 
 ## Features
-* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until`, `Delay` and `Exchange`
-* Boolean and real valued observables (stochastic processes) to be referenced by contracts
-* Cashflow generation for composed contracts given simulation models on fixed dategrids
+* Composition of financial contracts using elementary contracts `Zero`, `One`, `Give`, `Scale`, `And`, `When`, `Cond`, `Anytime`, `Until`, `Delay` and `Exchange`.
+* Boolean and real valued observables (stochastic processes) to be referenced by contracts.
+* Cashflow generation for composed contracts given simulation models on fixed dategrids.
+
+## Non-Features
+* Financial products description language. This library provides classes to describe financial contracts at a low level; a high level description language could be translated into this low level language, but not the other way round.
+* Lifecycle management. Capturing past lifecycle events of financial products such as call rights, knockouts or even fixings is left to a high level description. Doing it here would be very hard due to the nature of the acquisition date *free* variable and the lack of mandatory start / end dates in particular. Just think about a simple contract such as `When(Stock("ABC") > 100, One("EUR"))`. Which fixings would you require? Up to which point would you perform model simulation?
+* Pricing methods other than Monte Carlo Simulation. While composable contract representations do not force Monte Carlo methods, this library is designed exclusively for them. Supporting other methods would likely require a separation of contracts and the operations defined on them, e.g. by means of the [visitor pattern](https://en.wikipedia.org/wiki/Visitor_pattern). In [How to Write a Financial Contract](https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.14.7885), Peyton Jones and Eber favour implementation in *functional* programming languages where this [separation is achieved more naturally](https://en.wikipedia.org/wiki/Expression_problem).
 
 ## Examples
 * [Introduction](examples/Introduction.ipynb)
