@@ -12,7 +12,6 @@
 * ToDo: Use instances of a `Currency` class instead of strings to describe currencies
 * ToDo: Add documentation about the concepts of contracts, observables and acquisition dates
 * ToDo: Document financial products lifecycle aspects and their relationship to composable contracts
-* ToDo: Pass an acquisition date to `ResolvableContract.resolve`
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
 
 ### 0.10.0 (not yet)
