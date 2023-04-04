@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import (
-    Union,
-)
+from typing import Union, List, Iterable
 from numbers import Real
 import numpy as np
 from dataclasses import dataclass
@@ -104,18 +102,37 @@ class ObservableFloat(ABC):
 
 @dataclass
 class Sum(ObservableFloat):
-    """Equal to the sum of two observables"""
+    """Equal to the sum of observables"""
 
-    observable1: ObservableFloat
-    observable2: ObservableFloat
+    observables: List[ObservableFloat]
+
+    def __init__(self, *observables: ObservableFloat) -> None:
+        self.observables = list(observables)
+        assert any(self.observables), "At least one summand is required"
+        self.observables = list(self._flattened_observables)
+
+    @property
+    def _flattened_observables(self) -> Iterable[ObservableFloat]:
+        for observable in self.observables:
+            if isinstance(observable, Sum):
+                yield from observable.observables
+            else:
+                yield observable
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        return self.observable1.simulate(
-            first_observation_idx, model
-        ) + self.observable2.simulate(first_observation_idx, model)
+        summands = [
+            observable.simulate(first_observation_idx, model)
+            for observable in self.observables
+        ]
+        assert summands
+        sum_summands = sum(summands)
+        assert isinstance(
+            sum_summands, np.ndarray
+        )  # appease mypy that this is not empty
+        return sum_summands
 
     def __str__(self) -> str:
-        return f"({self.observable1}) + ({self.observable2})"
+        return " + ".join(f"({observable})" for observable in self.observables)
 
 
 @dataclass
