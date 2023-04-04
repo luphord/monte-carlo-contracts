@@ -253,19 +253,37 @@ class Maximum(ObservableFloat):
 
 @dataclass
 class Minimum(ObservableFloat):
-    """Equal to the minimum of two observables"""
+    """Equal to the minimum of observables"""
 
-    observable1: ObservableFloat
-    observable2: ObservableFloat
+    observables: List[ObservableFloat]
+
+    def __init__(self, *observables: ObservableFloat) -> None:
+        self.observables = list(observables)
+        assert any(self.observables), "At least one observable is required"
+        self.observables = list(self._flattened_observables)
+
+    @property
+    def _flattened_observables(self) -> Iterable[ObservableFloat]:
+        for observable in self.observables:
+            if isinstance(observable, Maximum):
+                yield from observable.observables
+            else:
+                yield observable
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        return np.minimum(
-            self.observable1.simulate(first_observation_idx, model),
-            self.observable2.simulate(first_observation_idx, model),
-        )
+        max_observable = self.observables[0].simulate(first_observation_idx, model)
+        for observable in self.observables[1:]:
+            max_observable = np.minimum(
+                max_observable, observable.simulate(first_observation_idx, model)
+            )
+        return max_observable
 
     def __str__(self) -> str:
-        return f"Minimum({self.observable1}, {self.observable2})"
+        return (
+            "Minimum("
+            + ", ".join(str(observable) for observable in self.observables)
+            + ")"
+        )
 
 
 def _simulate_accumulate(
