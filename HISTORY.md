@@ -8,14 +8,12 @@
 * ToDo: Implement `get_model_requirements` for all observables and contracts
 * ToDo: Add a "test model" working for arbitrary underlyings to analyze contracts
 * ToDO: fix Ho-Lee-Model
-* ToDo: Use instances of a `Currency` class instead of strings to describe currencies
-* ToDo: Add documentation about the concepts of contracts, observables and acquisition dates
-* ToDo: Document financial products lifecycle aspects and their relationship to composable contracts
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
 * ToDo: Add documentation about models in [Introduction notebook](examples/Introduction.ipynb)
 
 ### 0.11.0 (not yet)
-* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
+* **BREAKING CHANGE** Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined; these have equivalent semantics to their nested binary counterparts and allow for flat structures to improve readability
+* ToDo: Use instances of a `Currency` class instead of strings to describe currencies
 
 ### 0.10.0 (2022-04-03)
 * Add new `Exchange(currency, contract)` contract
