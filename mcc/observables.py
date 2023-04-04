@@ -265,18 +265,18 @@ class Minimum(ObservableFloat):
     @property
     def _flattened_observables(self) -> Iterable[ObservableFloat]:
         for observable in self.observables:
-            if isinstance(observable, Maximum):
+            if isinstance(observable, Minimum):
                 yield from observable.observables
             else:
                 yield observable
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        max_observable = self.observables[0].simulate(first_observation_idx, model)
+        min_observable = self.observables[0].simulate(first_observation_idx, model)
         for observable in self.observables[1:]:
-            max_observable = np.minimum(
-                max_observable, observable.simulate(first_observation_idx, model)
+            min_observable = np.minimum(
+                min_observable, observable.simulate(first_observation_idx, model)
             )
-        return max_observable
+        return min_observable
 
     def __str__(self) -> str:
         return (
