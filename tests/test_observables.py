@@ -7,7 +7,9 @@ from mcc import (
     generate_cashflows,
     ObservableBool,
     LinearRate,
+    KonstFloat,
     FixedAfter,
+    Sum,
     RunningMax,
     RunningMin,
     Maximum,
@@ -99,6 +101,13 @@ class TestObservables(unittest.TestCase):
         self.assertIsInstance(1 < Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 >= Stock("ABC"), ObservableBool)
         self.assertIsInstance(1 > Stock("ABC"), ObservableBool)
+
+    def test_sum_observable_flattening(self) -> None:
+        c = KonstFloat(1)
+        obs = Sum(Sum(c, Sum(c + c + c, c)), c)
+        self.assertEquals(6, len(obs.observables))
+        for o in obs.observables:
+            self.assertTrue(o is c)
 
     def test_maximum(self) -> None:
         model = make_model()
