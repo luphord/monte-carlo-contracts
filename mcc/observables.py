@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Union, List, Iterable
 from numbers import Real
+import math
 import numpy as np
 from dataclasses import dataclass
 
@@ -150,18 +151,37 @@ class Minus(ObservableFloat):
 
 @dataclass
 class Product(ObservableFloat):
-    """Equal to the product (multiplication) of two observables"""
+    """Equal to the product (multiplication) of observables"""
 
-    observable1: ObservableFloat
-    observable2: ObservableFloat
+    observables: List[ObservableFloat]
+
+    def __init__(self, *observables: ObservableFloat) -> None:
+        self.observables = list(observables)
+        assert any(self.observables), "At least one factor is required"
+        self.observables = list(self._flattened_observables)
+
+    @property
+    def _flattened_observables(self) -> Iterable[ObservableFloat]:
+        for observable in self.observables:
+            if isinstance(observable, Product):
+                yield from observable.observables
+            else:
+                yield observable
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        return self.observable1.simulate(
-            first_observation_idx, model
-        ) * self.observable2.simulate(first_observation_idx, model)
+        factors = [
+            observable.simulate(first_observation_idx, model)
+            for observable in self.observables
+        ]
+        assert factors
+        prod_factors = math.prod(factors)
+        assert isinstance(
+            prod_factors, np.ndarray
+        )  # appease mypy that this is not empty
+        return prod_factors
 
     def __str__(self) -> str:
-        return f"({self.observable1}) * ({self.observable2})"
+        return " * ".join(f"({observable})" for observable in self.observables)
 
 
 @dataclass
