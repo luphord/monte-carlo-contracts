@@ -490,25 +490,41 @@ class AndObservable(ObservableBool):
 
 @dataclass
 class OrObservable(ObservableBool):
-    """True if either or both observable are True"""
+    """True if at least one of observables is True"""
 
-    observable1: ObservableBool
-    observable2: ObservableBool
+    observables: List[ObservableBool]
+
+    def __init__(self, *observables: ObservableBool) -> None:
+        self.observables = list(observables)
+        assert any(self.observables), "At least one observable is required"
+        self.observables = list(self._flattened_observables)
+
+    @property
+    def _flattened_observables(self) -> Iterable[ObservableBool]:
+        for observable in self.observables:
+            if isinstance(observable, OrObservable):
+                yield from observable.observables
+            else:
+                yield observable
 
     def simulate(self, first_observation_idx: DateIndex, model: Model) -> np.ndarray:
-        return self.observable1.simulate(
-            first_observation_idx, model
-        ) | self.observable2.simulate(first_observation_idx, model)
+        or_observable = self.observables[0].simulate(first_observation_idx, model)
+        for observable in self.observables[1:]:
+            or_observable |= observable.simulate(first_observation_idx, model)
+        return or_observable
 
     def get_model_requirements(
         self, earliest: np.datetime64, latest: np.datetime64
     ) -> ModelRequirements:
-        return self.observable1.get_model_requirements(earliest, latest).union(
-            self.observable2.get_model_requirements(earliest, latest)
-        )
+        requirements = self.observables[0].get_model_requirements(earliest, latest)
+        for observable in self.observables[1:]:
+            requirements = requirements.union(
+                observable.get_model_requirements(earliest, latest)
+            )
+        return requirements
 
     def __str__(self) -> str:
-        return f"({self.observable1}) | ({self.observable2})"
+        return " | ".join(f"({observable})" for observable in self.observables)
 
 
 @dataclass
