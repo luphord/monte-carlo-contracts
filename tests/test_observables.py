@@ -6,6 +6,8 @@ from mcc import (
     Model,
     generate_cashflows,
     ObservableBool,
+    AndObservable,
+    OrObservable,
     LinearRate,
     KonstFloat,
     FixedAfter,
@@ -127,6 +129,20 @@ class TestObservables(unittest.TestCase):
     def test_minimum_observable_flattening(self) -> None:
         c = KonstFloat(1)
         obs = Minimum(Minimum(c, Minimum(c, c, Minimum(c, c))), c)
+        self.assertEqual(6, len(obs.observables))
+        for o in obs.observables:
+            self.assertTrue(o is c)
+
+    def test_and_observable_flattening(self) -> None:
+        c = KonstFloat(1) > 0
+        obs = AndObservable(AndObservable(c, AndObservable(c & c & c & c), c))
+        self.assertEqual(6, len(obs.observables))
+        for o in obs.observables:
+            self.assertTrue(o is c)
+
+    def test_or_observable_flattening(self) -> None:
+        c = KonstFloat(1) > 0
+        obs = OrObservable(OrObservable(c, OrObservable(c | c | c | c), c))
         self.assertEqual(6, len(obs.observables))
         for o in obs.observables:
             self.assertTrue(o is c)
