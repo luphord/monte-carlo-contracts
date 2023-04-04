@@ -124,6 +124,13 @@ class TestObservables(unittest.TestCase):
         for o in obs.observables:
             self.assertTrue(o is c)
 
+    def test_minimum_observable_flattening(self) -> None:
+        c = KonstFloat(1)
+        obs = Minimum(Minimum(c, Minimum(c, c, Minimum(c, c))), c)
+        self.assertEquals(6, len(obs.observables))
+        for o in obs.observables:
+            self.assertTrue(o is c)
+
     def test_maximum(self) -> None:
         model = make_model()
         abcsim = Stock("ABC").simulate(model.eval_date_index, model)
