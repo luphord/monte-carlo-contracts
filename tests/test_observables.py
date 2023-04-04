@@ -106,28 +106,28 @@ class TestObservables(unittest.TestCase):
     def test_sum_observable_flattening(self) -> None:
         c = KonstFloat(1)
         obs = Sum(Sum(c, Sum(c + c + c, c)), c)
-        self.assertEquals(6, len(obs.observables))
+        self.assertEqual(6, len(obs.observables))
         for o in obs.observables:
             self.assertTrue(o is c)
 
     def test_prod_observable_flattening(self) -> None:
         c = KonstFloat(1)
         obs = Product(Product(c, Product(c * c * c, c)), c)
-        self.assertEquals(6, len(obs.observables))
+        self.assertEqual(6, len(obs.observables))
         for o in obs.observables:
             self.assertTrue(o is c)
 
     def test_maximum_observable_flattening(self) -> None:
         c = KonstFloat(1)
         obs = Maximum(Maximum(c, Maximum(c, c, Maximum(c, c))), c)
-        self.assertEquals(6, len(obs.observables))
+        self.assertEqual(6, len(obs.observables))
         for o in obs.observables:
             self.assertTrue(o is c)
 
     def test_minimum_observable_flattening(self) -> None:
         c = KonstFloat(1)
         obs = Minimum(Minimum(c, Minimum(c, c, Minimum(c, c))), c)
-        self.assertEquals(6, len(obs.observables))
+        self.assertEqual(6, len(obs.observables))
         for o in obs.observables:
             self.assertTrue(o is c)
 
