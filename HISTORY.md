@@ -1,7 +1,6 @@
 ## History
 
 ### Some future version (not yet)
-* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
 * ToDo: Add JSON (de)serialization for contracts and observables
 * ToDo: Add Jupyter based treeview for contracts and observables
 * ToDo: Implement cashflow generation for `Or` contract with future payment dates
@@ -14,6 +13,9 @@
 * ToDo: Document financial products lifecycle aspects and their relationship to composable contracts
 * ToDo: Add labels to contracts which are forwarded to simulated cashflows
 * ToDo: Add documentation about models in [Introduction notebook](examples/Introduction.ipynb)
+
+### 0.11.0 (not yet)
+* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combineds
 
 ### 0.10.0 (2022-04-03)
 * Add new `Exchange(currency, contract)` contract
