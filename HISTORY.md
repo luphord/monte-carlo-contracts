@@ -15,7 +15,7 @@
 * ToDo: Add documentation about models in [Introduction notebook](examples/Introduction.ipynb)
 
 ### 0.11.0 (not yet)
-* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combineds
+* ToDo: Observables `Sum`, `Product`, `Maximum`, `Minimum`, `AndObservable` and `OrObservable` accept more than two contracts to be combined
 
 ### 0.10.0 (2022-04-03)
 * Add new `Exchange(currency, contract)` contract

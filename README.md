@@ -3,7 +3,7 @@
 [![PyPI package](https://img.shields.io/pypi/v/monte-carlo-contracts)](https://pypi.python.org/pypi/monte-carlo-contracts)
 [![Build status](https://github.com/luphord/monte-carlo-contracts/actions/workflows/monte-carlo-contracts-test.yml/badge.svg)](https://github.com/luphord/monte-carlo-contracts/actions)
 
-A Python library to **compose complex fincancial products from elementary contracts**.
+A Python library to **compose complex financial products from elementary contracts**.
 
 This is what it looks like (see [Minimal.ipynb](examples/Minimal.ipynb) for the full example):
 
